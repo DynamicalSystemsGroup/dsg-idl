@@ -2,13 +2,25 @@
 // the registered schemas. Consumers implement their own adapter over their
 // real parser; this one exists so a profile PR proves its vectors against
 // the schemas before any consumer sees them.
+import { createHash } from "node:crypto";
 import { Value } from "@sinclair/typebox/value";
+import { jcsStringify } from "@dynamicalsystems/orn-schemas";
 import { PROFILES } from "@dynamicalsystems/idl";
 import type { Adapter, ParseResult } from "./adapter.js";
 
 export function referenceAdapter(): Adapter {
   const adapter: Record<string, (bytes: Uint8Array) => ParseResult> = {};
   for (const entry of Object.values(PROFILES)) {
+    adapter[`${entry.literal}#digest.envelope`] = (bytes) => {
+      let parsed: unknown;
+      try {
+        parsed = JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(bytes));
+      } catch (error) {
+        return { ok: false, reason: `not UTF-8 JSON: ${String(error)}` };
+      }
+      const digest = createHash("sha256").update(jcsStringify(parsed)).digest("hex");
+      return { ok: true, digest };
+    };
     for (const [shapeName, shape] of Object.entries(entry.shapes)) {
       adapter[`${entry.literal}#${shapeName}`] = (bytes) => {
         let parsed: unknown;

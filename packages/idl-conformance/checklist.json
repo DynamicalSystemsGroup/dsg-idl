@@ -1,5 +1,6 @@
 {
   "profiles": {
-    "dsg.kernel.dispatch-consume/1": 16
+    "dsg.kernel.dispatch-consume/1": 16,
+    "dsg.run.operation/1": 11
   }
 }

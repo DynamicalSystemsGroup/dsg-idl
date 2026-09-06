@@ -14,9 +14,39 @@ export type {
   DispatchRefusal,
   DispatchRefusalCode,
 } from "./kernel/dispatch-consume.v1.js";
+export {
+  AcceptedSchema,
+  ExecutionDocumentSchema,
+  ExecutionLawSchema,
+  ExecutionResourcesSchema,
+  OPERATION_PROFILE,
+  OperationBeforeSchema,
+  OperationCleanupSchema,
+  OperationCostSchema,
+  OperationEvidenceSchema,
+  OperationExecutionSchema,
+  OperationRequestSchema,
+  OperationStatusSchema,
+  ReadbackSchema,
+} from "./run/operation.v1.js";
+export type {
+  Accepted,
+  ExecutionDocument,
+  ExecutionLaw,
+  ExecutionResources,
+  OperationBefore,
+  OperationCleanup,
+  OperationCost,
+  OperationEvidence,
+  OperationExecution,
+  OperationRequest,
+  OperationStatus,
+  Readback,
+} from "./run/operation.v1.js";
 
 import type { ProfileEntry } from "./primitives.js";
 import { dispatchConsumeV1 } from "./kernel/dispatch-consume.v1.js";
+import { operationV1 } from "./run/operation.v1.js";
 
 /** Every profile this version of the package defines, keyed by literal.
  * Profile modules are added here as they are extracted; the rules test
@@ -24,4 +54,5 @@ import { dispatchConsumeV1 } from "./kernel/dispatch-consume.v1.js";
  * registered does not exist. */
 export const PROFILES: Readonly<Record<string, ProfileEntry>> = {
   [dispatchConsumeV1.literal]: dispatchConsumeV1,
+  [operationV1.literal]: operationV1,
 };

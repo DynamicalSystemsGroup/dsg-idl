@@ -1,0 +1,7 @@
+{
+  "profile": "dsg.run.operation/1",
+  "shape": "readback",
+  "name": "queued-pending",
+  "verdict": "accept",
+  "bytes": "eyJvcGVyYXRpb25JZCI6Im9wLWlkbC0wMDAxIiwiZ2VuZXJhdGlvbiI6MSwicGxhbkRpZ2VzdCI6ImQzYmMwZWE0ZDAzZjJmZDFiOWYxMzRmNjI0MTk5YzdhNTNlNTc2OTU2YjhhYzE3NjMwODk4ODAzMjhjNjg2MmUiLCJleGVjdXRpb24iOiJxdWV1ZWQiLCJjbGVhbnVwIjoicGVuZGluZyIsImV2aWRlbmNlIjoicGVuZGluZyIsImV2aWRlbmNlUmVmIjpudWxsLCJjb3N0IjoicmVzZXJ2ZWQifQ=="
+}

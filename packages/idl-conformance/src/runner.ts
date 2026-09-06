@@ -26,7 +26,7 @@ export function runVectors(adapter: Adapter, assetsDir: string, checklist: Check
   for (const [profile, expectedCount] of Object.entries(checklist.profiles)) {
     const dir = join(assetsDir, profile.replaceAll("/", "_"));
     let files: string[] = [];
-    for (const verdict of ["accept", "reject"] as const) {
+    for (const verdict of ["accept", "reject", "digest"] as const) {
       let names: string[] = [];
       try {
         names = readdirSync(join(dir, verdict)).filter((f) => f.endsWith(".json"));
@@ -48,10 +48,14 @@ export function runVectors(adapter: Adapter, assetsDir: string, checklist: Check
 
     for (const file of files) {
       const vector = JSON.parse(readFileSync(file, "utf8")) as Vector;
-      const parse = adapter[`${vector.profile}#${vector.shape}`];
+      const isDigest = file.includes("/digest/");
+      const key = isDigest
+        ? `${vector.profile}#digest.${vector.shape}`
+        : `${vector.profile}#${vector.shape}`;
+      const parse = adapter[key];
       if (parse === undefined) {
         verdicts.push({
-          id: `${vector.profile}#${vector.shape}/${vector.name}`,
+          id: `${key}/${vector.name}`,
           expected: vector.verdict,
           outcome: "fail",
           detail: "adapter has no parser for this shape",
@@ -59,16 +63,22 @@ export function runVectors(adapter: Adapter, assetsDir: string, checklist: Check
         continue;
       }
       const result = parse(Buffer.from(vector.bytes, "base64"));
-      const agreed = result.ok === (vector.verdict === "accept");
+      const agreed = isDigest
+        ? result.ok && result.digest === vector.sha256
+        : result.ok === (vector.verdict === "accept");
       verdicts.push({
         id: `${vector.profile}#${vector.shape}/${vector.name}`,
         expected: vector.verdict,
         outcome: agreed ? "pass" : "fail",
         detail: agreed
           ? (vector.rule ?? "")
-          : result.ok
-            ? `accepted but must reject: ${vector.rule ?? "unnamed rule"}`
-            : `rejected but must accept: ${result.reason}`,
+          : isDigest
+            ? result.ok
+              ? `digest mismatch: computed ${result.digest ?? "nothing"}, vector pins ${vector.sha256 ?? "nothing"}`
+              : `could not digest: ${result.reason}`
+            : result.ok
+              ? `accepted but must reject: ${vector.rule ?? "unnamed rule"}`
+              : `rejected but must accept: ${result.reason}`,
       });
     }
   }

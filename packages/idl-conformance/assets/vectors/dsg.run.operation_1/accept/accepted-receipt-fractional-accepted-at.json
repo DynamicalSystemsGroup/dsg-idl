@@ -1,0 +1,7 @@
+{
+  "profile": "dsg.run.operation/1",
+  "shape": "accepted",
+  "name": "receipt-fractional-accepted-at",
+  "verdict": "accept",
+  "bytes": "eyJwcm9maWxlIjoiZHNnLnJ1bi5vcGVyYXRpb24vMSIsIm9wZXJhdGlvbklkIjoib3AtaWRsLTAwMDEiLCJhY3Rpb25JZCI6IlJVTi0wMDAwMDEiLCJnZW5lcmF0aW9uIjoxLCJwbGFuRGlnZXN0IjoiZDNiYzBlYTRkMDNmMmZkMWI5ZjEzNGY2MjQxOTljN2E1M2U1NzY5NTZiOGFjMTc2MzA4OTg4MDMyOGM2ODYyZSIsImFjY2VwdGVkQXQiOiIyMDI2LTA0LTAxVDAwOjAwOjAwLjAwMFoifQ=="
+}

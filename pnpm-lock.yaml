@@ -108,6 +108,9 @@ importers:
       '@dynamicalsystems/idl':
         specifier: workspace:*
         version: link:../idl
+      '@dynamicalsystems/orn-schemas':
+        specifier: file:../../vendor/dynamicalsystems-orn-schemas-0.1.0.tgz
+        version: file:vendor/dynamicalsystems-orn-schemas-0.1.0.tgz
     devDependencies:
       '@types/node':
         specifier: 'catalog:'

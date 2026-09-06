@@ -1,0 +1,471 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/DynamicalSystemsGroup/dsg-idl/schema/dsg-run-operation-v1.json",
+  "title": "dsg.run.operation/1",
+  "$defs": {
+    "request": {
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "profile",
+        "operationId",
+        "case",
+        "workspace",
+        "expectedGeneration",
+        "before",
+        "planDigest",
+        "document",
+        "authority",
+        "reservation"
+      ],
+      "properties": {
+        "profile": {
+          "const": "dsg.run.operation/1",
+          "type": "string"
+        },
+        "operationId": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "case": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["orn", "sha256"],
+          "properties": {
+            "orn": {
+              "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+              "type": "string"
+            },
+            "sha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            }
+          }
+        },
+        "workspace": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "expectedGeneration": {
+          "minimum": 0,
+          "maximum": 9007199254740991,
+          "type": "integer"
+        },
+        "before": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["operationId", "planDigest"],
+          "properties": {
+            "operationId": {
+              "anyOf": [
+                {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "planDigest": {
+              "anyOf": [
+                {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        },
+        "planDigest": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "document": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": [
+            "schemaVersion",
+            "classContract",
+            "law",
+            "workload",
+            "inputs",
+            "resources",
+            "costBound",
+            "placement",
+            "results",
+            "secrets"
+          ],
+          "properties": {
+            "schemaVersion": {
+              "const": 1,
+              "type": "number"
+            },
+            "classContract": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["orn", "sha256"],
+              "properties": {
+                "orn": {
+                  "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                  "type": "string"
+                },
+                "sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            },
+            "law": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["bundle", "registryRelease"],
+              "properties": {
+                "bundle": {
+                  "additionalProperties": false,
+                  "type": "object",
+                  "required": ["orn", "sha256"],
+                  "properties": {
+                    "orn": {
+                      "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                      "type": "string"
+                    },
+                    "sha256": {
+                      "pattern": "^[0-9a-f]{64}$",
+                      "type": "string"
+                    }
+                  }
+                },
+                "registryRelease": {
+                  "additionalProperties": false,
+                  "type": "object",
+                  "required": ["orn", "sha256"],
+                  "properties": {
+                    "orn": {
+                      "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                      "type": "string"
+                    },
+                    "sha256": {
+                      "pattern": "^[0-9a-f]{64}$",
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "workload": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["orn", "sha256"],
+              "properties": {
+                "orn": {
+                  "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                  "type": "string"
+                },
+                "sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            },
+            "inputs": {
+              "type": "array",
+              "items": {
+                "additionalProperties": false,
+                "type": "object",
+                "required": ["orn", "sha256"],
+                "properties": {
+                  "orn": {
+                    "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                    "type": "string"
+                  },
+                  "sha256": {
+                    "pattern": "^[0-9a-f]{64}$",
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "resources": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["maxGpuSeconds", "maxRunSeconds", "maxParallelism"],
+              "properties": {
+                "maxGpuSeconds": {
+                  "minimum": 0,
+                  "maximum": 9007199254740991,
+                  "type": "integer"
+                },
+                "maxRunSeconds": {
+                  "minimum": 0,
+                  "maximum": 9007199254740991,
+                  "type": "integer"
+                },
+                "maxParallelism": {
+                  "minimum": 0,
+                  "maximum": 9007199254740991,
+                  "type": "integer"
+                }
+              }
+            },
+            "costBound": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["orn", "sha256"],
+              "properties": {
+                "orn": {
+                  "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                  "type": "string"
+                },
+                "sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            },
+            "placement": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["orn", "sha256"],
+              "properties": {
+                "orn": {
+                  "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                  "type": "string"
+                },
+                "sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            },
+            "results": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["orn", "sha256"],
+              "properties": {
+                "orn": {
+                  "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                  "type": "string"
+                },
+                "sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            },
+            "secrets": {
+              "type": "array",
+              "items": {
+                "additionalProperties": false,
+                "type": "object",
+                "required": ["orn", "sha256"],
+                "properties": {
+                  "orn": {
+                    "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                    "type": "string"
+                  },
+                  "sha256": {
+                    "pattern": "^[0-9a-f]{64}$",
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "authority": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["orn", "sha256"],
+          "properties": {
+            "orn": {
+              "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+              "type": "string"
+            },
+            "sha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            }
+          }
+        },
+        "reservation": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["orn", "sha256"],
+          "properties": {
+            "orn": {
+              "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+              "type": "string"
+            },
+            "sha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "accepted": {
+      "additionalProperties": false,
+      "type": "object",
+      "required": ["profile", "operationId", "actionId", "generation", "planDigest", "acceptedAt"],
+      "properties": {
+        "profile": {
+          "const": "dsg.run.operation/1",
+          "type": "string"
+        },
+        "operationId": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "actionId": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "generation": {
+          "minimum": 0,
+          "maximum": 9007199254740991,
+          "type": "integer"
+        },
+        "planDigest": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "acceptedAt": {
+          "minLength": 1,
+          "type": "string"
+        }
+      }
+    },
+    "readback": {
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "operationId",
+        "generation",
+        "planDigest",
+        "execution",
+        "cleanup",
+        "evidence",
+        "evidenceRef",
+        "cost"
+      ],
+      "properties": {
+        "operationId": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "generation": {
+          "minimum": 0,
+          "maximum": 9007199254740991,
+          "type": "integer"
+        },
+        "planDigest": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "execution": {
+          "anyOf": [
+            {
+              "const": "queued",
+              "type": "string"
+            },
+            {
+              "const": "running",
+              "type": "string"
+            },
+            {
+              "const": "succeeded",
+              "type": "string"
+            },
+            {
+              "const": "failed",
+              "type": "string"
+            },
+            {
+              "const": "canceled",
+              "type": "string"
+            },
+            {
+              "const": "unknown",
+              "type": "string"
+            }
+          ]
+        },
+        "cleanup": {
+          "anyOf": [
+            {
+              "const": "pending",
+              "type": "string"
+            },
+            {
+              "const": "present",
+              "type": "string"
+            },
+            {
+              "const": "absent",
+              "type": "string"
+            },
+            {
+              "const": "unknown",
+              "type": "string"
+            }
+          ]
+        },
+        "evidence": {
+          "anyOf": [
+            {
+              "const": "pending",
+              "type": "string"
+            },
+            {
+              "const": "ready",
+              "type": "string"
+            }
+          ]
+        },
+        "evidenceRef": {
+          "anyOf": [
+            {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["orn", "sha256"],
+              "properties": {
+                "orn": {
+                  "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                  "type": "string"
+                },
+                "sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "cost": {
+          "anyOf": [
+            {
+              "const": "reserved",
+              "type": "string"
+            },
+            {
+              "const": "provisional",
+              "type": "string"
+            },
+            {
+              "const": "reconciled",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

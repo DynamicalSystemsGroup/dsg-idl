@@ -1,0 +1,8 @@
+{
+  "profile": "dsg.run.operation/1",
+  "shape": "accepted",
+  "name": "missing-plan-digest",
+  "verdict": "reject",
+  "bytes": "eyJwcm9maWxlIjoiZHNnLnJ1bi5vcGVyYXRpb24vMSIsIm9wZXJhdGlvbklkIjoib3AtaWRsLTAwMDEiLCJhY3Rpb25JZCI6IlJVTi0wMDAwMDEiLCJnZW5lcmF0aW9uIjoxLCJhY2NlcHRlZEF0IjoiMjAyNi0wNC0wMVQwMDowMDowMC4wMDBaIn0=",
+  "rule": "the receipt binds the plan digest; without it acceptance is unverifiable"
+}

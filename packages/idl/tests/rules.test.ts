@@ -7,6 +7,15 @@ import type { TSchema } from "@sinclair/typebox";
 import { PROFILES } from "../src/index.js";
 
 const HEX64 = "^[0-9a-f]{64}$";
+
+// Named debts: fields a frozen /1 keeps looser than the current rule.
+// Every entry is a /N+1 candidate; nothing may be added here for a NEW
+// profile version.
+const FROZEN_EXEMPTIONS = new Set([
+  // dsg.run.operation/1 predates the exact-second ruling and the plane
+  // emits fractional seconds today; tightening is a /2.
+  "dsg.run.operation/1#accepted.acceptedAt",
+]);
 const UTC_SECOND = "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$";
 
 type Node = { schema: TSchema; path: string };
@@ -78,15 +87,26 @@ describe("profile registry law", () => {
     for (const [, entry] of entries) {
       for (const [shapeName, shape] of Object.entries(entry.shapes)) {
         for (const node of walk(shape, `${entry.literal}#${shapeName}`)) {
-          const anySchema = node.schema as unknown as { pattern?: string };
+          const anySchema = node.schema as unknown as {
+            pattern?: string;
+            anyOf?: { pattern?: string; type?: string }[];
+          };
           const leaf = node.path.split(".").at(-1) ?? "";
+          // A union wrapper carries no pattern itself; its non-null arms must.
+          const patterns =
+            anySchema.anyOf === undefined
+              ? [anySchema.pattern]
+              : anySchema.anyOf.filter((arm) => arm.type !== "null").map((arm) => arm.pattern);
           if (/(sha256|Sha256|Digest)$/.test(leaf)) {
-            expect(anySchema.pattern, `${node.path} is a digest without Hex64`).toBe(HEX64);
+            for (const pattern of patterns) {
+              expect(pattern, `${node.path} is a digest without Hex64`).toBe(HEX64);
+            }
           }
+          if (FROZEN_EXEMPTIONS.has(node.path)) continue;
           if (/(At)$/.test(leaf) && leaf !== "At") {
-            expect(anySchema.pattern, `${node.path} is a timestamp without UtcSecond`).toBe(
-              UTC_SECOND,
-            );
+            for (const pattern of patterns) {
+              expect(pattern, `${node.path} is a timestamp without UtcSecond`).toBe(UTC_SECOND);
+            }
           }
         }
       }
