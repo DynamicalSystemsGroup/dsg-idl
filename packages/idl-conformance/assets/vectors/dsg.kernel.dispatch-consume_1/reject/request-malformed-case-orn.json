@@ -1,0 +1,8 @@
+{
+  "profile": "dsg.kernel.dispatch-consume/1",
+  "shape": "request",
+  "name": "malformed-case-orn",
+  "verdict": "reject",
+  "bytes": "eyJwcm9maWxlIjoiZHNnLmtlcm5lbC5kaXNwYXRjaC1jb25zdW1lLzEiLCJvcGVyYXRpb25JZCI6Im9wLWUyZS0xNzg4NjU4MjUzMjUxIiwiZ2VuZXJhdGlvbiI6MSwiY2FzZU9ybiI6ImNhc2UtNDIiLCJlbnZlbG9wZVNoYTI1NiI6ImFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWEiLCJsYXdTaGEyNTYiOiJjZDQ5NDUxMTI2ZjA3ODIxMGFlYmUxOTliMjgyOTQyMzc5Mjg0ZTUwNjA3NDE5OTdlZjkwY2M4OWE4ZjFhNzk1IiwicmVzZXJ2YXRpb24iOnsib3JuIjoib3JuOmRzZy5ydW4uZml4dHVyZS5hcnRpZmFjdDpyZXNlcnZhdGlvbiIsInNoYTI1NiI6ImJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmIifSwicmVxdWVzdGVkQXQiOiIyMDI2LTA0LTAxVDAwOjAwOjAwWiIsInJlbmV3YWwiOmZhbHNlfQ==",
+  "rule": "caseOrn is an ORN"
+}

@@ -1,0 +1,8 @@
+{
+  "profile": "dsg.kernel.dispatch-consume/1",
+  "shape": "refusal",
+  "name": "empty-issues",
+  "verdict": "reject",
+  "bytes": "eyJwcm9maWxlIjoiZHNnLmtlcm5lbC5kaXNwYXRjaC1jb25zdW1lLzEiLCJjb2RlIjoicmV2b2tlZCIsImlzc3VlcyI6W119",
+  "rule": "a refusal names at least one issue"
+}

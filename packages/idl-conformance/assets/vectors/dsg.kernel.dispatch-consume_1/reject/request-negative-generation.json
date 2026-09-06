@@ -1,0 +1,8 @@
+{
+  "profile": "dsg.kernel.dispatch-consume/1",
+  "shape": "request",
+  "name": "negative-generation",
+  "verdict": "reject",
+  "bytes": "eyJwcm9maWxlIjoiZHNnLmtlcm5lbC5kaXNwYXRjaC1jb25zdW1lLzEiLCJvcGVyYXRpb25JZCI6Im9wLWUyZS0xNzg4NjU4MjUzMjUxIiwiZ2VuZXJhdGlvbiI6LTEsImNhc2VPcm4iOiJvcm46ZHNnLmNvcmUua2VybmVsLmNhc2U6ZGVtbyIsImVudmVsb3BlU2hhMjU2IjoiYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYSIsImxhd1NoYTI1NiI6ImNkNDk0NTExMjZmMDc4MjEwYWViZTE5OWIyODI5NDIzNzkyODRlNTA2MDc0MTk5N2VmOTBjYzg5YThmMWE3OTUiLCJyZXNlcnZhdGlvbiI6eyJvcm4iOiJvcm46ZHNnLnJ1bi5maXh0dXJlLmFydGlmYWN0OnJlc2VydmF0aW9uIiwic2hhMjU2IjoiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYiJ9LCJyZXF1ZXN0ZWRBdCI6IjIwMjYtMDQtMDFUMDA6MDA6MDBaIiwicmVuZXdhbCI6ZmFsc2V9",
+  "rule": "generation is a nonnegative integer"
+}

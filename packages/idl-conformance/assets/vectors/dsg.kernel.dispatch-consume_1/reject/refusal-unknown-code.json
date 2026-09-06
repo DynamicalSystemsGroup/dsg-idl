@@ -1,0 +1,8 @@
+{
+  "profile": "dsg.kernel.dispatch-consume/1",
+  "shape": "refusal",
+  "name": "unknown-code",
+  "verdict": "reject",
+  "bytes": "eyJwcm9maWxlIjoiZHNnLmtlcm5lbC5kaXNwYXRjaC1jb25zdW1lLzEiLCJjb2RlIjoidHJ5X2FnYWluX2xhdGVyIiwiaXNzdWVzIjpbImxhdyBjZDQ5NDUxMS4uLiByZXZva2VkIGJ5IHNuYXBzaG90IDciXX0=",
+  "rule": "refusal codes are a closed union"
+}

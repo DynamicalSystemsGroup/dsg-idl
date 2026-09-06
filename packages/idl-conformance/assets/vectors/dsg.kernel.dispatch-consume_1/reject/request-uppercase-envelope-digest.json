@@ -1,0 +1,8 @@
+{
+  "profile": "dsg.kernel.dispatch-consume/1",
+  "shape": "request",
+  "name": "uppercase-envelope-digest",
+  "verdict": "reject",
+  "bytes": "eyJwcm9maWxlIjoiZHNnLmtlcm5lbC5kaXNwYXRjaC1jb25zdW1lLzEiLCJvcGVyYXRpb25JZCI6Im9wLWUyZS0xNzg4NjU4MjUzMjUxIiwiZ2VuZXJhdGlvbiI6MSwiY2FzZU9ybiI6Im9ybjpkc2cuY29yZS5rZXJuZWwuY2FzZTpkZW1vIiwiZW52ZWxvcGVTaGEyNTYiOiJBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBIiwibGF3U2hhMjU2IjoiY2Q0OTQ1MTEyNmYwNzgyMTBhZWJlMTk5YjI4Mjk0MjM3OTI4NGU1MDYwNzQxOTk3ZWY5MGNjODlhOGYxYTc5NSIsInJlc2VydmF0aW9uIjp7Im9ybiI6Im9ybjpkc2cucnVuLmZpeHR1cmUuYXJ0aWZhY3Q6cmVzZXJ2YXRpb24iLCJzaGEyNTYiOiJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiIn0sInJlcXVlc3RlZEF0IjoiMjAyNi0wNC0wMVQwMDowMDowMFoiLCJyZW5ld2FsIjpmYWxzZX0=",
+  "rule": "digests are lowercase sha256 hex"
+}

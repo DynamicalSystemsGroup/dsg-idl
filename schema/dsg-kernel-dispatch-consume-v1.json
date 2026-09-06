@@ -1,0 +1,231 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/DynamicalSystemsGroup/dsg-idl/schema/dsg-kernel-dispatch-consume-v1.json",
+  "title": "dsg.kernel.dispatch-consume/1",
+  "$defs": {
+    "request": {
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "profile",
+        "operationId",
+        "generation",
+        "caseOrn",
+        "envelopeSha256",
+        "lawSha256",
+        "reservation",
+        "requestedAt",
+        "renewal"
+      ],
+      "properties": {
+        "profile": {
+          "const": "dsg.kernel.dispatch-consume/1",
+          "type": "string"
+        },
+        "operationId": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "generation": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "caseOrn": {
+          "$id": "https://dynamicalsystemsgroup.com/schemas/orn-1/orn.json",
+          "title": "ObjectReferenceName",
+          "description": "Permanent URI naming an object in the orn: scheme",
+          "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+          "type": "string"
+        },
+        "envelopeSha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "lawSha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "reservation": {
+          "$id": "https://dynamicalsystemsgroup.com/schemas/orn-1/reference.json",
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "title": "Reference",
+          "description": "The pair of an ORN and a SHA-256 hash pinning a version",
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["orn", "sha256"],
+          "properties": {
+            "orn": {
+              "$id": "https://dynamicalsystemsgroup.com/schemas/orn-1/orn.json",
+              "title": "ObjectReferenceName",
+              "description": "Permanent URI naming an object in the orn: scheme",
+              "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+              "type": "string"
+            },
+            "sha256": {
+              "$id": "https://dynamicalsystemsgroup.com/schemas/orn-1/sha256.json",
+              "title": "Sha256Digest",
+              "description": "64-character lowercase hexadecimal SHA-256 digest",
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            }
+          }
+        },
+        "requestedAt": {
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$",
+          "type": "string"
+        },
+        "renewal": {
+          "type": "boolean"
+        }
+      }
+    },
+    "lease": {
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "profile",
+        "leaseId",
+        "operationId",
+        "generation",
+        "caseOrn",
+        "envelopeSha256",
+        "lawSha256",
+        "reservation",
+        "consumedAt",
+        "expiresAt",
+        "maxSkewSeconds",
+        "renewal",
+        "fresh"
+      ],
+      "properties": {
+        "profile": {
+          "const": "dsg.kernel.dispatch-consume/1",
+          "type": "string"
+        },
+        "leaseId": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "operationId": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "generation": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "caseOrn": {
+          "$id": "https://dynamicalsystemsgroup.com/schemas/orn-1/orn.json",
+          "title": "ObjectReferenceName",
+          "description": "Permanent URI naming an object in the orn: scheme",
+          "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+          "type": "string"
+        },
+        "envelopeSha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "lawSha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "reservation": {
+          "$id": "https://dynamicalsystemsgroup.com/schemas/orn-1/reference.json",
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "title": "Reference",
+          "description": "The pair of an ORN and a SHA-256 hash pinning a version",
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["orn", "sha256"],
+          "properties": {
+            "orn": {
+              "$id": "https://dynamicalsystemsgroup.com/schemas/orn-1/orn.json",
+              "title": "ObjectReferenceName",
+              "description": "Permanent URI naming an object in the orn: scheme",
+              "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+              "type": "string"
+            },
+            "sha256": {
+              "$id": "https://dynamicalsystemsgroup.com/schemas/orn-1/sha256.json",
+              "title": "Sha256Digest",
+              "description": "64-character lowercase hexadecimal SHA-256 digest",
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            }
+          }
+        },
+        "consumedAt": {
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$",
+          "type": "string"
+        },
+        "expiresAt": {
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$",
+          "type": "string"
+        },
+        "maxSkewSeconds": {
+          "minimum": 0,
+          "maximum": 300,
+          "type": "integer"
+        },
+        "renewal": {
+          "const": "new-authorization-required",
+          "type": "string"
+        },
+        "fresh": {
+          "type": "boolean"
+        }
+      }
+    },
+    "refusal": {
+      "additionalProperties": false,
+      "type": "object",
+      "required": ["profile", "code", "issues"],
+      "properties": {
+        "profile": {
+          "const": "dsg.kernel.dispatch-consume/1",
+          "type": "string"
+        },
+        "code": {
+          "anyOf": [
+            {
+              "const": "unknown_operation",
+              "type": "string"
+            },
+            {
+              "const": "no_reservation",
+              "type": "string"
+            },
+            {
+              "const": "binding_mismatch",
+              "type": "string"
+            },
+            {
+              "const": "revoked",
+              "type": "string"
+            },
+            {
+              "const": "authority_refused",
+              "type": "string"
+            },
+            {
+              "const": "renewal_requires_existing_consumption",
+              "type": "string"
+            },
+            {
+              "const": "unavailable",
+              "type": "string"
+            }
+          ]
+        },
+        "issues": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

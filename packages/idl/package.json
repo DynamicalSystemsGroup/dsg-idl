@@ -46,6 +46,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@dynamicalsystems/orn-schemas": "file:../../vendor/dynamicalsystems-orn-schemas-0.1.0.tgz",
     "@sinclair/typebox": "catalog:"
   },
   "devDependencies": {

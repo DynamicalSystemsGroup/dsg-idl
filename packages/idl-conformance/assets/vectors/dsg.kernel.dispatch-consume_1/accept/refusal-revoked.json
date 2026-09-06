@@ -1,0 +1,7 @@
+{
+  "profile": "dsg.kernel.dispatch-consume/1",
+  "shape": "refusal",
+  "name": "revoked",
+  "verdict": "accept",
+  "bytes": "eyJwcm9maWxlIjoiZHNnLmtlcm5lbC5kaXNwYXRjaC1jb25zdW1lLzEiLCJjb2RlIjoicmV2b2tlZCIsImlzc3VlcyI6WyJsYXcgY2Q0OTQ1MTEuLi4gcmV2b2tlZCBieSBzbmFwc2hvdCA3Il19"
+}
