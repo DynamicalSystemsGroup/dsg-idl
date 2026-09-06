@@ -36,3 +36,7 @@ conform:
 clean:
     rm -rf node_modules dist
     find packages -maxdepth 2 -type d \( -name node_modules -o -name dist \) -exec rm -rf {} +
+
+# Pack idl + idl-conformance into every consumer's vendor/ and reinstall.
+vendor *consumers:
+    scripts/vendor.sh {{consumers}}
