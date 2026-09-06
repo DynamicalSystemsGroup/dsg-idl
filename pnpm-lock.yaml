@@ -81,8 +81,8 @@ importers:
   packages/idl:
     dependencies:
       '@dynamicalsystems/orn-schemas':
-        specifier: file:../../vendor/dynamicalsystems-orn-schemas-0.1.0.tgz
-        version: file:vendor/dynamicalsystems-orn-schemas-0.1.0.tgz
+        specifier: 0.1.0
+        version: 0.1.0
       '@sinclair/typebox':
         specifier: 'catalog:'
         version: 0.34.52
@@ -109,8 +109,8 @@ importers:
         specifier: workspace:*
         version: link:../idl
       '@dynamicalsystems/orn-schemas':
-        specifier: file:../../vendor/dynamicalsystems-orn-schemas-0.1.0.tgz
-        version: file:vendor/dynamicalsystems-orn-schemas-0.1.0.tgz
+        specifier: 0.1.0
+        version: 0.1.0
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
@@ -133,9 +133,8 @@ importers:
 
 packages:
 
-  '@dynamicalsystems/orn-schemas@file:vendor/dynamicalsystems-orn-schemas-0.1.0.tgz':
-    resolution: {integrity: sha512-yPfMYLyOT85uCxxI3haB+7Lq3FF4+AGEGPamm4jN8+kH2QAXM2HhDyt4g6yfiW1B/Ysbl4hk3ywT2R4+eN5k4g==, tarball: file:vendor/dynamicalsystems-orn-schemas-0.1.0.tgz}
-    version: 0.1.0
+  '@dynamicalsystems/orn-schemas@0.1.0':
+    resolution: {integrity: sha512-yPfMYLyOT85uCxxI3haB+7Lq3FF4+AGEGPamm4jN8+kH2QAXM2HhDyt4g6yfiW1B/Ysbl4hk3ywT2R4+eN5k4g==}
     engines: {node: '>=24'}
 
   '@esbuild/aix-ppc64@0.28.2':
@@ -1419,7 +1418,7 @@ packages:
 
 snapshots:
 
-  '@dynamicalsystems/orn-schemas@file:vendor/dynamicalsystems-orn-schemas-0.1.0.tgz':
+  '@dynamicalsystems/orn-schemas@0.1.0':
     dependencies:
       '@sinclair/typebox': 0.34.52
 

@@ -1,6 +1,6 @@
 {
   "name": "@dynamicalsystems/idl-conformance",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Conformance vectors and runner for the DSG wire profiles. A consumer implements the adapter over its real boundary parser and replays every vector; a counterpart fake is built from accept vectors, never written by hand.",
   "homepage": "https://github.com/DynamicalSystemsGroup/dsg-idl#readme",
   "bugs": "https://github.com/DynamicalSystemsGroup/dsg-idl/issues",
@@ -49,7 +49,7 @@
   },
   "dependencies": {
     "@dynamicalsystems/idl": "workspace:*",
-    "@dynamicalsystems/orn-schemas": "file:../../vendor/dynamicalsystems-orn-schemas-0.1.0.tgz"
+    "@dynamicalsystems/orn-schemas": "0.1.0"
   },
   "devDependencies": {
     "@types/node": "catalog:",

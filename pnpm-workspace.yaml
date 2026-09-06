@@ -13,3 +13,6 @@ catalog:
   fast-check: 4.9.0
   "@fast-check/vitest": 0.4.1
   "@types/node": 24.13.3
+
+minimumReleaseAgeExclude:
+  - '@dynamicalsystems/orn-schemas@0.1.0'
