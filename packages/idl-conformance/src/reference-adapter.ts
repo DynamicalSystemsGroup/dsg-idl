@@ -1,0 +1,30 @@
+// The adapter the package itself is judged by: TypeBox Value.Check over
+// the registered schemas. Consumers implement their own adapter over their
+// real parser; this one exists so a profile PR proves its vectors against
+// the schemas before any consumer sees them.
+import { Value } from "@sinclair/typebox/value";
+import { PROFILES } from "@dynamicalsystems/idl";
+import type { Adapter, ParseResult } from "./adapter.js";
+
+export function referenceAdapter(): Adapter {
+  const adapter: Record<string, (bytes: Uint8Array) => ParseResult> = {};
+  for (const entry of Object.values(PROFILES)) {
+    for (const [shapeName, shape] of Object.entries(entry.shapes)) {
+      adapter[`${entry.literal}#${shapeName}`] = (bytes) => {
+        let parsed: unknown;
+        try {
+          parsed = JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(bytes));
+        } catch (error) {
+          return { ok: false, reason: `not UTF-8 JSON: ${String(error)}` };
+        }
+        if (Value.Check(shape, parsed)) return { ok: true };
+        const first = Value.Errors(shape, parsed).First();
+        return {
+          ok: false,
+          reason: `${first?.path ?? ""}: ${first?.message ?? "schema mismatch"}`,
+        };
+      };
+    }
+  }
+  return adapter;
+}

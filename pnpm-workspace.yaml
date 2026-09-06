@@ -1,0 +1,15 @@
+packages:
+  - "packages/*"
+
+catalog:
+  typescript: 7.0.2
+  oxlint: 1.79.0
+  oxlint-tsgolint: 7.0.2001
+  oxfmt: 0.64.0
+  vitest: 4.1.11
+  tsx: 4.23.12
+  tsdown: 0.22.14
+  "@sinclair/typebox": 0.34.52
+  fast-check: 4.9.0
+  "@fast-check/vitest": 0.4.1
+  "@types/node": 24.13.3

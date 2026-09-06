@@ -1,0 +1,61 @@
+{
+  "name": "@dynamicalsystems/idl",
+  "version": "0.0.1",
+  "description": "The DSG governed compute plane wire profiles: TypeBox schemas, profile literals, and Static types for every dsg.*.*/N shape. One meaning per profile, frozen per version.",
+  "homepage": "https://github.com/DynamicalSystemsGroup/dsg-idl#readme",
+  "bugs": "https://github.com/DynamicalSystemsGroup/dsg-idl/issues",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DynamicalSystemsGroup/dsg-idl.git",
+    "directory": "packages/idl"
+  },
+  "files": [
+    "dist",
+    "src",
+    "LICENSE",
+    "README.md"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.cts",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "import": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "prepack": "tsdown",
+    "check-types": "tsc --noEmit",
+    "lint": "oxlint --config ../../.oxlintrc.json --type-aware .",
+    "format:check": "oxfmt --check .",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@sinclair/typebox": "catalog:"
+  },
+  "devDependencies": {
+    "oxfmt": "catalog:",
+    "oxlint": "catalog:",
+    "tsdown": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}
