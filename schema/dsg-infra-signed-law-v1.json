@@ -1,0 +1,1012 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/DynamicalSystemsGroup/dsg-idl/schema/dsg-infra-signed-law-v1.json",
+  "title": "dsg.infra.signed-law/1",
+  "$defs": {
+    "bundle": {
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "schemaVersion",
+        "kind",
+        "testOnly",
+        "deployedAuthority",
+        "payload",
+        "canonicalPayload",
+        "payloadSha256",
+        "canonicalSignatureInput",
+        "signature"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "const": 1,
+          "type": "number"
+        },
+        "kind": {
+          "anyOf": [
+            {
+              "const": "dsg.infra.signed-law",
+              "type": "string"
+            },
+            {
+              "const": "dsg.infra.signed-law-fixture",
+              "type": "string"
+            }
+          ]
+        },
+        "testOnly": {
+          "type": "boolean"
+        },
+        "deployedAuthority": {
+          "type": "boolean"
+        },
+        "payload": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": [
+            "schemaVersion",
+            "kind",
+            "lawId",
+            "status",
+            "authority",
+            "standingOrder",
+            "scope",
+            "validity",
+            "revocation",
+            "ceilings",
+            "capabilities",
+            "priceProfile",
+            "bootstrap",
+            "evaluationInputs"
+          ],
+          "properties": {
+            "schemaVersion": {
+              "const": 1,
+              "type": "number"
+            },
+            "kind": {
+              "const": "dsg.infra.law",
+              "type": "string"
+            },
+            "lawId": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "status": {
+              "anyOf": [
+                {
+                  "const": "unissued",
+                  "type": "string"
+                },
+                {
+                  "const": "issued",
+                  "type": "string"
+                }
+              ]
+            },
+            "authority": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": [
+                "issuerType",
+                "issuerReference",
+                "designationReference",
+                "signatureReference",
+                "humanSignatureRequired",
+                "releaseAutomationMayIssue"
+              ],
+              "properties": {
+                "issuerType": {
+                  "const": "human",
+                  "type": "string"
+                },
+                "issuerReference": {
+                  "anyOf": [
+                    {
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "designationReference": {
+                  "anyOf": [
+                    {
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "signatureReference": {
+                  "anyOf": [
+                    {
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "humanSignatureRequired": {
+                  "const": true,
+                  "type": "boolean"
+                },
+                "releaseAutomationMayIssue": {
+                  "const": false,
+                  "type": "boolean"
+                }
+              }
+            },
+            "standingOrder": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": [
+                "reference",
+                "designationReference",
+                "scopeReference",
+                "issuedAt",
+                "expiresAt"
+              ],
+              "properties": {
+                "reference": {
+                  "anyOf": [
+                    {
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "designationReference": {
+                  "anyOf": [
+                    {
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "scopeReference": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "issuedAt": {
+                  "anyOf": [
+                    {
+                      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$",
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "expiresAt": {
+                  "anyOf": [
+                    {
+                      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$",
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            },
+            "scope": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": [
+                "actions",
+                "workloadClasses",
+                "providers",
+                "regions",
+                "resourceDescriptorVersion"
+              ],
+              "properties": {
+                "actions": {
+                  "minItems": 1,
+                  "uniqueItems": true,
+                  "type": "array",
+                  "items": {
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "workloadClasses": {
+                  "minItems": 1,
+                  "uniqueItems": true,
+                  "type": "array",
+                  "items": {
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "providers": {
+                  "minItems": 1,
+                  "uniqueItems": true,
+                  "type": "array",
+                  "items": {
+                    "const": "provider-neutral",
+                    "type": "string"
+                  }
+                },
+                "regions": {
+                  "uniqueItems": true,
+                  "type": "array",
+                  "items": {
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "resourceDescriptorVersion": {
+                  "const": "dsg.infra.resource-descriptor/1",
+                  "type": "string"
+                }
+              }
+            },
+            "validity": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["clock", "notBefore", "notAfter"],
+              "properties": {
+                "clock": {
+                  "const": "UTC",
+                  "type": "string"
+                },
+                "notBefore": {
+                  "anyOf": [
+                    {
+                      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$",
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "notAfter": {
+                  "anyOf": [
+                    {
+                      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$",
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            },
+            "revocation": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["snapshotReference", "failClosed", "checks"],
+              "properties": {
+                "snapshotReference": {
+                  "anyOf": [
+                    {
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "failClosed": {
+                  "const": true,
+                  "type": "boolean"
+                },
+                "checks": {
+                  "minItems": 1,
+                  "uniqueItems": true,
+                  "type": "array",
+                  "items": {
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "ceilings": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": [
+                "gpuSecondsPerPersonUtcWeek",
+                "usdMicroUnitsPerPersonUtcMonth",
+                "usdMicroUnitsPerOrganizationUtcMonth"
+              ],
+              "properties": {
+                "gpuSecondsPerPersonUtcWeek": {
+                  "additionalProperties": false,
+                  "type": "object",
+                  "required": ["unit", "period", "scope", "value"],
+                  "properties": {
+                    "unit": {
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "period": {
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "scope": {
+                      "anyOf": [
+                        {
+                          "const": "person",
+                          "type": "string"
+                        },
+                        {
+                          "const": "organization",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "value": {
+                      "anyOf": [
+                        {
+                          "minimum": 0,
+                          "type": "integer"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  }
+                },
+                "usdMicroUnitsPerPersonUtcMonth": {
+                  "additionalProperties": false,
+                  "type": "object",
+                  "required": ["unit", "period", "scope", "value"],
+                  "properties": {
+                    "unit": {
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "period": {
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "scope": {
+                      "anyOf": [
+                        {
+                          "const": "person",
+                          "type": "string"
+                        },
+                        {
+                          "const": "organization",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "value": {
+                      "anyOf": [
+                        {
+                          "minimum": 0,
+                          "type": "integer"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  }
+                },
+                "usdMicroUnitsPerOrganizationUtcMonth": {
+                  "additionalProperties": false,
+                  "type": "object",
+                  "required": ["unit", "period", "scope", "value"],
+                  "properties": {
+                    "unit": {
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "period": {
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "scope": {
+                      "anyOf": [
+                        {
+                          "const": "person",
+                          "type": "string"
+                        },
+                        {
+                          "const": "organization",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "value": {
+                      "anyOf": [
+                        {
+                          "minimum": 0,
+                          "type": "integer"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            },
+            "capabilities": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["providerNeutral", "descriptorVersion", "profiles"],
+              "properties": {
+                "providerNeutral": {
+                  "const": true,
+                  "type": "boolean"
+                },
+                "descriptorVersion": {
+                  "const": "dsg.infra.resource-descriptor/1",
+                  "type": "string"
+                },
+                "profiles": {
+                  "minProperties": 1,
+                  "type": "object",
+                  "patternProperties": {
+                    "^(.*)$": {
+                      "additionalProperties": false,
+                      "type": "object",
+                      "required": [
+                        "lifecycle",
+                        "machinePrefixes",
+                        "accelerators",
+                        "maxRunSeconds",
+                        "maxParallelism",
+                        "maxGpuInstances",
+                        "maxVcpus",
+                        "network",
+                        "externalIpAllowed"
+                      ],
+                      "properties": {
+                        "lifecycle": {
+                          "anyOf": [
+                            {
+                              "const": "ephemeral",
+                              "type": "string"
+                            },
+                            {
+                              "const": "durable",
+                              "type": "string"
+                            }
+                          ]
+                        },
+                        "machinePrefixes": {
+                          "minItems": 1,
+                          "uniqueItems": true,
+                          "type": "array",
+                          "items": {
+                            "minLength": 1,
+                            "type": "string"
+                          }
+                        },
+                        "accelerators": {
+                          "uniqueItems": true,
+                          "type": "array",
+                          "items": {
+                            "minLength": 1,
+                            "type": "string"
+                          }
+                        },
+                        "maxRunSeconds": {
+                          "anyOf": [
+                            {
+                              "minimum": 0,
+                              "type": "integer"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "maxParallelism": {
+                          "anyOf": [
+                            {
+                              "minimum": 1,
+                              "type": "integer"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "maxGpuInstances": {
+                          "anyOf": [
+                            {
+                              "minimum": 0,
+                              "type": "integer"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "maxVcpus": {
+                          "anyOf": [
+                            {
+                              "minimum": 1,
+                              "type": "integer"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
+                        "network": {
+                          "const": "private",
+                          "type": "string"
+                        },
+                        "externalIpAllowed": {
+                          "const": false,
+                          "type": "boolean"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "priceProfile": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": [
+                "reference",
+                "status",
+                "currency",
+                "unit",
+                "basis",
+                "rates",
+                "safetyFactorBps",
+                "validFrom",
+                "validUntil"
+              ],
+              "properties": {
+                "reference": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "status": {
+                  "anyOf": [
+                    {
+                      "const": "unassigned",
+                      "type": "string"
+                    },
+                    {
+                      "const": "retained",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "currency": {
+                  "const": "USD",
+                  "type": "string"
+                },
+                "unit": {
+                  "const": "micro_usd",
+                  "type": "string"
+                },
+                "basis": {
+                  "const": "retained-conservative-on-demand",
+                  "type": "string"
+                },
+                "rates": {
+                  "additionalProperties": false,
+                  "type": "object",
+                  "properties": {
+                    "vcpuSecond": {
+                      "minimum": 0,
+                      "type": "integer"
+                    },
+                    "memoryGiBSecond": {
+                      "minimum": 0,
+                      "type": "integer"
+                    },
+                    "gpuSecond": {
+                      "minimum": 0,
+                      "type": "integer"
+                    },
+                    "startup": {
+                      "minimum": 0,
+                      "type": "integer"
+                    }
+                  }
+                },
+                "safetyFactorBps": {
+                  "anyOf": [
+                    {
+                      "minimum": 10000,
+                      "type": "integer"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "validFrom": {
+                  "anyOf": [
+                    {
+                      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$",
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "validUntil": {
+                  "anyOf": [
+                    {
+                      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$",
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            },
+            "bootstrap": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": [
+                "mode",
+                "rootReferences",
+                "allowedActions",
+                "maxUses",
+                "expiresAt",
+                "projectCreationAllowed",
+                "requiresHumanSignature",
+                "automationCanSatisfy"
+              ],
+              "properties": {
+                "mode": {
+                  "const": "finite-human-root",
+                  "type": "string"
+                },
+                "rootReferences": {
+                  "uniqueItems": true,
+                  "type": "array",
+                  "items": {
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "allowedActions": {
+                  "minItems": 1,
+                  "uniqueItems": true,
+                  "type": "array",
+                  "items": {
+                    "anyOf": [
+                      {
+                        "const": "enroll_human_root",
+                        "type": "string"
+                      },
+                      {
+                        "const": "initialize_kernel_record",
+                        "type": "string"
+                      },
+                      {
+                        "const": "restore_kernel_record",
+                        "type": "string"
+                      },
+                      {
+                        "const": "cutover_single_writer",
+                        "type": "string"
+                      }
+                    ]
+                  }
+                },
+                "maxUses": {
+                  "minimum": 1,
+                  "maximum": 1,
+                  "type": "integer"
+                },
+                "expiresAt": {
+                  "anyOf": [
+                    {
+                      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$",
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "projectCreationAllowed": {
+                  "const": false,
+                  "type": "boolean"
+                },
+                "requiresHumanSignature": {
+                  "const": true,
+                  "type": "boolean"
+                },
+                "automationCanSatisfy": {
+                  "const": false,
+                  "type": "boolean"
+                }
+              }
+            },
+            "evaluationInputs": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["policyBundle", "lawInputs"],
+              "properties": {
+                "policyBundle": {
+                  "additionalProperties": false,
+                  "type": "object",
+                  "required": ["digest", "manifest"],
+                  "properties": {
+                    "digest": {
+                      "pattern": "^sha256:[0-9a-f]{64}$",
+                      "type": "string"
+                    },
+                    "manifest": {
+                      "additionalProperties": false,
+                      "minProperties": 1,
+                      "type": "object",
+                      "patternProperties": {
+                        "^policy/[A-Za-z0-9._-]+\\.rego$": {
+                          "pattern": "^[0-9a-f]{64}$",
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "lawInputs": {
+                  "additionalProperties": false,
+                  "type": "object",
+                  "required": ["cloudflare", "planLimits", "profiles"],
+                  "properties": {
+                    "cloudflare": {
+                      "additionalProperties": false,
+                      "type": "object",
+                      "required": ["approvedZoneId", "approvedAccountId"],
+                      "properties": {
+                        "approvedZoneId": {
+                          "minLength": 1,
+                          "type": "string"
+                        },
+                        "approvedAccountId": {
+                          "minLength": 1,
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "planLimits": {
+                      "additionalProperties": false,
+                      "type": "object",
+                      "required": ["maxGpuInstances", "maxTotalVcpus", "approvedLocations"],
+                      "properties": {
+                        "maxGpuInstances": {
+                          "minimum": 0,
+                          "type": "integer"
+                        },
+                        "maxTotalVcpus": {
+                          "minimum": 1,
+                          "type": "integer"
+                        },
+                        "approvedLocations": {
+                          "minItems": 1,
+                          "uniqueItems": true,
+                          "type": "array",
+                          "items": {
+                            "minLength": 1,
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "profiles": {
+                      "additionalProperties": false,
+                      "type": "object",
+                      "required": ["compute", "plane"],
+                      "properties": {
+                        "compute": {
+                          "additionalProperties": false,
+                          "type": "object",
+                          "required": [
+                            "requiresRunCeiling",
+                            "requiresExpirationLabel",
+                            "maxRunSeconds",
+                            "allowExternalIp",
+                            "machinePrefixes",
+                            "accelerators",
+                            "maxGpuInstances",
+                            "maxTotalVcpus",
+                            "maxParallelism",
+                            "network"
+                          ],
+                          "properties": {
+                            "requiresRunCeiling": {
+                              "type": "boolean"
+                            },
+                            "requiresExpirationLabel": {
+                              "type": "boolean"
+                            },
+                            "maxRunSeconds": {
+                              "minimum": 1,
+                              "type": "integer"
+                            },
+                            "allowExternalIp": {
+                              "const": false,
+                              "type": "boolean"
+                            },
+                            "machinePrefixes": {
+                              "minItems": 1,
+                              "uniqueItems": true,
+                              "type": "array",
+                              "items": {
+                                "minLength": 1,
+                                "type": "string"
+                              }
+                            },
+                            "accelerators": {
+                              "uniqueItems": true,
+                              "type": "array",
+                              "items": {
+                                "minLength": 1,
+                                "type": "string"
+                              }
+                            },
+                            "maxGpuInstances": {
+                              "minimum": 0,
+                              "type": "integer"
+                            },
+                            "maxTotalVcpus": {
+                              "minimum": 1,
+                              "type": "integer"
+                            },
+                            "maxParallelism": {
+                              "minimum": 1,
+                              "type": "integer"
+                            },
+                            "network": {
+                              "const": "private",
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "plane": {
+                          "additionalProperties": false,
+                          "type": "object",
+                          "required": [
+                            "requiresRunCeiling",
+                            "requiresExpirationLabel",
+                            "maxRunSeconds",
+                            "allowExternalIp",
+                            "machinePrefixes",
+                            "accelerators",
+                            "maxGpuInstances",
+                            "maxTotalVcpus",
+                            "maxParallelism",
+                            "network"
+                          ],
+                          "properties": {
+                            "requiresRunCeiling": {
+                              "type": "boolean"
+                            },
+                            "requiresExpirationLabel": {
+                              "type": "boolean"
+                            },
+                            "maxRunSeconds": {
+                              "minimum": 1,
+                              "type": "integer"
+                            },
+                            "allowExternalIp": {
+                              "const": false,
+                              "type": "boolean"
+                            },
+                            "machinePrefixes": {
+                              "minItems": 1,
+                              "uniqueItems": true,
+                              "type": "array",
+                              "items": {
+                                "minLength": 1,
+                                "type": "string"
+                              }
+                            },
+                            "accelerators": {
+                              "uniqueItems": true,
+                              "type": "array",
+                              "items": {
+                                "minLength": 1,
+                                "type": "string"
+                              }
+                            },
+                            "maxGpuInstances": {
+                              "minimum": 0,
+                              "type": "integer"
+                            },
+                            "maxTotalVcpus": {
+                              "minimum": 1,
+                              "type": "integer"
+                            },
+                            "maxParallelism": {
+                              "minimum": 1,
+                              "type": "integer"
+                            },
+                            "network": {
+                              "const": "private",
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "canonicalPayload": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "payloadSha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "canonicalSignatureInput": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "signature": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["algorithm", "keyClass", "publicKeyHex", "signatureHex"],
+          "properties": {
+            "algorithm": {
+              "const": "Ed25519",
+              "type": "string"
+            },
+            "keyClass": {
+              "anyOf": [
+                {
+                  "const": "synthetic-test-only",
+                  "type": "string"
+                },
+                {
+                  "const": "human-authority",
+                  "type": "string"
+                },
+                {
+                  "const": "release-automation",
+                  "type": "string"
+                }
+              ]
+            },
+            "publicKeyHex": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            "signatureHex": {
+              "pattern": "^[0-9a-f]{128}$",
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}

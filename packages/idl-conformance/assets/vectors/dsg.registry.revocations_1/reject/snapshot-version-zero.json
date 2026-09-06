@@ -1,0 +1,8 @@
+{
+  "profile": "dsg.registry.revocations/1",
+  "shape": "snapshot",
+  "name": "version-zero",
+  "verdict": "reject",
+  "bytes": "eyJkb21haW4iOiJkc2cucmVnaXN0cnkucmV2b2NhdGlvbnMvMSIsInZlcnNpb24iOjAsImlzc3VlZEF0IjoxNzU3MTE2ODAwLCJleHBpcmVzQXQiOjE3NTcyMDMyMDAsInByZXZpb3VzU2hhMjU2IjpudWxsLCJ0ZXN0T25seSI6dHJ1ZSwic2lnbmVyS2V5IjoiYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYSIsInJldm9rZWQiOltdLCJ0cnVzdEhpc3RvcnkiOltdfQ==",
+  "rule": "snapshot versions are monotonic from 1"
+}

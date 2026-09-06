@@ -1,0 +1,8 @@
+{
+  "profile": "dsg.registry.revocations/1",
+  "shape": "snapshot",
+  "name": "not-test-only",
+  "verdict": "reject",
+  "bytes": "eyJkb21haW4iOiJkc2cucmVnaXN0cnkucmV2b2NhdGlvbnMvMSIsInZlcnNpb24iOjEsImlzc3VlZEF0IjoxNzU3MTE2ODAwLCJleHBpcmVzQXQiOjE3NTcyMDMyMDAsInByZXZpb3VzU2hhMjU2IjpudWxsLCJ0ZXN0T25seSI6ZmFsc2UsInNpZ25lcktleSI6ImFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWEiLCJyZXZva2VkIjpbXSwidHJ1c3RIaXN0b3J5IjpbXX0=",
+  "rule": "every local snapshot is labeled testOnly; deployed trust requires the managed signer (S03)"
+}

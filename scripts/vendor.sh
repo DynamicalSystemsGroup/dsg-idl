@@ -10,7 +10,7 @@ HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 consumers=("$@")
 if [ "${#consumers[@]}" -eq 0 ]; then
-  consumers=("$HERE/../dsg-kernel" "$HERE/../dsg-run")
+  consumers=("$HERE/../dsg-kernel" "$HERE/../dsg-run" "$HERE/../dsg-infra-module-registry")
 fi
 
 for repo in "${consumers[@]}"; do

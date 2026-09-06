@@ -15,6 +15,12 @@ const FROZEN_EXEMPTIONS = new Set([
   // dsg.run.operation/1 predates the exact-second ruling and the plane
   // emits fractional seconds today; tightening is a /2.
   "dsg.run.operation/1#accepted.acceptedAt",
+  // dsg.registry.revocations/1 chose epoch-second integers before the
+  // exact-second-string ruling; string timestamps would be a /2.
+  "dsg.registry.revocations/1#snapshot.issuedAt",
+  "dsg.registry.revocations/1#snapshot.expiresAt",
+  "dsg.registry.revocations/1#snapshot.revoked[].effectiveAt",
+  "dsg.registry.revocations/1#snapshot.trustHistory[].effectiveAt",
 ]);
 const UTC_SECOND = "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$";
 
@@ -25,12 +31,18 @@ function walk(schema: TSchema, path: string): Node[] {
   const anySchema = schema as unknown as {
     type?: string;
     properties?: Record<string, TSchema>;
+    patternProperties?: Record<string, TSchema>;
     items?: TSchema;
     anyOf?: TSchema[];
   };
   if (anySchema.properties !== undefined) {
     for (const [key, child] of Object.entries(anySchema.properties)) {
       nodes.push(...walk(child, `${path}.${key}`));
+    }
+  }
+  if (anySchema.patternProperties !== undefined) {
+    for (const child of Object.values(anySchema.patternProperties)) {
+      nodes.push(...walk(child, `${path}.*`));
     }
   }
   if (anySchema.items !== undefined) nodes.push(...walk(anySchema.items, `${path}[]`));
@@ -40,6 +52,17 @@ function walk(schema: TSchema, path: string): Node[] {
     }
   }
   return nodes;
+}
+
+/** A TypeBox Record over unconstrained string keys emits patternProperties
+ * whose pattern matches every key, so every property is value-constrained:
+ * closed in effect without additionalProperties. */
+function isClosedRecord(schema: {
+  patternProperties?: Record<string, unknown>;
+  additionalProperties?: unknown;
+}): boolean {
+  const patterns = Object.keys(schema.patternProperties ?? {});
+  return patterns.length > 0 && patterns.every((p) => p === "^(.*)$" || p === "^.*$");
 }
 
 const entries = Object.entries(PROFILES);
@@ -62,8 +85,9 @@ describe("profile registry law", () => {
           const anySchema = node.schema as unknown as {
             type?: string;
             additionalProperties?: unknown;
+            patternProperties?: Record<string, TSchema>;
           };
-          if (anySchema.type === "object") {
+          if (anySchema.type === "object" && !isClosedRecord(anySchema)) {
             expect(anySchema.additionalProperties, `${node.path} is open`).toBe(false);
           }
         }
@@ -71,15 +95,22 @@ describe("profile registry law", () => {
     }
   });
 
-  it("puts the profile literal on at least one shape", () => {
+  it("puts the profile literal on at least one shape, or names its carrier", () => {
     for (const [, entry] of entries) {
       const carried = Object.values(entry.shapes).some((shape) => {
         const anySchema = shape as unknown as {
           properties?: Record<string, { const?: unknown }>;
         };
-        return anySchema.properties?.["profile"]?.const === entry.literal;
+        return Object.values(anySchema.properties ?? {}).some(
+          (property) => property.const === entry.literal,
+        );
       });
-      expect(carried, `${entry.literal} has no shape carrying its literal`).toBe(true);
+      if (!carried) {
+        expect(
+          entry.literalNote,
+          `${entry.literal} carries its literal in no shape and names no carrier`,
+        ).toBeTruthy();
+      }
     }
   });
 

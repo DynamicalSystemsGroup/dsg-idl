@@ -1,0 +1,8 @@
+{
+  "profile": "dsg.registry.revocations/1",
+  "shape": "snapshot",
+  "name": "wrong-domain-v2",
+  "verdict": "reject",
+  "bytes": "eyJkb21haW4iOiJkc2cucmVnaXN0cnkucmV2b2NhdGlvbnMvMiIsInZlcnNpb24iOjEsImlzc3VlZEF0IjoxNzU3MTE2ODAwLCJleHBpcmVzQXQiOjE3NTcyMDMyMDAsInByZXZpb3VzU2hhMjU2IjpudWxsLCJ0ZXN0T25seSI6dHJ1ZSwic2lnbmVyS2V5IjoiYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYSIsInJldm9rZWQiOltdLCJ0cnVzdEhpc3RvcnkiOltdfQ==",
+  "rule": "the literal is the version check; dsg.registry.revocations/2 does not exist"
+}

@@ -1,0 +1,8 @@
+{
+  "profile": "dsg.registry.revocations/1",
+  "shape": "pointer",
+  "name": "traversal-url",
+  "verdict": "reject",
+  "bytes": "eyJ2ZXJzaW9uIjoyLCJzaGEyNTYiOiJmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmZmIiwidXJsIjoiL3Jldm9jYXRpb25zL3YvLi4vMi9zbmFwc2hvdC5qc29uIn0=",
+  "rule": "pointer urls are exactly /revocations/v/<n>/snapshot.json"
+}
