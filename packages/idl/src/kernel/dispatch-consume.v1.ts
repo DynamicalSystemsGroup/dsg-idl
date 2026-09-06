@@ -16,8 +16,15 @@
 // c2d39d95 (wire shapes only; the record-held event payloads stay in the
 // kernel). This file is frozen: changes ship as dispatch-consume.v2.ts.
 import { type Static, Type } from "@sinclair/typebox";
-import { OrnSchema, ReferenceSchema } from "@dynamicalsystems/orn-schemas";
-import { closed, Hex64, NonEmptyString, UtcSecond, type ProfileEntry } from "../primitives.js";
+import {
+  closed,
+  Hex64,
+  NonEmptyString,
+  Orn,
+  Reference,
+  UtcSecond,
+  type ProfileEntry,
+} from "../primitives.js";
 
 export const DISPATCH_CONSUME_PROFILE = "dsg.kernel.dispatch-consume/1" as const;
 
@@ -32,14 +39,14 @@ const DispatchConsumeRequestSchemaValue = closed({
   generation: Type.Integer({ minimum: 0 }),
   /** The Case the operation belongs to - the stream the consume event
    *  lands on and the stream the reservation was recorded on. */
-  caseOrn: OrnSchema,
+  caseOrn: Orn,
   /** SHA256(JCS(complete OperationRequest)) - the M010 envelope digest. */
   envelopeSha256: Hex64,
   /** The exact retained signed-law bytes the Case pins. */
   lawSha256: Hex64,
   /** The K04 reservation the authorization is bound to: sha256 is the
    *  reservation event's record id. */
-  reservation: ReferenceSchema,
+  reservation: Reference,
   requestedAt: UtcSecond,
   /** False: first consumption or idempotent replay of it. True: an explicit
    *  renewal - a new recorded authorization decision for the same operation
@@ -58,10 +65,10 @@ const DispatchLeaseSchemaValue = closed({
   leaseId: Hex64,
   operationId: NonEmptyString,
   generation: Type.Integer({ minimum: 0 }),
-  caseOrn: OrnSchema,
+  caseOrn: Orn,
   envelopeSha256: Hex64,
   lawSha256: Hex64,
-  reservation: ReferenceSchema,
+  reservation: Reference,
   consumedAt: UtcSecond,
   /** Fixed maximum duration from consumedAt; the plane checks validity
    *  before each new non-cleanup call, Batch submission included. */

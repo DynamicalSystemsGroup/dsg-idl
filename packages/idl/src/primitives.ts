@@ -2,6 +2,7 @@
 // own: a digest is Hex64 everywhere, a timestamp is UtcSecond everywhere,
 // an open object exists nowhere.
 import { type TObject, type TProperties, type TSchema, Type } from "@sinclair/typebox";
+import { ORN_PATTERN, SHA256_PATTERN } from "@dynamicalsystems/orn-schemas";
 
 /** Closed object: an extra field is a different protocol. */
 export const closed = <T extends TProperties>(properties: T): TObject<T> =>
@@ -18,6 +19,19 @@ export const UtcSecond = Type.String({
 export const NonEmptyString = Type.String({ minLength: 1 });
 
 export const SafeInt = Type.Integer({ minimum: 0, maximum: Number.MAX_SAFE_INTEGER });
+
+/** An ORN, validated by the grammar dsg-orn owns. Built from the exported
+ * pattern, not the exported schema object: the upstream schemas carry
+ * JSON Schema $id metadata, and embedding the same $id in several route
+ * schemas makes validators refuse the duplicate. The pattern is the wire
+ * truth; the metadata is not. */
+export const Orn = Type.String({ pattern: ORN_PATTERN });
+
+/** The pair of an ORN and the sha256 pinning a version (dsg-orn Reference). */
+export const Reference = closed({
+  orn: Orn,
+  sha256: Type.String({ pattern: SHA256_PATTERN }),
+});
 
 /** One wire profile: the literal, and every top-level shape that crosses
  * the seam it names. Shape names are stable identifiers ("request",

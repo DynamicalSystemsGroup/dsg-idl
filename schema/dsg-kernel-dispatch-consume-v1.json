@@ -31,9 +31,6 @@
           "type": "integer"
         },
         "caseOrn": {
-          "$id": "https://dynamicalsystemsgroup.com/schemas/orn-1/orn.json",
-          "title": "ObjectReferenceName",
-          "description": "Permanent URI naming an object in the orn: scheme",
           "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
           "type": "string"
         },
@@ -46,25 +43,15 @@
           "type": "string"
         },
         "reservation": {
-          "$id": "https://dynamicalsystemsgroup.com/schemas/orn-1/reference.json",
-          "$schema": "https://json-schema.org/draft/2020-12/schema",
-          "title": "Reference",
-          "description": "The pair of an ORN and a SHA-256 hash pinning a version",
           "additionalProperties": false,
           "type": "object",
           "required": ["orn", "sha256"],
           "properties": {
             "orn": {
-              "$id": "https://dynamicalsystemsgroup.com/schemas/orn-1/orn.json",
-              "title": "ObjectReferenceName",
-              "description": "Permanent URI naming an object in the orn: scheme",
               "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
               "type": "string"
             },
             "sha256": {
-              "$id": "https://dynamicalsystemsgroup.com/schemas/orn-1/sha256.json",
-              "title": "Sha256Digest",
-              "description": "64-character lowercase hexadecimal SHA-256 digest",
               "pattern": "^[0-9a-f]{64}$",
               "type": "string"
             }
@@ -115,9 +102,6 @@
           "type": "integer"
         },
         "caseOrn": {
-          "$id": "https://dynamicalsystemsgroup.com/schemas/orn-1/orn.json",
-          "title": "ObjectReferenceName",
-          "description": "Permanent URI naming an object in the orn: scheme",
           "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
           "type": "string"
         },
@@ -130,25 +114,15 @@
           "type": "string"
         },
         "reservation": {
-          "$id": "https://dynamicalsystemsgroup.com/schemas/orn-1/reference.json",
-          "$schema": "https://json-schema.org/draft/2020-12/schema",
-          "title": "Reference",
-          "description": "The pair of an ORN and a SHA-256 hash pinning a version",
           "additionalProperties": false,
           "type": "object",
           "required": ["orn", "sha256"],
           "properties": {
             "orn": {
-              "$id": "https://dynamicalsystemsgroup.com/schemas/orn-1/orn.json",
-              "title": "ObjectReferenceName",
-              "description": "Permanent URI naming an object in the orn: scheme",
               "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
               "type": "string"
             },
             "sha256": {
-              "$id": "https://dynamicalsystemsgroup.com/schemas/orn-1/sha256.json",
-              "title": "Sha256Digest",
-              "description": "64-character lowercase hexadecimal SHA-256 digest",
               "pattern": "^[0-9a-f]{64}$",
               "type": "string"
             }

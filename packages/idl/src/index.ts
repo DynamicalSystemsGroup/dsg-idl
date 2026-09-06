@@ -1,4 +1,4 @@
-export { closed, Hex64, NonEmptyString, SafeInt, UtcSecond } from "./primitives.js";
+export { closed, Hex64, NonEmptyString, Orn, Reference, SafeInt, UtcSecond } from "./primitives.js";
 export type { ProfileEntry } from "./primitives.js";
 export {
   DISPATCH_CONSUME_PROFILE,
