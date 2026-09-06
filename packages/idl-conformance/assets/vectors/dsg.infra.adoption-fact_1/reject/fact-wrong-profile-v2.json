@@ -1,0 +1,8 @@
+{
+  "profile": "dsg.infra.adoption-fact/1",
+  "shape": "fact",
+  "name": "wrong-profile-v2",
+  "verdict": "reject",
+  "bytes": "eyJwcm9maWxlIjoiZHNnLmluZnJhLmFkb3B0aW9uLWZhY3QvMiIsInJvb3QiOiJkc2ctaW5mcmEvaW5mcmFzdHJ1Y3R1cmUvZW52aXJvbm1lbnRzL2RzZy1ydW4iLCJsaW5lYWdlIjoic3ludGhldGljLWxpbmVhZ2UiLCJvcGVyYXRpb24iOiJpbml0aWFsaXplLW9uZSIsImdlbmVyYXRpb24iOjEsInNuYXBzaG90U2hhMjU2IjoiYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYSIsImFjdGlvbiI6ImluaXRpYWxpemVfa2VybmVsX3JlY29yZCIsInNpZ25lciI6Im9ybjpkc2cuY29yZS5rZXJuZWwuYWN0b3I6c3ludGhldGljLWh1bWFuLXJvb3QiLCJodW1hblJvb3QiOiJzeW50aGV0aWMtcm9vdC0xIiwidGVzdE9ubHkiOnRydWV9",
+  "rule": "the literal is the version check; /2 does not exist"
+}

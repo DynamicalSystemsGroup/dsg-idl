@@ -1,0 +1,7 @@
+{
+  "profile": "dsg.infra.adoption-fact/1",
+  "shape": "fact",
+  "name": "cutover-transfer",
+  "verdict": "accept",
+  "bytes": "eyJwcm9maWxlIjoiZHNnLmluZnJhLmFkb3B0aW9uLWZhY3QvMSIsInJvb3QiOiJkc2ctaW5mcmEvaW5mcmFzdHJ1Y3R1cmUvZW52aXJvbm1lbnRzL2RzZy1ydW4iLCJsaW5lYWdlIjoic3ludGhldGljLWxpbmVhZ2UiLCJvcGVyYXRpb24iOiJjdXRvdmVyLXR3byIsImdlbmVyYXRpb24iOjIsInNuYXBzaG90U2hhMjU2IjoiYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYSIsImFjdGlvbiI6ImN1dG92ZXJfc2luZ2xlX3dyaXRlciIsInNpZ25lciI6Im9ybjpkc2cuY29yZS5rZXJuZWwuYWN0b3I6c3ludGhldGljLWh1bWFuLXJvb3QiLCJodW1hblJvb3QiOiJzeW50aGV0aWMtcm9vdC0xIiwidGVzdE9ubHkiOmZhbHNlfQ=="
+}

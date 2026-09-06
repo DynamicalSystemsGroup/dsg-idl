@@ -56,6 +56,8 @@ export {
   ResourceDescriptorSchema,
 } from "./infra/resource-descriptor.v1.js";
 export type { ResourceDescriptor } from "./infra/resource-descriptor.v1.js";
+export { ADOPTION_FACT_PROFILE, AdoptionFactSchema } from "./infra/adoption-fact.v1.js";
+export type { AdoptionFact } from "./infra/adoption-fact.v1.js";
 export type { SignedLawBundle } from "./infra/signed-law.v1.js";
 export {
   REVOCATIONS_PROFILE,
@@ -87,6 +89,7 @@ import { dispatchConsumeV1 } from "./kernel/dispatch-consume.v1.js";
 import { operationV1 } from "./run/operation.v1.js";
 import { signedLawV1 } from "./infra/signed-law.v1.js";
 import { resourceDescriptorV1 } from "./infra/resource-descriptor.v1.js";
+import { adoptionFactV1 } from "./infra/adoption-fact.v1.js";
 import { revocationsV1 } from "./registry/revocations.v1.js";
 import { bootstrapV1 } from "./kernel/bootstrap.v1.js";
 import { ordinaryAuthorityV1 } from "./kernel/ordinary-authority.v1.js";
@@ -100,6 +103,7 @@ export const PROFILES: Readonly<Record<string, ProfileEntry>> = {
   [operationV1.literal]: operationV1,
   [signedLawV1.literal]: signedLawV1,
   [resourceDescriptorV1.literal]: resourceDescriptorV1,
+  [adoptionFactV1.literal]: adoptionFactV1,
   [revocationsV1.literal]: revocationsV1,
   [bootstrapV1.literal]: bootstrapV1,
   [ordinaryAuthorityV1.literal]: ordinaryAuthorityV1,

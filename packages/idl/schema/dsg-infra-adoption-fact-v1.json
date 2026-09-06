@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/DynamicalSystemsGroup/dsg-idl/schema/dsg-infra-adoption-fact-v1.json",
+  "title": "dsg.infra.adoption-fact/1",
+  "$defs": {
+    "fact": {
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "profile",
+        "root",
+        "lineage",
+        "operation",
+        "generation",
+        "snapshotSha256",
+        "action",
+        "signer",
+        "humanRoot",
+        "testOnly"
+      ],
+      "properties": {
+        "profile": {
+          "const": "dsg.infra.adoption-fact/1",
+          "type": "string"
+        },
+        "root": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "lineage": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "operation": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "generation": {
+          "minimum": 1,
+          "maximum": 9007199254740991,
+          "type": "integer"
+        },
+        "snapshotSha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "action": {
+          "anyOf": [
+            {
+              "const": "initialize_kernel_record",
+              "type": "string"
+            },
+            {
+              "const": "cutover_single_writer",
+              "type": "string"
+            }
+          ]
+        },
+        "signer": {
+          "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+          "type": "string"
+        },
+        "humanRoot": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "testOnly": {
+          "type": "boolean"
+        }
+      }
+    }
+  },
+  "$ref": "#/$defs/fact"
+}

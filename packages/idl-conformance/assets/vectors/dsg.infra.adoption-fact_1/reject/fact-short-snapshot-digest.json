@@ -1,0 +1,8 @@
+{
+  "profile": "dsg.infra.adoption-fact/1",
+  "shape": "fact",
+  "name": "short-snapshot-digest",
+  "verdict": "reject",
+  "bytes": "eyJwcm9maWxlIjoiZHNnLmluZnJhLmFkb3B0aW9uLWZhY3QvMSIsInJvb3QiOiJkc2ctaW5mcmEvaW5mcmFzdHJ1Y3R1cmUvZW52aXJvbm1lbnRzL2RzZy1ydW4iLCJsaW5lYWdlIjoic3ludGhldGljLWxpbmVhZ2UiLCJvcGVyYXRpb24iOiJpbml0aWFsaXplLW9uZSIsImdlbmVyYXRpb24iOjEsInNuYXBzaG90U2hhMjU2IjoiYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhIiwiYWN0aW9uIjoiaW5pdGlhbGl6ZV9rZXJuZWxfcmVjb3JkIiwic2lnbmVyIjoib3JuOmRzZy5jb3JlLmtlcm5lbC5hY3RvcjpzeW50aGV0aWMtaHVtYW4tcm9vdCIsImh1bWFuUm9vdCI6InN5bnRoZXRpYy1yb290LTEiLCJ0ZXN0T25seSI6dHJ1ZX0=",
+  "rule": "the fact carries the 64-hex canonical snapshot digest"
+}
