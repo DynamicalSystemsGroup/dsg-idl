@@ -1,0 +1,127 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/DynamicalSystemsGroup/dsg-idl/schema/dsg-infra-resource-descriptor-v1.json",
+  "title": "dsg.infra.resource-descriptor/1",
+  "$defs": {
+    "descriptor": {
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "schemaVersion",
+        "kind",
+        "workloadClass",
+        "lifecycle",
+        "machineType",
+        "accelerator",
+        "acceleratorCount",
+        "vcpuCount",
+        "memoryGiB",
+        "maxRunSeconds",
+        "maxParallelism",
+        "region",
+        "imageDigest",
+        "moduleDigest",
+        "externalIp",
+        "network",
+        "reservation"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "const": 1,
+          "type": "number"
+        },
+        "kind": {
+          "const": "dsg.infra.resource-descriptor",
+          "type": "string"
+        },
+        "workloadClass": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "lifecycle": {
+          "anyOf": [
+            {
+              "const": "ephemeral",
+              "type": "string"
+            },
+            {
+              "const": "durable",
+              "type": "string"
+            }
+          ]
+        },
+        "machineType": {
+          "pattern": "^[a-z][a-z0-9]*-[a-z0-9]+-[0-9]+$",
+          "type": "string"
+        },
+        "accelerator": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "acceleratorCount": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "vcpuCount": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "memoryGiB": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "maxRunSeconds": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "maxParallelism": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "region": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "imageDigest": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "moduleDigest": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "externalIp": {
+          "const": false,
+          "type": "boolean"
+        },
+        "network": {
+          "const": "private",
+          "type": "string"
+        },
+        "reservation": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["gpuSeconds", "usdMicroUnits"],
+          "properties": {
+            "gpuSeconds": {
+              "minimum": 0,
+              "type": "integer"
+            },
+            "usdMicroUnits": {
+              "minimum": 0,
+              "type": "integer"
+            }
+          }
+        }
+      }
+    }
+  },
+  "$ref": "#/$defs/descriptor"
+}

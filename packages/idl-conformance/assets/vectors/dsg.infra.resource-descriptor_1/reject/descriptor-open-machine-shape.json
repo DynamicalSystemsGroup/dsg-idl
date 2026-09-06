@@ -1,0 +1,8 @@
+{
+  "profile": "dsg.infra.resource-descriptor/1",
+  "shape": "descriptor",
+  "name": "open-machine-shape",
+  "verdict": "reject",
+  "bytes": "eyJzY2hlbWFWZXJzaW9uIjoxLCJraW5kIjoiZHNnLmluZnJhLnJlc291cmNlLWRlc2NyaXB0b3IiLCJ3b3JrbG9hZENsYXNzIjoiY29tcHV0ZSIsImxpZmVjeWNsZSI6ImVwaGVtZXJhbCIsIm1hY2hpbmVUeXBlIjoiY3VzdG9tIiwiYWNjZWxlcmF0b3IiOiJudmlkaWEtbDQiLCJhY2NlbGVyYXRvckNvdW50IjoxLCJ2Y3B1Q291bnQiOjQsIm1lbW9yeUdpQiI6MTYsIm1heFJ1blNlY29uZHMiOjYwLCJtYXhQYXJhbGxlbGlzbSI6MSwicmVnaW9uIjoiVVMiLCJpbWFnZURpZ2VzdCI6InNoYTI1NjozMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzIiwibW9kdWxlRGlnZXN0Ijoic2hhMjU2OjQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQiLCJleHRlcm5hbElwIjpmYWxzZSwibmV0d29yayI6InByaXZhdGUiLCJyZXNlcnZhdGlvbiI6eyJncHVTZWNvbmRzIjo2MCwidXNkTWljcm9Vbml0cyI6MjU2OH19",
+  "rule": "machineType is a closed provider-neutral shape family-size-count"
+}

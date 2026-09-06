@@ -21,6 +21,10 @@ const FROZEN_EXEMPTIONS = new Set([
   "dsg.registry.revocations/1#snapshot.expiresAt",
   "dsg.registry.revocations/1#snapshot.revoked[].effectiveAt",
   "dsg.registry.revocations/1#snapshot.trustHistory[].effectiveAt",
+  // dsg-infra's descriptor source schema chose sha256:-prefixed digests;
+  // bare Hex64 would be a /2 of that document.
+  "dsg.infra.resource-descriptor/1#descriptor.imageDigest",
+  "dsg.infra.resource-descriptor/1#descriptor.moduleDigest",
 ]);
 const UTC_SECOND = "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$";
 
@@ -128,12 +132,12 @@ describe("profile registry law", () => {
             anySchema.anyOf === undefined
               ? [anySchema.pattern]
               : anySchema.anyOf.filter((arm) => arm.type !== "null").map((arm) => arm.pattern);
+          if (FROZEN_EXEMPTIONS.has(node.path)) continue;
           if (/(sha256|Sha256|Digest)$/.test(leaf)) {
             for (const pattern of patterns) {
               expect(pattern, `${node.path} is a digest without Hex64`).toBe(HEX64);
             }
           }
-          if (FROZEN_EXEMPTIONS.has(node.path)) continue;
           if (/(At)$/.test(leaf) && leaf !== "At") {
             for (const pattern of patterns) {
               expect(pattern, `${node.path} is a timestamp without UtcSecond`).toBe(UTC_SECOND);

@@ -11,10 +11,21 @@
 // module registry copy at 1f8c994.
 import { Type, type Static } from "@sinclair/typebox";
 import type { ProfileEntry } from "../primitives.js";
+import { RESOURCE_DESCRIPTOR_PROFILE } from "./resource-descriptor.v1.js";
 
 export const SIGNED_LAW_PROFILE = "dsg.infra.signed-law/1" as const;
 /** The signature-input domain member is exactly the profile literal. */
 export const SIGNED_LAW_DOMAIN = SIGNED_LAW_PROFILE;
+
+/** The scope vocabulary version today's laws cite in
+ * standingOrder.scopeReference. The FIELD stays an open nonempty string on
+ * purpose (a law may cite a future scope); this constant is the value in
+ * force, exported so no consumer hand-types it. */
+export const SCOPE_REFERENCE = "dsg.infra.scope/1" as const;
+
+/** The price-profile version today's laws cite in priceProfile.reference.
+ * Same rule: the field stays open; this is the value in force. */
+export const PRICE_PROFILE_REFERENCE = "dsg.infra.price-profile/1" as const;
 
 const nullableString = Type.Union([Type.String({ minLength: 1 }), Type.Null()]);
 const authority = Type.Object(
@@ -47,7 +58,7 @@ const scope = Type.Object(
     workloadClasses: Type.Array(Type.String({ minLength: 1 }), { minItems: 1, uniqueItems: true }),
     providers: Type.Array(Type.Literal("provider-neutral"), { minItems: 1, uniqueItems: true }),
     regions: Type.Array(Type.String({ minLength: 1 }), { uniqueItems: true }),
-    resourceDescriptorVersion: Type.Literal("dsg.infra.resource-descriptor/1"),
+    resourceDescriptorVersion: Type.Literal(RESOURCE_DESCRIPTOR_PROFILE),
   },
   { additionalProperties: false },
 );
@@ -93,7 +104,7 @@ const capabilityProfile = Type.Object(
 const capabilities = Type.Object(
   {
     providerNeutral: Type.Literal(true),
-    descriptorVersion: Type.Literal("dsg.infra.resource-descriptor/1"),
+    descriptorVersion: Type.Literal(RESOURCE_DESCRIPTOR_PROFILE),
     profiles: Type.Record(Type.String(), capabilityProfile, { minProperties: 1 }),
   },
   { additionalProperties: false },

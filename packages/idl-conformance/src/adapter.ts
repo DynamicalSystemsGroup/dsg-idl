@@ -23,4 +23,10 @@ export type Vector = {
    * (different key order, whitespace), so agreement proves the consumer's
    * own canonicalize-and-digest path, not a byte copy. */
   readonly sha256?: string;
+  /** What agreeing on this vector obliges. "shape" (default): the boundary
+   * parser's structural verdict. "semantic": a validator beyond shape
+   * (law_contract.py, Rego decisions) must agree; shape-only adapters skip
+   * these. Passing a finite corpus establishes agreement on those cases,
+   * never equivalence. */
+  readonly obligation?: "shape" | "semantic";
 };

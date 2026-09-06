@@ -53,6 +53,7 @@ export function runVectors(adapter: Adapter, assetsDir: string, checklist: Check
         ? `${vector.profile}#digest.${vector.shape}`
         : `${vector.profile}#${vector.shape}`;
       const parse = adapter[key];
+      if (parse === undefined && vector.obligation === "semantic") continue;
       if (parse === undefined) {
         verdicts.push({
           id: `${key}/${vector.name}`,

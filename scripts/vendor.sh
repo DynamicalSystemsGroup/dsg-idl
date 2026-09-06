@@ -24,3 +24,13 @@ for repo in "${consumers[@]}"; do
   (cd "$repo" && pnpm install --force >/dev/null)
   echo "vendored -> $repo"
 done
+
+# dsg-infra consumes vectors and generated schema as plain pinned files (no node toolchain there)
+INFRA="$HERE/../dsg-infra"
+mkdir -p "$INFRA/vendor/idl"
+rm -rf "$INFRA/vendor/idl"/*
+cp -R "$HERE/packages/idl-conformance/assets/vectors" "$INFRA/vendor/idl/vectors"
+cp "$HERE/packages/idl-conformance/checklist.json" "$INFRA/vendor/idl/checklist.json"
+cp -R "$HERE/packages/idl/schema" "$INFRA/vendor/idl/schema"
+{ cd "$HERE" && git rev-parse HEAD; } > "$INFRA/vendor/idl/SOURCE-COMMIT"
+echo "vendored assets -> $INFRA/vendor/idl"

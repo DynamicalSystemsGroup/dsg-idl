@@ -11,7 +11,7 @@ build:
 check:
     just build
     just gen-schemas
-    git diff --exit-code schema
+    git diff --exit-code packages/idl/schema
     pnpm -r check-types
     pnpm -r lint
     oxfmt --check .

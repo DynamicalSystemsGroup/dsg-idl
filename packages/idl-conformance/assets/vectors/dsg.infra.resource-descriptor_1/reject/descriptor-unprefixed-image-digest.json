@@ -1,0 +1,8 @@
+{
+  "profile": "dsg.infra.resource-descriptor/1",
+  "shape": "descriptor",
+  "name": "unprefixed-image-digest",
+  "verdict": "reject",
+  "bytes": "eyJzY2hlbWFWZXJzaW9uIjoxLCJraW5kIjoiZHNnLmluZnJhLnJlc291cmNlLWRlc2NyaXB0b3IiLCJ3b3JrbG9hZENsYXNzIjoiY29tcHV0ZSIsImxpZmVjeWNsZSI6ImVwaGVtZXJhbCIsIm1hY2hpbmVUeXBlIjoiZzItc3RhbmRhcmQtNCIsImFjY2VsZXJhdG9yIjoibnZpZGlhLWw0IiwiYWNjZWxlcmF0b3JDb3VudCI6MSwidmNwdUNvdW50Ijo0LCJtZW1vcnlHaUIiOjE2LCJtYXhSdW5TZWNvbmRzIjo2MCwibWF4UGFyYWxsZWxpc20iOjEsInJlZ2lvbiI6IlVTIiwiaW1hZ2VEaWdlc3QiOiIzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzIiwibW9kdWxlRGlnZXN0Ijoic2hhMjU2OjQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQiLCJleHRlcm5hbElwIjpmYWxzZSwibmV0d29yayI6InByaXZhdGUiLCJyZXNlcnZhdGlvbiI6eyJncHVTZWNvbmRzIjo2MCwidXNkTWljcm9Vbml0cyI6MjU2OH19",
+  "rule": "image digests carry the sha256: prefix in this document"
+}

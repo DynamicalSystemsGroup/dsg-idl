@@ -1,6 +1,6 @@
 {
   "name": "@dynamicalsystems/idl",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "The DSG governed compute plane wire profiles: TypeBox schemas, profile literals, and Static types for every dsg.*.*/N shape. One meaning per profile, frozen per version.",
   "homepage": "https://github.com/DynamicalSystemsGroup/dsg-idl#readme",
   "bugs": "https://github.com/DynamicalSystemsGroup/dsg-idl/issues",
@@ -13,6 +13,7 @@
   "files": [
     "dist",
     "src",
+    "schema",
     "LICENSE",
     "README.md"
   ],

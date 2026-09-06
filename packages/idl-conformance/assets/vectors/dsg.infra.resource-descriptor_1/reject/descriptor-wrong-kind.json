@@ -1,0 +1,8 @@
+{
+  "profile": "dsg.infra.resource-descriptor/1",
+  "shape": "descriptor",
+  "name": "wrong-kind",
+  "verdict": "reject",
+  "bytes": "eyJzY2hlbWFWZXJzaW9uIjoxLCJraW5kIjoiZHNnLmluZnJhLnJlc291cmNlIiwid29ya2xvYWRDbGFzcyI6ImNvbXB1dGUiLCJsaWZlY3ljbGUiOiJlcGhlbWVyYWwiLCJtYWNoaW5lVHlwZSI6ImcyLXN0YW5kYXJkLTQiLCJhY2NlbGVyYXRvciI6Im52aWRpYS1sNCIsImFjY2VsZXJhdG9yQ291bnQiOjEsInZjcHVDb3VudCI6NCwibWVtb3J5R2lCIjoxNiwibWF4UnVuU2Vjb25kcyI6NjAsIm1heFBhcmFsbGVsaXNtIjoxLCJyZWdpb24iOiJVUyIsImltYWdlRGlnZXN0Ijoic2hhMjU2OjMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMiLCJtb2R1bGVEaWdlc3QiOiJzaGEyNTY6NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NCIsImV4dGVybmFsSXAiOmZhbHNlLCJuZXR3b3JrIjoicHJpdmF0ZSIsInJlc2VydmF0aW9uIjp7ImdwdVNlY29uZHMiOjYwLCJ1c2RNaWNyb1VuaXRzIjoyNTY4fX0=",
+  "rule": "the kind is exactly dsg.infra.resource-descriptor"
+}
