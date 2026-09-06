@@ -20,7 +20,10 @@ Rules, enforced by this repo's own tests and `just check`:
 2. Every profile carries its literal on at least one shape.
 3. Digests are lowercase sha256 hex. Timestamps are exact UTC seconds.
    No profile defines its own primitive.
-4. A released `/N` file is frozen. Changes ship as `/N+1` beside it.
+4. A released `/N` WIRE is frozen: the emitted JSON Schema may never
+   change after its first release tag (scripts/check-frozen.sh). Source
+   refactors that keep the emitted bytes are legal. Changes ship as
+   `/N+1` beside `/1`.
 5. A profile with no vectors does not build.
 6. `schema/` is generated JSON Schema, committed, checked fresh. Non-TS
    consumers read it and never hold their own copy.

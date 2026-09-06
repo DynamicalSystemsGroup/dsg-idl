@@ -10,6 +10,7 @@ build:
 
 check:
     just build
+    scripts/check-frozen.sh
     just gen-schemas
     git diff --exit-code packages/idl/schema
     pnpm -r check-types
