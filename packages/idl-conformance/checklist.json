@@ -4,6 +4,8 @@
     "dsg.run.operation/1": 11,
     "dsg.infra.signed-law/1": 12,
     "dsg.registry.revocations/1": 8,
-    "dsg.infra.resource-descriptor/1": 11
+    "dsg.infra.resource-descriptor/1": 11,
+    "dsg.kernel.bootstrap/1": 9,
+    "dsg.kernel.ordinary-authority/1": 8
   }
 }

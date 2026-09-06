@@ -63,6 +63,24 @@ export {
   RevocationSchema,
 } from "./registry/revocations.v1.js";
 export type { RevocationPointer, RevocationSnapshot } from "./registry/revocations.v1.js";
+export {
+  BOOTSTRAP_PROFILE,
+  BootstrapActionSchema,
+  BootstrapIntentSchema,
+  SignedBootstrapIntentSchema,
+} from "./kernel/bootstrap.v1.js";
+export type {
+  BootstrapAction,
+  BootstrapIntent,
+  SignedBootstrapIntent,
+} from "./kernel/bootstrap.v1.js";
+export {
+  ORDINARY_AUTHORITY_PROFILE,
+  OrdinaryAuthoritySchema,
+} from "./kernel/ordinary-authority.v1.js";
+export type { OrdinaryAuthority } from "./kernel/ordinary-authority.v1.js";
+export { EXECUTOR_PROTOCOL_VERSION, PROVIDER_PROTOCOL_VERSION } from "./run/contract-versions.js";
+export type { ExecutorProtocolVersion, ProviderProtocolVersion } from "./run/contract-versions.js";
 
 import type { ProfileEntry } from "./primitives.js";
 import { dispatchConsumeV1 } from "./kernel/dispatch-consume.v1.js";
@@ -70,6 +88,8 @@ import { operationV1 } from "./run/operation.v1.js";
 import { signedLawV1 } from "./infra/signed-law.v1.js";
 import { resourceDescriptorV1 } from "./infra/resource-descriptor.v1.js";
 import { revocationsV1 } from "./registry/revocations.v1.js";
+import { bootstrapV1 } from "./kernel/bootstrap.v1.js";
+import { ordinaryAuthorityV1 } from "./kernel/ordinary-authority.v1.js";
 
 /** Every profile this version of the package defines, keyed by literal.
  * Profile modules are added here as they are extracted; the rules test
@@ -81,4 +101,6 @@ export const PROFILES: Readonly<Record<string, ProfileEntry>> = {
   [signedLawV1.literal]: signedLawV1,
   [resourceDescriptorV1.literal]: resourceDescriptorV1,
   [revocationsV1.literal]: revocationsV1,
+  [bootstrapV1.literal]: bootstrapV1,
+  [ordinaryAuthorityV1.literal]: ordinaryAuthorityV1,
 };

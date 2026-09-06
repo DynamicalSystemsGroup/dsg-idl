@@ -1,0 +1,278 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/DynamicalSystemsGroup/dsg-idl/schema/dsg-kernel-bootstrap-v1.json",
+  "title": "dsg.kernel.bootstrap/1",
+  "$defs": {
+    "intent": {
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "version",
+        "operation",
+        "action",
+        "lineage",
+        "humanRoot",
+        "signer",
+        "scope",
+        "resources",
+        "planSha256",
+        "preconditionsSha256",
+        "createdAt",
+        "expiresAt",
+        "maxUses",
+        "cost",
+        "testOnly"
+      ],
+      "properties": {
+        "version": {
+          "const": "dsg.kernel.bootstrap/1",
+          "type": "string"
+        },
+        "operation": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "action": {
+          "anyOf": [
+            {
+              "const": "initialize_kernel_record",
+              "type": "string"
+            },
+            {
+              "const": "restore_kernel_record",
+              "type": "string"
+            },
+            {
+              "const": "cutover_single_writer",
+              "type": "string"
+            },
+            {
+              "const": "enroll_human_root",
+              "type": "string"
+            }
+          ]
+        },
+        "lineage": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "humanRoot": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "signer": {
+          "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+          "type": "string"
+        },
+        "scope": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "resources": {
+          "minItems": 1,
+          "uniqueItems": true,
+          "type": "array",
+          "items": {
+            "additionalProperties": false,
+            "type": "object",
+            "required": ["identity", "specSha256"],
+            "properties": {
+              "identity": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "specSha256": {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              }
+            }
+          }
+        },
+        "planSha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "preconditionsSha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "createdAt": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "expiresAt": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "maxUses": {
+          "const": 1,
+          "type": "number"
+        },
+        "cost": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["currency", "maxMicroUsd", "assumptionsSha256"],
+          "properties": {
+            "currency": {
+              "const": "USD",
+              "type": "string"
+            },
+            "maxMicroUsd": {
+              "minimum": 0,
+              "maximum": 9007199254740991,
+              "type": "integer"
+            },
+            "assumptionsSha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            }
+          }
+        },
+        "testOnly": {
+          "type": "boolean"
+        }
+      }
+    },
+    "signed": {
+      "additionalProperties": false,
+      "type": "object",
+      "required": ["body", "signature"],
+      "properties": {
+        "body": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": [
+            "version",
+            "operation",
+            "action",
+            "lineage",
+            "humanRoot",
+            "signer",
+            "scope",
+            "resources",
+            "planSha256",
+            "preconditionsSha256",
+            "createdAt",
+            "expiresAt",
+            "maxUses",
+            "cost",
+            "testOnly"
+          ],
+          "properties": {
+            "version": {
+              "const": "dsg.kernel.bootstrap/1",
+              "type": "string"
+            },
+            "operation": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "action": {
+              "anyOf": [
+                {
+                  "const": "initialize_kernel_record",
+                  "type": "string"
+                },
+                {
+                  "const": "restore_kernel_record",
+                  "type": "string"
+                },
+                {
+                  "const": "cutover_single_writer",
+                  "type": "string"
+                },
+                {
+                  "const": "enroll_human_root",
+                  "type": "string"
+                }
+              ]
+            },
+            "lineage": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "humanRoot": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "signer": {
+              "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+              "type": "string"
+            },
+            "scope": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "resources": {
+              "minItems": 1,
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "additionalProperties": false,
+                "type": "object",
+                "required": ["identity", "specSha256"],
+                "properties": {
+                  "identity": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "specSha256": {
+                    "pattern": "^[0-9a-f]{64}$",
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "planSha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            "preconditionsSha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            "createdAt": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "expiresAt": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxUses": {
+              "const": 1,
+              "type": "number"
+            },
+            "cost": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["currency", "maxMicroUsd", "assumptionsSha256"],
+              "properties": {
+                "currency": {
+                  "const": "USD",
+                  "type": "string"
+                },
+                "maxMicroUsd": {
+                  "minimum": 0,
+                  "maximum": 9007199254740991,
+                  "type": "integer"
+                },
+                "assumptionsSha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            },
+            "testOnly": {
+              "type": "boolean"
+            }
+          }
+        },
+        "signature": {
+          "pattern": "^[0-9a-f]{128}$",
+          "type": "string"
+        }
+      }
+    }
+  }
+}

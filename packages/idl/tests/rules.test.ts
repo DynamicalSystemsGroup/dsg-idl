@@ -25,6 +25,12 @@ const FROZEN_EXEMPTIONS = new Set([
   // bare Hex64 would be a /2 of that document.
   "dsg.infra.resource-descriptor/1#descriptor.imageDigest",
   "dsg.infra.resource-descriptor/1#descriptor.moduleDigest",
+  // K14 recorded signed intents with free-form instants; exact-second
+  // strings would be a /2 against already-retained canonical bytes.
+  "dsg.kernel.bootstrap/1#intent.createdAt",
+  "dsg.kernel.bootstrap/1#intent.expiresAt",
+  "dsg.kernel.bootstrap/1#signed.body.createdAt",
+  "dsg.kernel.bootstrap/1#signed.body.expiresAt",
 ]);
 const UTC_SECOND = "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$";
 
