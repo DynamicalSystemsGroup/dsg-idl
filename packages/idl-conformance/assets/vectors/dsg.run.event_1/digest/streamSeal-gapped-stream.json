@@ -1,0 +1,9 @@
+{
+  "profile": "dsg.run.event/1",
+  "shape": "streamSeal",
+  "name": "gapped-stream",
+  "verdict": "accept",
+  "rule": "Hash RFC 8785 event bytes in sequence order, separated by LF, without prefix or final LF. Expected digest produced by dsg-run-events 0.1.1, not the reference adapter.",
+  "bytes": "RFNHRVYgeyJzZXF1ZW5jZSI6MSwicHJvZmlsZSI6ImRzZy5ydW4uZXZlbnQvMSIsInBheWxvYWQiOnsidmVyc2lvbiI6IjEuMC4wIiwic2VlZCI6NywiYXJndW1lbnRzX3NoYTI1NiI6bnVsbH0sIm9wZXJhdGlvbiI6ImxvY2FsIiwia2luZCI6InN0YXJ0ZWQiLCJjYXRhbG9nU2hhMjU2IjoiZjM2MTQxMzhiNTdkNDc5YTNlYmZjYjRmYjQzY2M5NjUxMWE1MTE4MmQzNWFlZmMxYmFmMjBjZGMxZWY4Njg4NyIsImF0IjoiMjAyNi0wOS0wN1QxNTowMDowMFoifQpEU0dFViB7InNlcXVlbmNlIjo1LCJwcm9maWxlIjoiZHNnLnJ1bi5ldmVudC8xIiwicGF5bG9hZCI6eyJzdW1tYXJ5IjoiY2Fmw6kgMWUtNyIsInN0YXR1cyI6InRydW5jYXRlZCJ9LCJvcGVyYXRpb24iOiJsb2NhbCIsImtpbmQiOiJmaW5pc2hlZCIsImNhdGFsb2dTaGEyNTYiOiJmMzYxNDEzOGI1N2Q0NzlhM2ViZmNiNGZiNDNjYzk2NTExYTUxMTgyZDM1YWVmYzFiYWYyMGNkYzFlZjg2ODg3IiwiYXQiOiIyMDI2LTA5LTA3VDE1OjAwOjAwWiJ9Cg==",
+  "sha256": "ae0e54146f288e88479105d33823d420234337271937ff3601a7c524d3fbca94"
+}

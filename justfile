@@ -29,7 +29,7 @@ fmt:
 
 gen-schemas:
     pnpm exec tsx scripts/emit-schemas.ts
-    oxfmt schema/
+    oxfmt packages/idl/schema/
 
 conform:
     pnpm exec tsx packages/idl-conformance/src/cli.ts

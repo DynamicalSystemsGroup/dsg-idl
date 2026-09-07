@@ -31,3 +31,25 @@ Rules, enforced by this repo's own tests and `just check`:
 Consumers pin a release tarball by URL and lockfile integrity, never a
 branch or git ref. No consumer repo may define a `dsg.*.*/N` literal;
 each consumer's CI greps its source for that pattern and fails on a hit.
+
+## Reproducible event stream seals
+
+The `dsg.run.event_1/digest/streamSeal-*.json` vectors contain base64 of actual
+UTF-8 `DSGEV ` event lines. Envelope and payload keys are deliberately unsorted.
+The short clean stream includes `1e-7` and `café`; the second stream has a
+sequence gap. Their `sha256` values were computed with the published
+`dsg-run-events==0.1.1` Python package, not the TypeScript reference adapter.
+The published wheel SHA-256 is
+`ff9b688cba9c4b4a1448dfea3c6a265b58e8c425a011902baa986af70acc70ef`.
+
+A consumer's `dsg.run.event/1#digest.streamSeal` adapter must parse the input
+lines with its real event path, order unique events by sequence, and return
+SHA-256 of RFC 8785 event bytes joined with LF, without prefixes or a final LF.
+This hashes the stream, not the seal document. The plane must reproduce these
+values through its own ingestion and sealing code after its canonicalization
+fix merges. Hashing payload objects in input key order fails these vectors.
+
+The older `accept/streamSeal-*.json` documents check shape only. Their repeated
+`b` digest has no corresponding source stream. A vector with a placeholder
+digest cannot fail on incorrect hashing and is not a stream-seal conformance
+vector. It must not be cited as evidence of digest agreement.

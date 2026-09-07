@@ -19,9 +19,9 @@ export type Vector = {
   readonly rule?: string;
   readonly bytes: string;
   /** Digest vectors only: the expected sha256 of the canonical form of the
-   * document in `bytes`. The vector bytes are deliberately NON-canonical
+   * document in `bytes`, or the ordered event stream for digest.streamSeal. Source is NON-canonical
    * (different key order, whitespace), so agreement proves the consumer's
-   * own canonicalize-and-digest path, not a byte copy. */
+   * own canonicalize-and-digest path, not a byte copy. Stream bytes include DSGEV prefixes. */
   readonly sha256?: string;
   /** What agreeing on this vector obliges. "shape" (default): the boundary
    * parser's structural verdict. "semantic": a validator beyond shape
