@@ -1,0 +1,127 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/DynamicalSystemsGroup/dsg-idl/schema/dsg-run-run-summary-v1.json",
+  "title": "dsg.run.run-summary/1",
+  "$defs": {
+    "summary": {
+      "additionalProperties": false,
+      "type": "object",
+      "required": ["profile", "runId", "experimentDigest", "requester", "decision", "waitingOn"],
+      "properties": {
+        "profile": {
+          "const": "dsg.run.run-summary/1",
+          "type": "string"
+        },
+        "runId": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "experimentDigest": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "requester": {
+          "anyOf": [
+            {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["principal", "displayName", "source"],
+              "properties": {
+                "principal": {
+                  "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                  "type": "string"
+                },
+                "displayName": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "source": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "decision": {
+          "anyOf": [
+            {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["outcome", "decider", "decidedAt", "cause", "byStandingOrder"],
+              "properties": {
+                "outcome": {
+                  "anyOf": [
+                    {
+                      "const": "approved",
+                      "type": "string"
+                    },
+                    {
+                      "const": "refused",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "decider": {
+                  "additionalProperties": false,
+                  "type": "object",
+                  "required": ["principal", "displayName", "source"],
+                  "properties": {
+                    "principal": {
+                      "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                      "type": "string"
+                    },
+                    "displayName": {
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "source": {
+                      "minLength": 1,
+                      "type": "string"
+                    }
+                  }
+                },
+                "decidedAt": {
+                  "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$",
+                  "type": "string"
+                },
+                "cause": {
+                  "anyOf": [
+                    {
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "byStandingOrder": {
+                  "type": "boolean"
+                }
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "waitingOn": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "$ref": "#/$defs/summary"
+}

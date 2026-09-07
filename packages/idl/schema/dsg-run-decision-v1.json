@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/DynamicalSystemsGroup/dsg-idl/schema/dsg-run-decision-v1.json",
+  "title": "dsg.run.decision/1",
+  "$defs": {
+    "decision": {
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "profile",
+        "runId",
+        "requestDigest",
+        "decision",
+        "cause",
+        "decidedAt",
+        "decider",
+        "signature"
+      ],
+      "properties": {
+        "profile": {
+          "const": "dsg.run.decision/1",
+          "type": "string"
+        },
+        "runId": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "requestDigest": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "decision": {
+          "anyOf": [
+            {
+              "const": "approved",
+              "type": "string"
+            },
+            {
+              "const": "refused",
+              "type": "string"
+            }
+          ]
+        },
+        "cause": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "decidedAt": {
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$",
+          "type": "string"
+        },
+        "decider": {
+          "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+          "type": "string"
+        },
+        "signature": {
+          "minLength": 1,
+          "type": "string"
+        }
+      }
+    }
+  },
+  "$ref": "#/$defs/decision"
+}

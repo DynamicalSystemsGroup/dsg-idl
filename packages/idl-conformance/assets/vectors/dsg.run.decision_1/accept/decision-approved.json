@@ -1,0 +1,7 @@
+{
+  "profile": "dsg.run.decision/1",
+  "shape": "decision",
+  "name": "approved",
+  "verdict": "accept",
+  "bytes": "eyJwcm9maWxlIjoiZHNnLnJ1bi5kZWNpc2lvbi8xIiwicnVuSWQiOiJydW4tMSIsInJlcXVlc3REaWdlc3QiOiJhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhIiwiZGVjaXNpb24iOiJhcHByb3ZlZCIsImNhdXNlIjpudWxsLCJkZWNpZGVkQXQiOiIyMDI2LTA5LTA3VDE4OjAwOjAwWiIsImRlY2lkZXIiOiJvcm46ZHNnLmNvcmUua2VybmVsLmFjdG9yOnNheWVyIiwic2lnbmF0dXJlIjoic2lnIn0="
+}

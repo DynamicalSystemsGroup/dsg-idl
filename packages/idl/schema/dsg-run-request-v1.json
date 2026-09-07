@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/DynamicalSystemsGroup/dsg-idl/schema/dsg-run-request-v1.json",
+  "title": "dsg.run.request/1",
+  "$defs": {
+    "request": {
+      "additionalProperties": false,
+      "type": "object",
+      "required": ["profile", "experiment", "workload", "inputs", "ceilings", "purpose", "window"],
+      "properties": {
+        "profile": {
+          "const": "dsg.run.request/1",
+          "type": "string"
+        },
+        "experiment": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["digest", "title", "workloadClass"],
+          "properties": {
+            "digest": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            "title": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "workloadClass": {
+              "minLength": 1,
+              "type": "string"
+            }
+          }
+        },
+        "workload": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["orn", "sha256"],
+          "properties": {
+            "orn": {
+              "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+              "type": "string"
+            },
+            "sha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            }
+          }
+        },
+        "inputs": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "additionalProperties": false,
+            "type": "object",
+            "required": ["orn", "sha256"],
+            "properties": {
+              "orn": {
+                "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                "type": "string"
+              },
+              "sha256": {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              }
+            }
+          }
+        },
+        "ceilings": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["maxRunSeconds", "maxGpuSeconds", "maxParallelism", "costBoundMicroUsd"],
+          "properties": {
+            "maxRunSeconds": {
+              "minimum": 0,
+              "maximum": 9007199254740991,
+              "type": "integer"
+            },
+            "maxGpuSeconds": {
+              "minimum": 0,
+              "maximum": 9007199254740991,
+              "type": "integer"
+            },
+            "maxParallelism": {
+              "minimum": 0,
+              "maximum": 9007199254740991,
+              "type": "integer"
+            },
+            "costBoundMicroUsd": {
+              "minimum": 0,
+              "maximum": 9007199254740991,
+              "type": "integer"
+            }
+          }
+        },
+        "purpose": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "window": {
+          "minLength": 1,
+          "type": "string"
+        }
+      }
+    }
+  },
+  "$ref": "#/$defs/request"
+}

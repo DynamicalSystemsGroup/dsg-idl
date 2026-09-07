@@ -33,6 +33,14 @@ export const Reference = closed({
   sha256: Type.String({ pattern: SHA256_PATTERN }),
 });
 
+/** A person named on a run. Missing on the wire is null; readers print
+ * "Not recorded". Never inferred. */
+export const PersonReference = closed({
+  principal: Orn,
+  displayName: NonEmptyString,
+  source: NonEmptyString,
+});
+
 /** One wire profile: the literal, and every top-level shape that crosses
  * the seam it names. Shape names are stable identifiers ("request",
  * "lease", "refusal"); vectors address a shape as "<literal>#<shape>". */
