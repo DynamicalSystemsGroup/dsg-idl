@@ -1,0 +1,8 @@
+{
+  "profile": "dsg.run.run-summary/1",
+  "shape": "summary",
+  "name": "extra-field",
+  "verdict": "reject",
+  "bytes": "eyJwcm9maWxlIjoiZHNnLnJ1bi5ydW4tc3VtbWFyeS8xIiwicnVuSWQiOiJydW4tMSIsImV4cGVyaW1lbnREaWdlc3QiOiJhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhIiwicmVxdWVzdGVyIjp7InByaW5jaXBhbCI6Im9ybjpkc2cuY29yZS5rZXJuZWwuYWN0b3I6emFyZ2hhbSIsImRpc3BsYXlOYW1lIjoiWmFyZ2hhbSIsInNvdXJjZSI6Imdvb2dsZS13b3Jrc3BhY2UifSwiZGVjaXNpb24iOm51bGwsIndhaXRpbmdPbiI6ImRlY2lkZXIiLCJiZXNpZGUiOnRydWV9",
+  "rule": "an extra field is a different protocol"
+}

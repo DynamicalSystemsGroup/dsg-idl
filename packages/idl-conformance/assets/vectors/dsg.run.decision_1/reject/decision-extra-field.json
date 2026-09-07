@@ -1,0 +1,8 @@
+{
+  "profile": "dsg.run.decision/1",
+  "shape": "decision",
+  "name": "extra-field",
+  "verdict": "reject",
+  "bytes": "eyJwcm9maWxlIjoiZHNnLnJ1bi5kZWNpc2lvbi8xIiwicnVuSWQiOiJydW4tMSIsInJlcXVlc3REaWdlc3QiOiJhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhIiwiZGVjaXNpb24iOiJhcHByb3ZlZCIsImNhdXNlIjpudWxsLCJkZWNpZGVkQXQiOiIyMDI2LTA5LTA3VDE4OjAwOjAwWiIsImRlY2lkZXIiOiJvcm46ZHNnLmNvcmUua2VybmVsLmFjdG9yOnNheWVyIiwic2lnbmF0dXJlIjoic2lnIiwiYmVzaWRlIjp0cnVlfQ==",
+  "rule": "an extra field is a different protocol"
+}

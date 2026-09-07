@@ -1,0 +1,8 @@
+{
+  "profile": "dsg.core.refusal/1",
+  "shape": "refusal",
+  "name": "extra-field",
+  "verdict": "reject",
+  "bytes": "eyJwcm9maWxlIjoiZHNnLmNvcmUucmVmdXNhbC8xIiwiY29kZSI6ImlkZW50aXR5X3VuYm91bmQiLCJzZW50ZW5jZSI6IlNheWVyIGhhcyBub3QgYm91bmQgdGhpcyBhY2NvdW50IHRvIGEgcGVyc29uIHlldC4gQXNrIGhpbSB0byBydW4ga2VybmVsIHByaW5jaXBhbCBiaW5kLiIsImJlc2lkZSI6dHJ1ZX0=",
+  "rule": "an extra field is a different protocol"
+}
