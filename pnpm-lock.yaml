@@ -106,8 +106,8 @@ importers:
   packages/idl-conformance:
     dependencies:
       '@dynamicalsystems/idl':
-        specifier: 0.6.1
-        version: 0.6.1
+        specifier: workspace:*
+        version: link:../idl
       '@dynamicalsystems/orn-schemas':
         specifier: 0.1.0
         version: 0.1.0
@@ -132,10 +132,6 @@ importers:
         version: 4.1.11(@types/node@24.13.3)(vite@8.2.2(@types/node@24.13.3)(esbuild@0.28.2)(tsx@4.23.12))
 
 packages:
-
-  '@dynamicalsystems/idl@0.6.1':
-    resolution: {integrity: sha512-EKb6PaZjTvjoIw6xU0P4zlHGjCrg9I0Jsr6276xZxgbwE73sx7qNninBzAagYlkf6meYT8iQW4MbSz33Rvfp4w==}
-    engines: {node: '>=24'}
 
   '@dynamicalsystems/orn-schemas@0.1.0':
     resolution: {integrity: sha512-yPfMYLyOT85uCxxI3haB+7Lq3FF4+AGEGPamm4jN8+kH2QAXM2HhDyt4g6yfiW1B/Ysbl4hk3ywT2R4+eN5k4g==}
@@ -1421,11 +1417,6 @@ packages:
     resolution: {integrity: sha512-vRD9nwt4L3aYpxNqeSC4WqLv58xrXef0Ong1Mc45CTXTIpvLafx7JO05sczmQZwdLEZvywrLOGdNC5+Rp5N1BQ==}
 
 snapshots:
-
-  '@dynamicalsystems/idl@0.6.1':
-    dependencies:
-      '@dynamicalsystems/orn-schemas': 0.1.0
-      '@sinclair/typebox': 0.34.52
 
   '@dynamicalsystems/orn-schemas@0.1.0':
     dependencies:

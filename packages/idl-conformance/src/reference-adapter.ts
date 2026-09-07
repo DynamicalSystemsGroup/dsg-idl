@@ -5,8 +5,9 @@
 import { createHash } from "node:crypto";
 import { Value } from "@sinclair/typebox/value";
 import { jcsStringify } from "@dynamicalsystems/orn-schemas";
-import { PROFILES } from "@dynamicalsystems/idl";
+import { PROFILES, EVENT_PROFILE } from "@dynamicalsystems/idl";
 import type { Adapter, ParseResult } from "./adapter.js";
+import { streamDigest } from "./stream-digest.js";
 
 export function referenceAdapter(): Adapter {
   const adapter: Record<string, (bytes: Uint8Array) => ParseResult> = {};
@@ -38,5 +39,6 @@ export function referenceAdapter(): Adapter {
       };
     }
   }
+  adapter[`${EVENT_PROFILE}#digest.streamSeal`] = streamDigest;
   return adapter;
 }

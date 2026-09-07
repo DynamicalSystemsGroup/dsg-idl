@@ -48,7 +48,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@dynamicalsystems/idl": "0.7.0",
+    "@dynamicalsystems/idl": "workspace:*",
     "@dynamicalsystems/orn-schemas": "0.1.0"
   },
   "devDependencies": {
