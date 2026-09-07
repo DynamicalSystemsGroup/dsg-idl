@@ -1,0 +1,7 @@
+{
+  "profile": "dsg.run.event/1",
+  "shape": "streamSeal",
+  "name": "stream-digest-not-hex",
+  "verdict": "reject",
+  "bytes": "eyJjYXRhbG9nU2hhMjU2IjoiYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYSIsImV2ZW50Q291bnQiOjQyLCJnYXBzIjpbXSwib3BlcmF0aW9uIjoiZ292ZXJuZWQtcnVuLTkiLCJwcm9maWxlIjoiZHNnLnJ1bi5ldmVudC8xIiwic3RyZWFtU2hhMjU2Ijoibm90LWEtZGlnZXN0IiwidHJ1bmNhdGVkQXRTZXF1ZW5jZSI6bnVsbH0="
+}

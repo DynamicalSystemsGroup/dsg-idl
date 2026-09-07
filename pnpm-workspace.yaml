@@ -15,4 +15,4 @@ catalog:
   "@types/node": 24.13.3
 
 minimumReleaseAgeExclude:
-  - '@dynamicalsystems/orn-schemas@0.1.0'
+  - "@dynamicalsystems/orn-schemas@0.1.0"

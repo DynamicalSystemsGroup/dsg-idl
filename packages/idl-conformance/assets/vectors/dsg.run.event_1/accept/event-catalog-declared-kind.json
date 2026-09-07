@@ -1,0 +1,7 @@
+{
+  "profile": "dsg.run.event/1",
+  "shape": "event",
+  "name": "catalog-declared-kind",
+  "verdict": "accept",
+  "bytes": "eyJhdCI6IjIwMjYtMDktMDdUMTU6MDA6MDBaIiwiY2F0YWxvZ1NoYTI1NiI6ImFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWEiLCJraW5kIjoiYmxvY2suY29tcGxldGVkIiwib3BlcmF0aW9uIjoiZ292ZXJuZWQtcnVuLTkiLCJwYXlsb2FkIjp7ImJsb2NrIjoxMiwiZWxhcHNlZF9tcyI6MzQwLCJoZWFkIjoiY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjYyJ9LCJwcm9maWxlIjoiZHNnLnJ1bi5ldmVudC8xIiwic2VxdWVuY2UiOjQxfQ=="
+}

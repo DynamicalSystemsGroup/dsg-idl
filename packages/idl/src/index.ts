@@ -83,10 +83,19 @@ export {
 export type { OrdinaryAuthority } from "./kernel/ordinary-authority.v1.js";
 export { EXECUTOR_PROTOCOL_VERSION, PROVIDER_PROTOCOL_VERSION } from "./run/contract-versions.js";
 export type { ExecutorProtocolVersion, ProviderProtocolVersion } from "./run/contract-versions.js";
+export {
+  EVENT_PROFILE,
+  EVENT_LINE_PREFIX,
+  LIFECYCLE_KINDS,
+  EventSchema,
+  EventStreamSealSchema,
+} from "./run/event.v1.js";
+export type { Event, EventStreamSeal } from "./run/event.v1.js";
 
 import type { ProfileEntry } from "./primitives.js";
 import { dispatchConsumeV1 } from "./kernel/dispatch-consume.v1.js";
 import { operationV1 } from "./run/operation.v1.js";
+import { eventV1 } from "./run/event.v1.js";
 import { signedLawV1 } from "./infra/signed-law.v1.js";
 import { resourceDescriptorV1 } from "./infra/resource-descriptor.v1.js";
 import { adoptionFactV1 } from "./infra/adoption-fact.v1.js";
@@ -101,6 +110,7 @@ import { ordinaryAuthorityV1 } from "./kernel/ordinary-authority.v1.js";
 export const PROFILES: Readonly<Record<string, ProfileEntry>> = {
   [dispatchConsumeV1.literal]: dispatchConsumeV1,
   [operationV1.literal]: operationV1,
+  [eventV1.literal]: eventV1,
   [signedLawV1.literal]: signedLawV1,
   [resourceDescriptorV1.literal]: resourceDescriptorV1,
   [adoptionFactV1.literal]: adoptionFactV1,

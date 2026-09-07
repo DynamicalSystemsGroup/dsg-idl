@@ -7,6 +7,7 @@
     "dsg.infra.resource-descriptor/1": 11,
     "dsg.kernel.bootstrap/1": 9,
     "dsg.kernel.ordinary-authority/1": 8,
-    "dsg.infra.adoption-fact/1": 7
+    "dsg.infra.adoption-fact/1": 7,
+    "dsg.run.event/1": 12
   }
 }

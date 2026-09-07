@@ -1,0 +1,7 @@
+{
+  "profile": "dsg.run.event/1",
+  "shape": "event",
+  "name": "lifecycle-started",
+  "verdict": "accept",
+  "bytes": "eyJhdCI6IjIwMjYtMDktMDdUMTU6MDA6MDBaIiwiY2F0YWxvZ1NoYTI1NiI6ImFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWEiLCJraW5kIjoic3RhcnRlZCIsIm9wZXJhdGlvbiI6ImdvdmVybmVkLXJ1bi05IiwicGF5bG9hZCI6eyJzZWVkIjoxLCJ2ZXJzaW9uIjoiMSJ9LCJwcm9maWxlIjoiZHNnLnJ1bi5ldmVudC8xIiwic2VxdWVuY2UiOjF9"
+}

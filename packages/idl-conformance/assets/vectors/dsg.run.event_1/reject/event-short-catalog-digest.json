@@ -1,0 +1,7 @@
+{
+  "profile": "dsg.run.event/1",
+  "shape": "event",
+  "name": "short-catalog-digest",
+  "verdict": "reject",
+  "bytes": "eyJhdCI6IjIwMjYtMDktMDdUMTU6MDA6MDBaIiwiY2F0YWxvZ1NoYTI1NiI6ImFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYSIsImtpbmQiOiJzdGFydGVkIiwib3BlcmF0aW9uIjoiZ292ZXJuZWQtcnVuLTkiLCJwYXlsb2FkIjp7InNlZWQiOjEsInZlcnNpb24iOiIxIn0sInByb2ZpbGUiOiJkc2cucnVuLmV2ZW50LzEiLCJzZXF1ZW5jZSI6MX0="
+}

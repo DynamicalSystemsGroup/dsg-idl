@@ -1,0 +1,7 @@
+{
+  "profile": "dsg.run.event/1",
+  "shape": "event",
+  "name": "empty-payload-is-legal",
+  "verdict": "accept",
+  "bytes": "eyJhdCI6IjIwMjYtMDktMDdUMTU6MDA6MDBaIiwiY2F0YWxvZ1NoYTI1NiI6ImFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWEiLCJraW5kIjoiZmluaXNoZWQiLCJvcGVyYXRpb24iOiJnb3Zlcm5lZC1ydW4tOSIsInBheWxvYWQiOnt9LCJwcm9maWxlIjoiZHNnLnJ1bi5ldmVudC8xIiwic2VxdWVuY2UiOjJ9"
+}

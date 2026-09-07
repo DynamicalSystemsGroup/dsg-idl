@@ -1,0 +1,7 @@
+{
+  "profile": "dsg.run.event/1",
+  "shape": "streamSeal",
+  "name": "truncation-marked-zero",
+  "verdict": "reject",
+  "bytes": "eyJjYXRhbG9nU2hhMjU2IjoiYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYSIsImV2ZW50Q291bnQiOjQyLCJnYXBzIjpbXSwib3BlcmF0aW9uIjoiZ292ZXJuZWQtcnVuLTkiLCJwcm9maWxlIjoiZHNnLnJ1bi5ldmVudC8xIiwic3RyZWFtU2hhMjU2IjoiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYiIsInRydW5jYXRlZEF0U2VxdWVuY2UiOjB9"
+}

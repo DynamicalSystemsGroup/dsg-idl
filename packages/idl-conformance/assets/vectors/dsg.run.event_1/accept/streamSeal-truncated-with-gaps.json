@@ -1,0 +1,7 @@
+{
+  "profile": "dsg.run.event/1",
+  "shape": "streamSeal",
+  "name": "truncated-with-gaps",
+  "verdict": "accept",
+  "bytes": "eyJjYXRhbG9nU2hhMjU2IjoiYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYSIsImV2ZW50Q291bnQiOjEwMDAsImdhcHMiOls3LDldLCJvcGVyYXRpb24iOiJnb3Zlcm5lZC1ydW4tOSIsInByb2ZpbGUiOiJkc2cucnVuLmV2ZW50LzEiLCJzdHJlYW1TaGEyNTYiOiJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiIiwidHJ1bmNhdGVkQXRTZXF1ZW5jZSI6MTAwMH0="
+}

@@ -1,0 +1,7 @@
+{
+  "profile": "dsg.run.event/1",
+  "shape": "event",
+  "name": "fractional-clock",
+  "verdict": "reject",
+  "bytes": "eyJhdCI6IjIwMjYtMDktMDdUMTU6MDA6MDAuMTIzWiIsImNhdGFsb2dTaGEyNTYiOiJhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhIiwia2luZCI6InN0YXJ0ZWQiLCJvcGVyYXRpb24iOiJnb3Zlcm5lZC1ydW4tOSIsInBheWxvYWQiOnsic2VlZCI6MSwidmVyc2lvbiI6IjEifSwicHJvZmlsZSI6ImRzZy5ydW4uZXZlbnQvMSIsInNlcXVlbmNlIjoxfQ=="
+}
