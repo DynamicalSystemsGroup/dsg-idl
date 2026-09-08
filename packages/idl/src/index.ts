@@ -117,6 +117,12 @@ export {
 export type { RunSummary, RunSummaryDecision } from "./run/run-summary.v1.js";
 export { REFUSAL_PROFILE, RefusalCodeSchema, RefusalSchema } from "./core/refusal.v1.js";
 export type { Refusal, RefusalCode } from "./core/refusal.v1.js";
+export {
+  GOOGLE_SIGN_IN_ISSUER,
+  IDENTITY_BINDING_PROFILE,
+  IdentityBindingSchema,
+} from "./core/identity-binding.v1.js";
+export type { IdentityBinding } from "./core/identity-binding.v1.js";
 
 import type { ProfileEntry } from "./primitives.js";
 import { dispatchConsumeV1 } from "./kernel/dispatch-consume.v1.js";
@@ -126,6 +132,7 @@ import { requestV1 } from "./run/request.v1.js";
 import { decisionV1 } from "./run/decision.v1.js";
 import { runSummaryV1 } from "./run/run-summary.v1.js";
 import { refusalV1 } from "./core/refusal.v1.js";
+import { identityBindingV1 } from "./core/identity-binding.v1.js";
 import { signedLawV1 } from "./infra/signed-law.v1.js";
 import { resourceDescriptorV1 } from "./infra/resource-descriptor.v1.js";
 import { adoptionFactV1 } from "./infra/adoption-fact.v1.js";
@@ -145,6 +152,7 @@ export const PROFILES: Readonly<Record<string, ProfileEntry>> = {
   [decisionV1.literal]: decisionV1,
   [runSummaryV1.literal]: runSummaryV1,
   [refusalV1.literal]: refusalV1,
+  [identityBindingV1.literal]: identityBindingV1,
   [signedLawV1.literal]: signedLawV1,
   [resourceDescriptorV1.literal]: resourceDescriptorV1,
   [adoptionFactV1.literal]: adoptionFactV1,
