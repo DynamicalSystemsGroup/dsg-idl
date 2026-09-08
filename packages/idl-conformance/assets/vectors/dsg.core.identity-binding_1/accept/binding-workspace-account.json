@@ -1,0 +1,7 @@
+{
+  "profile": "dsg.core.identity-binding/1",
+  "shape": "binding",
+  "name": "workspace-account",
+  "verdict": "accept",
+  "bytes": "eyJwcm9maWxlIjoiZHNnLmNvcmUuaWRlbnRpdHktYmluZGluZy8xIiwicHJpbmNpcGFsIjoib3JuOmRzZy5jb3JlLmtlcm5lbC5hY3Rvcjp6YXJnaGFtIiwiaXNzdWVyIjoiaHR0cHM6Ly9hY2NvdW50cy5nb29nbGUuY29tIiwic3ViamVjdCI6InphcmdoYW1AZHluYW1pY2Fsc3lzdGVtc2dyb3VwLmNvbSIsImRlY2lkZXIiOiJvcm46ZHNnLmNvcmUua2VybmVsLmFjdG9yOnNheWVyIiwiYm91bmRBdCI6IjIwMjYtMDktMDdUMTg6MDA6MDBaIiwic2lnbmF0dXJlIjoiYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWEifQ=="
+}

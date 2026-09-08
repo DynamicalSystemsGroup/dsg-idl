@@ -12,6 +12,10 @@ check:
     just build
     scripts/check-frozen.sh
     just gen-schemas
+    # --exit-code alone passes on a schema the emitter wrote and nobody
+    # committed, which is how dsg.core.identity-binding/1 first slipped
+    # through: untracked is not unchanged.
+    git add --intent-to-add packages/idl/schema
     git diff --exit-code packages/idl/schema
     pnpm -r check-types
     pnpm -r lint

@@ -1,0 +1,35 @@
+# Every definition in here is read by the kernel, the plane and the console,
+# pinned by version, and trusted by digest. Until this existed, nothing
+# gated a merge or a publish: the scripts ran only on whichever laptop
+# remembered to run them. This is the gate, on every pull request and every
+# push to main, so it can be required before merge.
+#
+# It runs the repository's own check, unchanged, rather than a second list
+# that can drift from it: build, the frozen-wire rule, schema regeneration
+# with no diff, types, lint, format, and the vector suites.
+name: check
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      # The frozen-wire rule compares each emitted schema against the first
+      # release tag that carried it, so the check needs the tags and the
+      # history, not a shallow clone.
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: extractions/setup-just@v2
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      - run: just check
