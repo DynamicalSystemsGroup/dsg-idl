@@ -15,7 +15,7 @@ check:
     git diff --exit-code packages/idl/schema
     pnpm -r check-types
     pnpm -r lint
-    oxfmt --check .
+    pnpm exec oxfmt --check .
     pnpm -r test
 
 test:
@@ -25,11 +25,11 @@ lint:
     pnpm -r lint
 
 fmt:
-    oxfmt .
+    pnpm exec oxfmt .
 
 gen-schemas:
     pnpm exec tsx scripts/emit-schemas.ts
-    oxfmt packages/idl/schema/
+    pnpm exec oxfmt packages/idl/schema/
 
 conform:
     pnpm exec tsx packages/idl-conformance/src/cli.ts
