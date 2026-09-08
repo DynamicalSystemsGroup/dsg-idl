@@ -8,7 +8,7 @@
     "dsg.kernel.bootstrap/1": 9,
     "dsg.kernel.ordinary-authority/1": 8,
     "dsg.infra.adoption-fact/1": 7,
-    "dsg.run.event/1": 14,
+    "dsg.run.event/1": 17,
     "dsg.run.request/1": 3,
     "dsg.run.decision/1": 3,
     "dsg.run.run-summary/1": 2,
