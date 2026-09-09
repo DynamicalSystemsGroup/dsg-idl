@@ -9,13 +9,13 @@ file is that answer, and it records where the answer is missing.
 `@dynamicalsystems/idl` and `@dynamicalsystems/idl-conformance`, to the public
 npm registry, at the same version as each other.
 
-| Version | Tag | Commit | Consumed by |
-| --- | --- | --- | --- |
-| 0.8.0 | `v0.8.0` | `ed30f94` | the kernel and the plane, both pinned at 0.8.0 |
-| 0.7.1 | none | not recorded | nothing today |
-| 0.7.0 | none | not recorded | nothing today |
-| 0.6.1 | `v0.6.1` | tagged | superseded |
-| 0.6.0 | `v0.6.0` | tagged | superseded |
+| Version | Tag      | Commit       | Consumed by                                    |
+| ------- | -------- | ------------ | ---------------------------------------------- |
+| 0.8.0   | `v0.8.0` | `ed30f94`    | the kernel and the plane, both pinned at 0.8.0 |
+| 0.7.1   | none     | not recorded | nothing today                                  |
+| 0.7.0   | none     | not recorded | nothing today                                  |
+| 0.6.1   | `v0.6.1` | tagged       | superseded                                     |
+| 0.6.0   | `v0.6.0` | tagged       | superseded                                     |
 
 0.8.0 added the standing-order activation profile. It was published by hand
 from the tip of an open pull request, which is why the rule below exists.
