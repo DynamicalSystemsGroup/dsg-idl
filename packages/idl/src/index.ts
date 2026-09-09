@@ -86,6 +86,7 @@ export type {
   SignedBootstrapIntent,
 } from "./kernel/bootstrap.v1.js";
 export {
+  STANDING_ORDER_ACTIVATION_EVENT_KIND,
   STANDING_ORDER_ACTIVATION_PROFILE,
   StandingOrderActivationEventSchema,
   StandingOrderActivationSchema,

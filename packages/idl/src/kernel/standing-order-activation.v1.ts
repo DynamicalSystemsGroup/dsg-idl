@@ -7,6 +7,7 @@ import { type Static, Type } from "@sinclair/typebox";
 import { closed, Orn, Reference, UtcSecond, type ProfileEntry } from "../primitives.js";
 
 export const STANDING_ORDER_ACTIVATION_PROFILE = "dsg.kernel.standing-order-activation/1" as const;
+export const STANDING_ORDER_ACTIVATION_EVENT_KIND = "standing_order_activated" as const;
 
 const StandingOrderModeSchemaValue = Type.Union([
   Type.Literal("synthetic-test-only"),
@@ -41,7 +42,7 @@ export type StandingOrderActivation = Static<typeof StandingOrderActivationSchem
 /** Append-only record event carrying the descriptor selected by the stream head. */
 const StandingOrderActivationEventSchemaValue = closed({
   profile: Type.Literal(STANDING_ORDER_ACTIVATION_PROFILE),
-  kind: Type.Literal("standing_order_activated"),
+  kind: Type.Literal(STANDING_ORDER_ACTIVATION_EVENT_KIND),
   stream: Orn,
   /** Reference to the canonical descriptor artifact. */
   activation: Reference,
