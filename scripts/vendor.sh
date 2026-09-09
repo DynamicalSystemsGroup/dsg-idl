@@ -1,32 +1,25 @@
 #!/usr/bin/env bash
-# Pack both packages and refresh every consumer's vendor/ in one command:
-#   just vendor            all default consumers
-#   just vendor ../dsg-run one consumer
-# Tarballs land under STABLE names (no version suffix) so consumer pins
-# never chase a filename; the lockfile hash is the version truth.
+# Refresh the one consumer that cannot install a package: dsg-infra has no
+# node toolchain, so it reads the generated schemas and the conformance
+# vectors as plain files, with SOURCE-COMMIT naming exactly what it got.
+#
+#   just vendor
+#
+# This script used to pack tarballs into dsg-kernel, dsg-run and the module
+# registry as well, and force a reinstall in each. Those consumers now install
+# @dynamicalsystems/idl and @dynamicalsystems/idl-conformance from the registry
+# by version, which is what makes a wire change reviewable. Running the old
+# behaviour once would recreate the deleted tarballs and pull those repos back
+# off the registry, so that half is gone rather than kept for convenience.
 set -Eeuo pipefail
-export PATH="$HOME/.local/share/mise/shims:$PATH"
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+INFRA="${1:-$HERE/../dsg-infra}"
 
-consumers=("$@")
-if [ "${#consumers[@]}" -eq 0 ]; then
-  consumers=("$HERE/../dsg-kernel" "$HERE/../dsg-run" "$HERE/../dsg-infra-module-registry")
+if [ ! -d "$INFRA" ]; then
+  echo "no dsg-infra checkout at $INFRA" >&2
+  exit 1
 fi
 
-for repo in "${consumers[@]}"; do
-  mkdir -p "$repo/vendor"
-  rm -f "$repo"/vendor/dynamicalsystems-idl*.tgz
-  for pkg in idl idl-conformance; do
-    out="$(cd "$HERE/packages/$pkg" && pnpm pack --pack-destination "$repo/vendor" | tail -1)"
-    mv "$out" "$repo/vendor/dynamicalsystems-$pkg.tgz"
-  done
-  cp "$HERE"/vendor/dynamicalsystems-orn-schemas-*.tgz "$repo/vendor/dynamicalsystems-orn-schemas.tgz"
-  (cd "$repo" && pnpm install --force >/dev/null)
-  echo "vendored -> $repo"
-done
-
-# dsg-infra consumes vectors and generated schema as plain pinned files (no node toolchain there)
-INFRA="$HERE/../dsg-infra"
 mkdir -p "$INFRA/vendor/idl"
 rm -rf "$INFRA/vendor/idl"/*
 cp -R "$HERE/packages/idl-conformance/assets/vectors" "$INFRA/vendor/idl/vectors"
@@ -34,3 +27,5 @@ cp "$HERE/packages/idl-conformance/checklist.json" "$INFRA/vendor/idl/checklist.
 cp -R "$HERE/packages/idl/schema" "$INFRA/vendor/idl/schema"
 { cd "$HERE" && git rev-parse HEAD; } > "$INFRA/vendor/idl/SOURCE-COMMIT"
 echo "vendored assets -> $INFRA/vendor/idl"
+echo "dsg-infra's conformance runner must pass on the new corpus before this is believable:"
+echo "  (cd $INFRA && python3 scripts/idl-conformance.py)"

@@ -1,0 +1,9 @@
+{
+  "profile": "dsg.kernel.standing-order-activation/1",
+  "shape": "event",
+  "name": "event-accept",
+  "verdict": "accept",
+  "obligation": "shape",
+  "bytes": "eyJwcm9maWxlIjoiZHNnLmtlcm5lbC5zdGFuZGluZy1vcmRlci1hY3RpdmF0aW9uLzEiLCJraW5kIjoic3RhbmRpbmdfb3JkZXJfYWN0aXZhdGVkIiwic3RyZWFtIjoib3JuOmRzZy5jb3JlLmtlcm5lbC5zdGFuZGluZy1vcmRlcjphY3RpdmUiLCJhY3RpdmF0aW9uIjp7Im9ybiI6Im9ybjpkc2cuY29yZS5rZXJuZWwuc3RhbmRpbmctb3JkZXI6YWN0aXZhdGlvbi0xIiwic2hhMjU2IjoiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYiJ9fQ==",
+  "rule": "the recorded event names its kind, its stream and the descriptor artifact it selected"
+}
