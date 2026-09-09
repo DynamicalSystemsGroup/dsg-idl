@@ -1,0 +1,9 @@
+{
+  "profile": "dsg.kernel.standing-order-activation/1",
+  "shape": "event",
+  "name": "event-reject-missing-kind",
+  "verdict": "reject",
+  "obligation": "shape",
+  "bytes": "eyJwcm9maWxlIjoiZHNnLmtlcm5lbC5zdGFuZGluZy1vcmRlci1hY3RpdmF0aW9uLzEiLCJzdHJlYW0iOiJvcm46ZHNnLmNvcmUua2VybmVsLnN0YW5kaW5nLW9yZGVyOmFjdGl2ZSIsImFjdGl2YXRpb24iOnsib3JuIjoib3JuOmRzZy5jb3JlLmtlcm5lbC5zdGFuZGluZy1vcmRlcjphY3RpdmF0aW9uLTEiLCJzaGEyNTYiOiJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiIn19",
+  "rule": "an event without its kind is refused: the kind is what a reader dispatches on"
+}

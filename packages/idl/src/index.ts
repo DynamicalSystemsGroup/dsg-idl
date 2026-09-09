@@ -86,6 +86,20 @@ export type {
   SignedBootstrapIntent,
 } from "./kernel/bootstrap.v1.js";
 export {
+  STANDING_ORDER_ACTIVATION_EVENT_KIND,
+  STANDING_ORDER_ACTIVATION_PROFILE,
+  StandingOrderActivationEventSchema,
+  StandingOrderActivationSchema,
+  StandingOrderModeSchema,
+  SignedStandingOrderActivationSchema,
+} from "./kernel/standing-order-activation.v1.js";
+export type {
+  StandingOrderActivation,
+  StandingOrderActivationEvent,
+  StandingOrderMode,
+  SignedStandingOrderActivation,
+} from "./kernel/standing-order-activation.v1.js";
+export {
   ORDINARY_AUTHORITY_PROFILE,
   OrdinaryAuthoritySchema,
 } from "./kernel/ordinary-authority.v1.js";
@@ -139,6 +153,7 @@ import { adoptionFactV1 } from "./infra/adoption-fact.v1.js";
 import { revocationsV1 } from "./registry/revocations.v1.js";
 import { bootstrapV1 } from "./kernel/bootstrap.v1.js";
 import { ordinaryAuthorityV1 } from "./kernel/ordinary-authority.v1.js";
+import { standingOrderActivationV1 } from "./kernel/standing-order-activation.v1.js";
 
 /** Every profile this version of the package defines, keyed by literal.
  * Profile modules are added here as they are extracted; the rules test
@@ -159,4 +174,5 @@ export const PROFILES: Readonly<Record<string, ProfileEntry>> = {
   [revocationsV1.literal]: revocationsV1,
   [bootstrapV1.literal]: bootstrapV1,
   [ordinaryAuthorityV1.literal]: ordinaryAuthorityV1,
+  [standingOrderActivationV1.literal]: standingOrderActivationV1,
 };
