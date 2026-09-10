@@ -132,7 +132,7 @@ export function verifyArtifacts(destination, root = ROOT) {
   return receipt;
 }
 
-async function published(pkg) {
+export async function published(pkg) {
   const response = await fetch(`${REGISTRY}/${encodeURIComponent(pkg.name)}/${pkg.version}`, {
     signal: AbortSignal.timeout(30_000),
     headers: { "cache-control": "no-cache" },
@@ -150,6 +150,7 @@ async function published(pkg) {
   const tarball = new URL(metadata.dist.tarball);
   assert.equal(tarball.origin, REGISTRY, "unexpected registry tarball origin");
   const artifact = await fetch(tarball, { signal: AbortSignal.timeout(30_000) });
+  if (artifact.status === 404) return null;
   assert(artifact.ok, `cannot download ${pkg.name}`);
   assert.equal(
     integrity(Buffer.from(await artifact.arrayBuffer())),
@@ -183,7 +184,7 @@ async function publish(destination) {
       );
     }
     let verified = false;
-    for (let attempt = 0; attempt < 6; attempt += 1) {
+    for (let attempt = 0; attempt < 60; attempt += 1) {
       if (await published(pkg)) {
         verified = true;
         break;

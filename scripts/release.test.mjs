@@ -4,7 +4,7 @@ import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "nod
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
-import { checkSource, integrity, verifyArtifacts } from "./release.mjs";
+import { checkSource, integrity, published, verifyArtifacts } from "./release.mjs";
 
 function fixture(t) {
   const root = mkdtempSync(join(tmpdir(), "idl-release-"));
@@ -76,4 +76,32 @@ test("artifact verification catches changed bytes and the wrong source", (t) => 
   receipt.commit = "0".repeat(40);
   writeFileSync(manifest, JSON.stringify(receipt));
   assert.throws(() => verifyArtifacts(output, root), /artifact source/);
+});
+
+test("registry visibility waits for the archive but refuses changed bytes", async (t) => {
+  const pkg = {
+    name: "@dynamicalsystems/idl",
+    version: "0.9.0",
+    integrity:
+      "sha512-3a81oZNherrMQXNJriBBMRLm+k6JqX6iCp7u5ktV05ohkpkqJ0/BqDa6PCOj/uu9RU1EI2Q86A4qmslPpUyknw==",
+  };
+  const metadata = {
+    ...pkg,
+    dist: {
+      integrity: pkg.integrity,
+      tarball: "https://registry.npmjs.org/idl.tgz",
+    },
+  };
+  let visible = false;
+  let bytes = "abc";
+  t.mock.method(globalThis, "fetch", async (url) =>
+    String(url).endsWith(".tgz")
+      ? new Response(visible ? bytes : null, { status: visible ? 200 : 404 })
+      : Response.json(metadata),
+  );
+  assert.equal(await published(pkg), null);
+  visible = true;
+  assert.deepEqual(await published(pkg), metadata);
+  bytes = "changed";
+  await assert.rejects(published(pkg), /downloaded bytes differ/);
 });
