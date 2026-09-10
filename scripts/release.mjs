@@ -137,7 +137,7 @@ export async function published(pkg) {
     signal: AbortSignal.timeout(30_000),
     headers: { "cache-control": "no-cache" },
   });
-  if (response.status === 404) return null;
+  if (response.status === 404) return "absent";
   assert(response.ok, `registry lookup failed for ${pkg.name}: HTTP ${response.status}`);
   const metadata = await response.json();
   assert.equal(metadata.name, pkg.name);
@@ -150,14 +150,14 @@ export async function published(pkg) {
   const tarball = new URL(metadata.dist.tarball);
   assert.equal(tarball.origin, REGISTRY, "unexpected registry tarball origin");
   const artifact = await fetch(tarball, { signal: AbortSignal.timeout(30_000) });
-  if (artifact.status === 404) return null;
+  if (artifact.status === 404) return "pending";
   assert(artifact.ok, `cannot download ${pkg.name}`);
   assert.equal(
     integrity(Buffer.from(await artifact.arrayBuffer())),
     pkg.integrity,
     `downloaded bytes differ for ${pkg.name}`,
   );
-  return metadata;
+  return "verified";
 }
 
 async function publish(destination) {
@@ -166,7 +166,7 @@ async function publish(destination) {
   // Preflight both names before an irreversible publish, including partial reruns.
   const present = await Promise.all(receipt.packages.map(published));
   for (const [index, pkg] of receipt.packages.entries()) {
-    if (!present[index]) {
+    if (present[index] === "absent") {
       execFileSync(
         "npm",
         [
@@ -185,7 +185,7 @@ async function publish(destination) {
     }
     let verified = false;
     for (let attempt = 0; attempt < 60; attempt += 1) {
-      if (await published(pkg)) {
+      if ((await published(pkg)) === "verified") {
         verified = true;
         break;
       }

@@ -99,9 +99,9 @@ test("registry visibility waits for the archive but refuses changed bytes", asyn
       ? new Response(visible ? bytes : null, { status: visible ? 200 : 404 })
       : Response.json(metadata),
   );
-  assert.equal(await published(pkg), null);
+  assert.equal(await published(pkg), "pending");
   visible = true;
-  assert.deepEqual(await published(pkg), metadata);
+  assert.equal(await published(pkg), "verified");
   bytes = "changed";
   await assert.rejects(published(pkg), /downloaded bytes differ/);
 });
