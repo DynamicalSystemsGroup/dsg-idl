@@ -21,6 +21,7 @@ check:
     pnpm -r lint
     pnpm exec oxfmt --check .
     pnpm -r test
+    node --test scripts/release.test.mjs
 
 test:
     pnpm -r test
@@ -46,3 +47,7 @@ clean:
 # toolchain. Every other consumer installs the published packages by version.
 vendor-infra-assets *infra:
     scripts/vendor.sh {{infra}}
+
+# Prepare both package versions. The tagged workflow owns publication.
+release-version version:
+    node scripts/release.mjs prepare {{quote(version)}}

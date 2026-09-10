@@ -33,15 +33,67 @@ worse than an absent tag, because it reads as provenance.
 Nothing consumes either version. If something ever needs to, it has to be
 republished from a commit.
 
-## The rule going forward
+## Tagged releases
 
-A release is a tag on a commit, and publishing happens from that tag through a
-workflow that runs the repository check first. No release is made from a
-working tree, and none from an unmerged branch.
+An annotated `vMAJOR.MINOR.PATCH` tag triggers `.github/workflows/release.yml`.
+Both package manifests must already contain that version, and the tagged commit
+must be on `main`. The workflow refuses a dirty checkout, a version mismatch,
+a lightweight tag or an unmerged commit.
 
-That workflow does not exist yet: publishing here has always been a person
-running a command, which is how 0.7.0 lost its provenance and how 0.8.0 came
-off a pull request. Adding it needs a registry token in this repository's
-secrets, which only Sayer can provision. Until it exists, a release is a
-manual act and the person making it writes the version, the tag and the commit
-into the table above in the same change that bumps the version.
+The build job runs `just check`, including the frozen-profile gate with full
+Git history. It packs both packages with the pinned pnpm version and writes
+`release-manifest.json` with the source commit, tool versions and SHA-512
+integrities. The separate publishing job publishes those exact archives through
+npm trusted publishing. It downloads both npm tarballs and checks their bytes
+before creating a GitHub Release with the archives and manifest attached.
+
+The GitHub Release manifest records provenance for releases from 0.9.0 onward.
+The table above retains the older release history. No second bookkeeping commit
+is required to name the commit that produced a new release.
+
+### Prepare a version
+
+Run this from a clean task worktree based on current `main`:
+
+```sh
+just release-version 0.9.0
+just check
+```
+
+Commit and integrate the version change into `main` using the repository's
+normal Git rules. Then create and push the annotated tag from that commit:
+
+```sh
+git tag -a v0.9.0 -m "Release shared profiles 0.9.0"
+git push origin v0.9.0
+```
+
+Use the next unused version for later releases. The workflow publishes both
+packages, verifies them and creates the release. It does not change consumer
+pins. The new refusal profile first becomes frozen at `v0.9.0`.
+
+### Configure npm once
+
+Both existing packages need an npm trusted publisher configured for GitHub
+Actions, repository `DynamicalSystemsGroup/dsg-idl`, workflow `release.yml`,
+with publishing allowed and no environment name. The publishing job requests
+`id-token: write`; no long-lived npm token is used or stored in GitHub.
+
+An npm package administrator configures that trust. Having a local publish
+token does not establish it. The workflow uses npm 11.16.0 and Node 24.18.0.
+See [npm trusted publishing](https://docs.npmjs.com/trusted-publishers/).
+
+### Resume a failed release
+
+Rerun the failed tag workflow. Before any publish, it checks both package
+versions on npm. An existing version is skipped only when its registry integrity
+and downloaded bytes match the tagged build. A mismatched existing version
+stops the release; never overwrite the tag or reuse that version.
+
+If only one package published, the rerun verifies it and publishes the missing
+package. A GitHub Release is created only after both are verified. An existing
+GitHub Release must contain identical archives and the same manifest.
+
+The frozen-profile tag is never deleted to retry publication. Authentication or
+registry outages can be corrected and the same immutable tag retried. Source
+or build corrections require a new version and tag.

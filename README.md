@@ -33,6 +33,9 @@ branch or git ref.
 
 Documents:
 
+- [Tagged releases](RELEASES.md): prepare a version, push an annotated tag, and
+  let the workflow publish both packages with verified archive provenance.
+
 - [Shared authentication contract](docs/authentication-contract.md): the
   normative Better Auth authority, token-class revocation, per-hop credential
   transport, validation, identity mapping, client lifecycle, human
