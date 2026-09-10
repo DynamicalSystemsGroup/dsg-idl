@@ -1,0 +1,7 @@
+{
+  "profile": "dsg.core.refusal/2",
+  "shape": "refusal",
+  "name": "validation-unavailable",
+  "verdict": "accept",
+  "bytes": "eyJwcm9maWxlIjoiZHNnLmNvcmUucmVmdXNhbC8yIiwiY29kZSI6InZhbGlkYXRpb25fdW5hdmFpbGFibGUiLCJzZW50ZW5jZSI6IlRoZSBzaWduLWluIGNoZWNrIGNvdWxkIG5vdCBiZSBjb21wbGV0ZWQuIFRyeSBhZ2FpbiBpbiBhIG1vbWVudC4ifQ=="
+}

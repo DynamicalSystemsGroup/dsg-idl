@@ -1,0 +1,7 @@
+{
+  "profile": "dsg.core.refusal/2",
+  "shape": "refusal",
+  "name": "confirmation-expired",
+  "verdict": "accept",
+  "bytes": "eyJwcm9maWxlIjoiZHNnLmNvcmUucmVmdXNhbC8yIiwiY29kZSI6ImNvbmZpcm1hdGlvbl9leHBpcmVkIiwic2VudGVuY2UiOiJUaGF0IGNvbmZpcm1hdGlvbiBpcyB0b28gb2xkLiBTdGFydCB0aGUgZGVjaXNpb24gYWdhaW4uIn0="
+}
