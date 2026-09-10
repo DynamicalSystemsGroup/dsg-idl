@@ -34,9 +34,12 @@ branch or git ref.
 Documents:
 
 - [Shared authentication contract](docs/authentication-contract.md): the
-  normative Better Auth authority, route table, credential transport,
-  validation, identity mapping, client lifecycle, human confirmation, errors,
-  and migration inventory. Probe evidence: docs/auth-probe-evidence.md. No consumer repo may define a `dsg.*.*/N` literal;
+  normative Better Auth authority, token-class revocation, per-hop credential
+  transport, validation, identity mapping, client lifecycle, human
+  confirmation, frozen-profile compatibility, errors, and migration inventory.
+- [Probe evidence](docs/auth-probe-evidence.md): what the runnable probe
+  observed and what remains documentation-derived. Reproduce with
+  `cd docs/auth-probe && npm ci && node probe.mjs`. No consumer repo may define a `dsg.*.*/N` literal;
   each consumer's CI greps its source for that pattern and fails on a hit.
 
 ## Reproducible event stream seals

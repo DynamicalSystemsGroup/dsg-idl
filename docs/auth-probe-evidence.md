@@ -1,82 +1,97 @@
-# Better Auth capability probe evidence
+# Probe evidence for the shared authentication contract
 
-Date: 2026-09-10. Probe environment: better-auth 1.7.4, @better-auth/oauth-provider 1.7.4,
-PostgreSQL 17 (OrbStack container kernel-proto-postgres-1), throwaway database
-dsg_auth_probe, loopback handler invocation, random per-run secrets. No production
-server was built; no credentials left the probe process. Reproduce: install
-better-auth@1.7.4 and @better-auth/oauth-provider@1.7.4 with pg and kysely, create
-a scratch database, and drive auth.handler with Request objects as in the probe
-transcript (session artifact history).
+Every capability claim in `authentication-contract.md` comes from
+`docs/auth-probe/`, which anyone can run from a clean checkout. This document
+records what that probe printed on 2026-09-10 and separates observation from
+documentation.
 
-## Observed behavior
+## How to reproduce
 
-1. Migrations: getMigrations(auth.options).runMigrations() creates user, session,
-   account, verification, jwks, oauthClient, oauthResource, oauthClientResource,
-   oauthRefreshToken, oauthAccessToken, oauthConsent, oauthClientAssertion,
-   deviceCode on the Kysely PostgreSQL adapter ({ db, type: "postgres",
-   casing: "snake", transaction: true }). The "Database schema mismatch" error
-   line in probe output is the pre-migration startup check, not a failure of the
-   migrated state; flows complete after runMigrations in the same process.
+```
+cd docs/auth-probe
+npm ci
+node probe.mjs
+```
 
-2. Admin client creation: POST /admin/oauth2/create-client is SERVER_ONLY and
-   session-gated. Without a session: UNAUTHORIZED. With a session but without a
-   configured clientPrivileges hook: UNAUTHORIZED for the
-   configure-client-credentials-scopes action. With clientPrivileges: async () =>
-   true, creation succeeds and returns client_id and client_secret. Direct HTTP
-   to the admin path without a session returns 404.
+Requirements: Node 24 and Docker. The probe pulls
+`postgres:17-alpine@sha256:18cfe3ef…` (pinned in `probe.mjs`), starts a throwaway
+container named `dsg-auth-probe-postgres` on port 55439, runs every scenario
+against the in-process Better Auth handler over loopback `Request` objects,
+prints one JSON line per scenario, and removes the container on exit, including
+after a failure. It touches no shared service, no deployed resource and no
+network beyond the container pull. It prints no secret: client secrets and
+tokens live for one run and never appear in the output.
 
-3. client_credentials fail-closed: a client created without
-   client_credentials_scopes cannot be created at all through the admin API
-   (UNAUTHORIZED without the privileges hook). With the hook and an explicit
-   ceiling, token issuance succeeds. Requesting a scope above the ceiling
-   (api:write when ceiling is api:read) returns 400 invalid_scope.
+`package-lock.json` pins better-auth 1.7.4, @better-auth/oauth-provider 1.7.4,
+kysely 0.29.5 and pg 8.23.0 with integrity hashes.
 
-4. Resource binding: a token request naming a resource the client is not linked
-   to returns 400 invalid_target ("client ... is not linked to resource(s) ...").
-   Linking requires the resource row to exist (adminCreateOAuthResource with
-   body.identifier) plus adminLinkClientResource with params
-   { identifier, client_id }. After linking, the token request with
-   resource=https://probe.invalid/api returns 200.
+## What was observed
 
-5. Token shape: with jwt() installed, access tokens are JWT (three segments,
-   typ at+jwt, EdDSA). Introspection returns active: true with sub, aud (the
-   resource), client_id, azp, scope, iss, iat, exp, jti. /jwks returns 200 with
-   one key. Without jwt(), tokens are opaque.
+Results from that run, abridged to the fields the contract relies on.
 
-6. Revocation: POST /oauth2/revoke on a JWT access token returns 400
-   unsupported_token_type, "JWT access tokens are self-contained and cannot be
-   revoked server-side". Introspection after that call still returns
-   active: true. Refresh tokens revoke with 200 (no hint) and subsequent use
-   returns invalid_grant. Passing token_type_hint=refresh_token after the token
-   is already revoked returns 400 invalid_request "refresh token revoked".
+### Machine clients
 
-7. Device authorization (oauthDeviceAuthorization composed with oauthProvider):
-   POST /device/code as a public native client (token_endpoint_auth_method:
-   "none", grant_types including urn:ietf:params:oauth:grant-type:device_code)
-   returns device_code, user_code (8 chars), verification_uri,
-   verification_uri_complete, expires_in. Polling /oauth2/token with the device
-   grant before approval returns 400 authorization_pending. Approving without a
-   prior GET /device?user_code=... claim returns 400 invalid_request ("Device
-   code has not been claimed by a verifying session"). Approving without an
-   Origin header returns 403 MISSING_OR_NULL_ORIGIN. The full ceremony
-   (GET /device claim, POST /device/approve with Origin, poll) returns 200 with
-   a JWT access token whose aud includes the linked resource and the userinfo
-   endpoint, plus a refresh token.
+| Scenario                                     | Result                                                                                                            |
+| -------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| token issuance                               | 200, JWT, `expires_in` 3600, `sub` = client id, `aud` = the resource, `scope` = `api:read`, no `sid`              |
+| scope above the ceiling                      | 400 `invalid_scope`                                                                                               |
+| resource the client is not linked to         | 400 `invalid_target`                                                                                              |
+| introspection by the client's own credential | 200 `active: true`                                                                                                |
+| admin update carrying `disabled`             | 200, field silently dropped, client stays live, tokens still issue                                                |
+| admin delete                                 | 200; introspection by a second linked client then answers `active: false`; new tokens answer 401 `invalid_client` |
+| secret rotation                              | 200; the old secret immediately answers 401 `invalid_client`                                                      |
 
-8. Refresh rotation: using a refresh token returns 200 with a new refresh token
-   (rotation). Reusing the old refresh token returns 400 invalid_grant.
+### Device grant (the CLI)
 
-## Contract consequences
+| Scenario                          | Result                                                                                |
+| --------------------------------- | ------------------------------------------------------------------------------------- |
+| device code                       | 200, `verification_uri` present                                                       |
+| poll before approval              | 400 `authorization_pending`                                                           |
+| claim then approve                | 200, 200 (approval body field is `userCode`)                                          |
+| poll after approval               | 200, JWT plus refresh token; claims carry `aud` = resource, `scope`, and **no `sid`** |
+| introspection by a service client | 200 `active: true`                                                                    |
+| sign-out of the approving session | 200; introspection still `active: true`; the token's `exp` is 3600 s out              |
+| refresh revoke then reuse         | 200, then 400 `invalid_grant`; the access token's introspection stays `active: true`  |
+| revoking the JWT itself           | 400 `unsupported_token_type`                                                          |
 
-- Machine/human distinction: JWT access tokens carry client_id and azp equal to
-  the OAuth client id, and sub equal to the client id for client_credentials
-  (no user). Resource servers distinguish machine tokens by the absence of a
-  user-bound sub and by client_id; no bespoke token format is needed.
-- Revocation of access is not server-side for JWT access tokens. The contract
-  must set short access-token TTLs and treat refresh-token revocation plus
-  introspection as the revocation channel, or accept TTL-bounded staleness.
-- The clientPrivileges hook is the only gate for assigning client_credentials
-  scope ceilings. The kernel must wire it to its recorded admin authority;
-  leaving it unset disables client_credentials entirely (fail closed).
-- Device approval requires a signed-in session, an Origin header, and a prior
-  code claim. The hosted device page is part of the security boundary.
+### Authorization code with PKCE (the desktop)
+
+| Scenario                              | Result                                        |
+| ------------------------------------- | --------------------------------------------- |
+| authorize                             | 302 to the consent page                       |
+| consent                               | 200 with the redirect carrying the code       |
+| exchange                              | 200, JWT plus refresh; claims carry **`sid`** |
+| introspection before sign-out         | 200 `active: true`                            |
+| introspection after sign-out          | 200 `active: false`                           |
+| exchange with a wrong `code_verifier` | 401 `invalid_request`                         |
+
+### Sessions
+
+| Scenario                  | Result                  |
+| ------------------------- | ----------------------- |
+| fabricated session cookie | 200 with a null session |
+
+## Adversarial cases in the probe
+
+- A code exchanged with the wrong PKCE verifier is refused.
+- A scope above the client ceiling is refused.
+- A resource the client is not linked to is refused.
+- A deleted client's token is refused online while its bytes are still
+  unexpired, which is the offline-validity versus online-acceptance distinction
+  the contract turns on.
+
+## What remains documentation-derived
+
+- Google's own behavior: Workspace `hd` claim contents, account selection, and
+  the freshness of the confirmation proof. The kernel uses the library's
+  verifier against Google's live endpoints; nothing here exercises Google.
+- Workspace Directory API membership reads, which need domain-wide delegation
+  that does not exist yet (contract section 5.1).
+- Browser cookie behavior in a real browser, and the deployed front door.
+- Client disablement as an API. At 1.7.4 the admin update schema drops the
+  field; the contract therefore specifies deletion and rotation, and this is
+  recorded as observed behavior at this version, not as intended library
+  design.
+
+These are the deferred acceptance cases in contract section 13, and they require
+real people, real Google accounts and deployed infrastructure.
