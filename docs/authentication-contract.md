@@ -1,7 +1,7 @@
 # Shared authentication contract
 
-Status: normative, revision 2. This replaces the first delivery at `df84a13`,
-which Sayer did not accept. Section 12 lists what changed and why.
+Status: normative, revision 3. Supersedes revision 2 (`de636812`) and the
+first delivery (`df84a13`); section 13 lists what each correction changed.
 
 This document freezes the protocol the kernel authentication owner, the
 console clients, and the plane validators implement against. It is the only
@@ -13,446 +13,468 @@ existing kernel Fastify API on the existing PostgreSQL deployment. The console
 HTTPS domain is the canonical public issuer and application entry point. Better
 Auth owns linked accounts, sessions, OAuth clients, application tokens, expiry
 and revocation. The kernel record owns organization access, suspension,
-qualifications, permissions, human decisions and dispatch authority. Better
-Auth organization roles do not duplicate kernel authority.
+qualifications, permissions, human decisions and dispatch authority.
 
-## 1. Library pins and evidence
+## 1. Pins and evidence
 
-| Component                   | Pin                                                         | Evidence                                                       |
-| --------------------------- | ----------------------------------------------------------- | -------------------------------------------------------------- |
-| better-auth                 | 1.7.4                                                       | npm latest; kernel pins 1.7.2 today and moves to this pin      |
-| @better-auth/oauth-provider | 1.7.4                                                       | peer better-auth ^1.7.4                                        |
-| Plugins                     | `jwt`, `oauthProvider`, `oauthDeviceAuthorization`          | docs/auth-probe reproduces every claim below                   |
-| Node                        | >= 24                                                       | workspace engines; Fastify integration requires >= 16          |
-| Database                    | Kysely PostgreSQL, `{ casing: "snake", transaction: true }` | migrations create 13 tables on PostgreSQL 17                   |
-| Admin transport             | `auth.api.*` server-side                                    | the admin endpoints are `SERVER_ONLY` and answer 404 over HTTP |
-| Organization plugin         | not used                                                    | kernel access and authority stay in the record                 |
+| Component                   | Pin                                                                           | Notes                                                      |
+| --------------------------- | ----------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| better-auth                 | 1.7.4                                                                         | kernel today pins 1.7.2 and moves up                       |
+| @better-auth/oauth-provider | 1.7.4                                                                         | peer better-auth ^1.7.4                                    |
+| Plugins                     | `jwt`, `oauthProvider`, `oauthDeviceAuthorization`                            |                                                            |
+| Node                        | >= 24                                                                         | workspace engines                                          |
+| Database                    | Kysely PostgreSQL, `{ casing: "snake", transaction: true }`                   | 13 tables                                                  |
+| Admin transport             | `auth.api.*` server-side                                                      | admin endpoints are `SERVER_ONLY` and answer 404 over HTTP |
+| In-process validation       | `getOAuthProviderApi(ctx, options).requireActiveAccessToken(token, clientId)` | exported; probe shows it matches remote introspection      |
+| Organization plugin         | not used                                                                      | kernel authority stays in the record                       |
 
 `docs/auth-probe/` is the runnable evidence: `npm ci && node probe.mjs`. It
-starts its own throwaway PostgreSQL container on port 55439, runs every
-scenario over the in-process handler, prints one JSON line per scenario and
-removes the container on exit. It needs Docker and nothing else, touches no
-shared service, and prints no secret. `docs/auth-probe-evidence.md` records the
-observed results and separates what remains documentation-derived.
+starts its own PostgreSQL container under a unique name on an ephemeral
+loopback port, asserts 48 scenarios over the in-process handler, prints one
+JSON line each, removes only what it created, and exits non-zero if any
+assertion fails or any required scenario did not run. Breaking one expectation
+was verified to exit 1 with the container removed. `docs/auth-probe-evidence.md`
+records the observed results and what stays documentation-derived.
 
-Version behaviors that are contract decisions, not defects:
+## 2. What actually cuts a credential off
 
-- JWT access tokens cannot be revoked directly: `/oauth2/revoke` with
-  `token_type_hint=access_token` answers `unsupported_token_type`. Acceptance of
-  a live JWT is what revocation must change, so validators introspect (section
-  4).
-- The admin client-update schema has no `disabled` field. An update carrying one
-  is stripped by the schema and the client stays live. Machine cutoff is client
-  deletion or secret rotation (section 4.4).
-- The `client_credentials` scope ceiling comes from the client's
-  `client_credentials_scopes`, and a token request above it answers
-  `invalid_scope`. The kernel wires the `clientPrivileges` hook to its recorded
-  admin authority; unwired, the grant stays fail-closed.
+Measured on the pinned packages. Offline validity means the JWT verifies
+against `/jwks` with an unexpired `exp`; online acceptance means
+`/oauth2/introspect` answers `active: true`.
 
-## 2. Token classes and what actually cuts them off
+| Grant                               | `sid` | Session sign-out                | Refresh revoked                                         | Client rotation                                         | Client deletion                                 |
+| ----------------------------------- | ----- | ------------------------------- | ------------------------------------------------------- | ------------------------------------------------------- | ----------------------------------------------- |
+| `client_credentials`                | no    | n/a                             | n/a                                                     | **old secret stops issuing; issued tokens stay active** | token `active:false`, issuance `invalid_client` |
+| device (CLI)                        | no    | token stays `active:true`       | reuse `invalid_grant`; access token stays `active:true` | n/a                                                     | n/a                                             |
+| authorization code + PKCE (desktop) | yes   | token `active:false`            | reuse `invalid_grant`                                   | n/a                                                     | n/a                                             |
+| browser session cookie              | n/a   | store read returns null at once | n/a                                                     | n/a                                                     | n/a                                             |
 
-Measured on the pinned packages (probe scenarios in parentheses). Offline
-validity means the JWT still verifies against `/jwks` with an unexpired `exp`.
-Online acceptance means `/oauth2/introspect` answers `active: true`.
+Four consequences, each measured:
 
-| Grant                                          | Carries `sid` | Session sign-out                        | Refresh revoked                                   | Direct revoke            | Machine cutoff                                                              |
-| ---------------------------------------------- | ------------- | --------------------------------------- | ------------------------------------------------- | ------------------------ | --------------------------------------------------------------------------- |
-| `client_credentials` (`machine-client.*`)      | no            | n/a                                     | n/a                                               | `unsupported_token_type` | delete or rotate: introspection `active:false`, new tokens `invalid_client` |
-| device (CLI) (`device.*`)                      | **no**        | introspection stays `active:true`       | reuse `invalid_grant`, access stays `active:true` | `unsupported_token_type` | n/a                                                                         |
-| authorization code + PKCE (desktop) (`pkce.*`) | yes           | introspection answers `active:false`    | not probed                                        | `unsupported_token_type` | n/a                                                                         |
-| browser session cookie                         | n/a           | session lookup returns null immediately | n/a                                               | n/a                      | n/a                                                                         |
+1. **Introspection decides acceptance.** Offline verification is a filter, never
+   an authorization. Only introspection sees session termination, client
+   deletion and the machine cutoff.
+2. **Rotation is not revocation.** Rotating a client secret stops new issuance
+   immediately; an already-issued machine token stays acceptable until its own
+   `exp` or until the client is deleted. The contract does not call rotation a
+   bearer-token revocation.
+3. **Sign-out does not end a desktop chain by itself.** A refresh request after
+   sign-out returns new tokens the library still accepts, because the refresh
+   grant never consults the session. Desktop logout is therefore: revoke the
+   refresh token, then end the session, then clear local state. All-session
+   logout (`POST /revoke-sessions`) removes the session rows and does cut
+   `sid`-carrying tokens.
+4. **Device tokens carry no `sid`.** Session termination does not reach them.
+   Their cutoff channels are refresh revocation and the access-token TTL.
 
-Three consequences the contract fixes:
+Immediacy versus the cache: a validator's introspection result is cached at most
+60 seconds (section 4.5). Sign-out, revocation and deletion are effective for
+the next fresh validation, not for a cached success already in hand. Section 4.6
+states what a state-changing request does when it holds a cached success and a
+fresh check is unavailable.
 
-1. **Introspection is the only acceptance check.** A JWT that verifies offline
-   can still be refused online; a JWT refused online may still verify offline.
-   Resource servers MUST introspect before acting, and MUST NOT treat offline
-   validation as authorization.
-2. **Session termination reaches desktop, not CLI.** PKCE tokens carry `sid`, so
-   ending the session makes introspection report them inactive. Device tokens
-   at 1.7.4 carry no `sid`, so ending the approving session does not. For the
-   CLI the cutoff channels are refresh revocation and the access-token TTL.
-3. **The TTL bound is per class, not universal.** The first delivery claimed a
-   flat 3600-second revocation bound for every class. That was wrong for PKCE
-   (session-bound, immediate) and incomplete for CLI (bound by access-token TTL
-   and refresh revocation, since the session is not consulted).
+## 3. Routes, methods and page ownership
 
-## 3. Routes and required methods
+Verified against the pinned handlers. The kernel API is the only service running
+Better Auth; the console API and the plane are resource servers and relays and
+keep no session store.
 
-Verified against the pinned handlers, not the documentation prose. The kernel
-API is the only service that runs Better Auth; the console API and the plane are
-resource servers and relays and hold no session store.
+| Path                                                                  | Method            | Reachability | Credential                                                                                 |
+| --------------------------------------------------------------------- | ----------------- | ------------ | ------------------------------------------------------------------------------------------ |
+| `/auth/sign-in/social`                                                | POST              | public       | none (provider in the body)                                                                |
+| `/auth/callback/:id` (`:id` = `google`)                               | GET or POST       | public       | none                                                                                       |
+| `/auth/get-session`                                                   | GET or POST       | public       | session cookie; null on a forged cookie                                                    |
+| `/auth/sign-out`                                                      | POST              | public       | session cookie                                                                             |
+| `/auth/revoke-session`                                                | POST              | public       | session cookie                                                                             |
+| `/auth/revoke-sessions`                                               | POST              | public       | session cookie; ends every session for the person                                          |
+| `/auth/revoke-other-sessions`                                         | POST              | public       | session cookie                                                                             |
+| `/auth/.well-known/oauth-authorization-server`                        | GET               | public       | none                                                                                       |
+| `/auth/.well-known/openid-configuration`                              | GET               | public       | none                                                                                       |
+| `/auth/jwks`                                                          | GET               | public       | none                                                                                       |
+| `/auth/oauth2/authorize`                                              | GET               | public       | session cookie; redirects to the hosted consent page unless the client sets `skip_consent` |
+| `/auth/oauth2/consent`                                                | POST              | public       | session cookie; body `{ accept, oauth_query }`                                             |
+| `/auth/oauth2/token`                                                  | POST              | public       | per grant; public clients send `client_id` in the body                                     |
+| `/auth/oauth2/introspect`                                             | POST              | public       | client credentials, plus a resource link (4.4)                                             |
+| `/auth/oauth2/revoke`                                                 | POST              | public       | client credentials or `client_id`                                                          |
+| `/auth/oauth2/userinfo`                                               | GET               | public       | access token                                                                               |
+| `/auth/device/code`                                                   | POST              | public       | none                                                                                       |
+| `/auth/device`                                                        | GET               | public       | session cookie; claims a pending `user_code`                                               |
+| `/auth/device/approve`, `/auth/device/deny`                           | POST              | public       | session cookie; body `{ userCode }`, camelCase                                             |
+| `/auth/admin/oauth2/*`                                                | POST/PATCH/DELETE | server-only  | no HTTP route; `auth.api.*` with an admin session                                          |
+| `/decisions/:kind/challenge`, `/decisions/:kind`                      | POST              | private      | session or PKCE token, plus fresh Google proof for the decision                            |
+| `/principals/access`, `/principals/identity`, `/principals/bindings*` | GET/POST          | private      | person credential or plane service credential                                              |
 
-| Path                                           | Method            | Reachability    | Owner        | Credential                                            | Notes                                                                           |
-| ---------------------------------------------- | ----------------- | --------------- | ------------ | ----------------------------------------------------- | ------------------------------------------------------------------------------- |
-| `/auth/sign-in/social`                         | **POST**          | public          | kernel       | none                                                  | body carries the provider; this is a POST, not a GET                            |
-| `/auth/callback/:id`                           | GET or POST       | public          | kernel       | none                                                  | Google's redirect target; `:id` is `google`                                     |
-| `/auth/get-session`                            | GET or POST       | public          | kernel       | session cookie                                        | null session on a bogus cookie                                                  |
-| `/auth/sign-out`                               | POST              | public          | kernel       | session cookie                                        | ends one session                                                                |
-| `/auth/.well-known/oauth-authorization-server` | GET               | public          | kernel       | none                                                  | discovery must answer under the public issuer                                   |
-| `/auth/.well-known/openid-configuration`       | GET               | public          | kernel       | none                                                  | same                                                                            |
-| `/auth/jwks`                                   | GET               | public          | kernel       | none                                                  | the only key source for validators                                              |
-| `/auth/oauth2/authorize`                       | GET               | public          | kernel       | session cookie                                        | redirects to the hosted consent page                                            |
-| `/auth/oauth2/consent`                         | POST              | public          | kernel       | session cookie                                        | body `{ accept, oauth_query }`; returns the redirect with the code              |
-| `/auth/oauth2/token`                           | POST              | public          | kernel       | per grant                                             | form-encoded; public clients send `client_id` in the body                       |
-| `/auth/oauth2/introspect`                      | POST              | public          | kernel       | **client credentials**                                | an application access token is not enough; see 4.4                              |
-| `/auth/oauth2/revoke`                          | POST              | public          | kernel       | client credentials or `client_id`                     | refresh tokens revoke; access JWTs answer `unsupported_token_type`              |
-| `/auth/oauth2/userinfo`                        | GET               | public          | kernel       | access token                                          | not a resource server of its own                                                |
-| `/auth/device/code`                            | POST              | public          | kernel       | none                                                  | RFC 8628 start                                                                  |
-| `/auth/device`                                 | GET               | public          | kernel       | session cookie                                        | claims a pending `user_code` for the signed-in session                          |
-| `/auth/device/approve`                         | POST              | public          | kernel       | session cookie                                        | body is `{ userCode }`, camelCase; approval must follow a claim                 |
-| `/auth/device/deny`                            | POST              | public          | kernel       | session cookie                                        | same body shape                                                                 |
-| `/auth/admin/oauth2/*`                         | POST/PATCH/DELETE | **server-only** | kernel       | no HTTP route                                         | `SERVER_ONLY`: 404 over HTTP, called through `auth.api.*` with an admin session |
-| `/decisions/:kind/challenge`                   | POST              | private         | kernel       | session or PKCE token                                 | mints the confirmation challenge; unchanged from today                          |
-| `/decisions/:kind`                             | POST              | private         | kernel       | session or PKCE token plus fresh Google proof         | the recorded decision                                                           |
-| `/principals/access`                           | POST              | private         | kernel       | person credential                                     | enrollment and lookup                                                           |
-| `/principals/identity`                         | GET               | private         | kernel       | plane service credential                              | the address-to-principal door the plane calls                                   |
-| product API routes on the plane and console    | varies            | private         | each service | service token, plus a person token when a person acts | every hop validates independently                                               |
+### 3.1 Page ownership
 
-Hosted pages the kernel must serve, because they sit inside the flows above:
-the sign-in page, the consent page, the device verification page, and the
-decision confirmation page. `oauthProvider` takes `loginPage` and `consentPage`
-and the device plugin takes `verificationUri`; these are kernel routes, not
-console routes, and they are part of the security boundary.
+The kernel serves the **endpoints**; the console serves the **pages**. The
+plugin's `loginPage`, `consentPage` and the device plugin's `verificationUri`
+are URLs, so they point at console routes on the public domain. This keeps the
+implementation split the prepared assignments assume: hosted sign-in, consent,
+device-verification and confirmation pages live in the console, and the
+kernel serves `/auth/*`, `/decisions/*` and `/principals/*`. Nothing in the
+plugin options requires the kernel repository to grow a UI.
 
-## 4. Credential transport, per hop
+The console's confirmation page is the one page that must exist for desktop and
+CLI, because both open it in a browser and then read the recorded outcome.
 
-One rule up front: a request carries at most one `Authorization` header, and
-that header names the acting principal. When a service acts on a person's
-behalf, the service identity travels beside it in its own header.
+### 3.2 Public paths and private destinations
+
+Clients never reach a private kernel host. The console domain is the single
+public entry point.
+
+| Public path                                             | Destination                            | Who uses it                                            |
+| ------------------------------------------------------- | -------------------------------------- | ------------------------------------------------------ |
+| `https://<console-domain>/auth/*`                       | kernel API (private)                   | browsers, desktop, CLI, discovery, JWKS, introspection |
+| `https://<console-domain>/decisions/*`, `/principals/*` | kernel API (private)                   | console API relay, desktop, CLI                        |
+| `https://<console-domain>/api/*`                        | console API (private)                  | browser                                                |
+| `https://<console-domain>/api/runs/*`                   | console API, which relays to the plane | browser                                                |
+| `https://<console-domain>/` and page routes             | console (private)                      | browser                                                |
+
+The relay forwards method, status, `Location` and every `Set-Cookie` unchanged
+and adds no authority of its own. Validation and bootstrap requests take the
+same path: a validator outside the kernel introspects through `/auth/*`; the
+kernel validates itself in process and never introspects itself.
+
+### 3.3 Cookie scope
+
+The session cookie is issued by the public issuer host, `Secure`, `HttpOnly`,
+`SameSite=Lax`, `Path=/`, and no `Domain` attribute (host-only for the console
+domain). `Path=/` is required because the product routes and the hosted pages
+are not under `/auth`. Mutations carry an origin check; a missing or foreign
+origin is refused. `SameSite=Lax` still sends the cookie on the top-level
+redirect back from Google, which is why it works for the callback.
+
+## 4. Credential transport
+
+One `Authorization` header per request, naming the acting principal. A service
+acting for a person adds its own credential in a separate header.
 
 ### 4.1 Names
 
-| Carrier                               | Direction                                            | Content                                                                                                           |
-| ------------------------------------- | ---------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| `Authorization: Bearer <token>`       | every hop                                            | the acting credential: a session-derived access token, a machine token, or a person token                         |
-| `X-DSG-Service-Token: Bearer <token>` | console to plane, plane to kernel, console to kernel | the calling service's own `client_credentials` token                                                              |
-| session cookie                        | browser to console and browser to kernel             | the kernel-issued session, `Secure`, `HttpOnly`, `SameSite=Lax`, path-scoped to the issuer                        |
-| `x-goog-iap-jwt-assertion`            | front door to console                                | transport identity at the infrastructure edge; verified at the front door, never accepted as authority downstream |
+| Carrier                               | Direction                                            | Content                                                                          |
+| ------------------------------------- | ---------------------------------------------------- | -------------------------------------------------------------------------------- |
+| `Authorization: Bearer <token>`       | every hop                                            | the acting credential                                                            |
+| `X-DSG-Service-Token: Bearer <token>` | console to plane, plane to kernel, console to kernel | the calling service's `client_credentials` token                                 |
+| session cookie                        | browser to console and to the kernel                 | `Secure`, `HttpOnly`, `SameSite=Lax`, `Path=/` (3.3)                             |
+| `x-goog-iap-jwt-assertion`            | infrastructure front door only                       | transport identity; verified at the edge, never accepted as authority downstream |
 
-`X-DSG-Service-Token` replaces the retired `x-kernel-person-assertion`. Nobody
-forwards a person assertion as authority any more: the person's own token
-travels and each hop verifies it.
+`X-DSG-Service-Token` replaces the retired `x-kernel-person-assertion`. No hop
+forwards a person assertion as authority any more.
 
-### 4.2 Hop by hop
+### 4.2 Browser to console to plane to kernel
 
-- **Browser to console.** Session cookie only. JavaScript never holds a bearer
-  credential. Every mutation carries an origin check; a missing or foreign
-  origin is refused.
-- **Console API to kernel.** `Authorization: Bearer <person access token>` and
-  `X-DSG-Service-Token: Bearer <console service token>`. The kernel verifies
-  both: the service token's audience is the kernel resource, and the person
-  token's audience includes the kernel resource and its issuer is the pinned
-  issuer. Losing either refuses the request; there is no fallback to whichever
-  one verifies.
-- **Console API to plane.** Same shape with the plane resource: the person token
-  in `Authorization`, the console service token in `X-DSG-Service-Token`. The
-  plane verifies both against its own resource identifier.
-- **Plane to kernel.** `Authorization: Bearer <person token>` plus
-  `X-DSG-Service-Token: Bearer <plane service token>` when the call is about a
-  person, or the plane's own token alone when the plane is the caller.
-- **Desktop to kernel.** `Authorization: Bearer <access token>` from PKCE; the
-  refresh token lives in the OS credential store, never in a file the app
-  writes.
-- **CLI to kernel.** `Authorization: Bearer <access token>` from the device
-  grant; refresh token in the OS credential store.
-- **Service to service with no person.** The caller's own `client_credentials`
-  token in `Authorization`. No person header, no person claim.
+The browser holds only the cookie. The console needs a person token for
+downstream calls, and obtains one with supported library operations, never with
+a handwritten exchange:
 
-### 4.3 Audience and resource binding
+1. The browser calls the console with its cookie.
+2. The console, server-side, calls `/auth/oauth2/authorize` **with the
+   browser's cookie**, its own registered client, `resource` set to the target
+   service, and PKCE. Because that client sets `skip_consent`, the response is a
+   redirect carrying a code and no consent page. **Measured:** 302 with a code,
+   no consent page.
+3. The console exchanges the code at `/auth/oauth2/token` for a person access
+   token whose audience includes the target resource. **Measured:** exchange
+   200, `aud` contains the resource.
+4. The console calls the plane or kernel with `Authorization: Bearer <person
+token>` and `X-DSG-Service-Token: Bearer <console service token>`.
 
-- Every protected resource has exactly one identifier, and tokens name it.
-  A token minted for the plane is refused by the kernel and the reverse
-  (`invalid_target` at issuance, refusal at validation).
-- A person token reaches the resources it needs by being minted for them: the
-  desktop client, the CLI client and the console register `resources` naming the
-  kernel and plane identifiers they will call, and the authorize or device
-  request passes `resource`. A token never reaches a resource it does not name.
-- Clients are linked to the resources they may be issued for
-  (`adminLinkClientResource`), and introspection follows the same link: an
-  introspecting client must be the issuer client or be linked to one of the
-  token's audience resources. A service that validates person tokens is
-  therefore registered, linked and credentialed; it cannot introspect by
-  possessing an application token.
+Custody and lifecycle: the person token lives in the console process memory for
+its lifetime (max 3600 s), is never written to disk, never logged, and never
+reaches the browser. Browser JavaScript never holds a bearer credential. The
+console's client is a confidential or public client registered with
+`skip_consent`, `authorization_code` and `refresh_token` grants, the kernel and
+plane resources, and a redirect URI on its own origin. Renewal uses the refresh
+grant; when renewal fails the console returns 401 and the browser re-enters the
+sign-in page with the cookie still present.
 
-### 4.4 Validation calls and cache bounds
+### 4.3 Hop by hop
 
-| Check          | Call                                                             | Freshness bound                                  |
-| -------------- | ---------------------------------------------------------------- | ------------------------------------------------ |
-| Session cookie | in-process session store read                                    | 0; every request                                 |
-| JWT pre-filter | `/jwks` key fetch, then local signature + `iss` + `aud` + `exp`  | keys cached 300 s, refetch on unknown `kid`      |
-| Acceptance     | `/oauth2/introspect` with the validator's own client credentials | result cached at most 60 s, and never past `exp` |
-| Suspension     | kernel record projection read                                    | 5 s                                              |
-| Machine cutoff | client delete or rotate, then introspection                      | immediate at the next introspection              |
+- **Browser to console.** Cookie only, origin-checked on mutations.
+- **Desktop to kernel.** `Authorization: Bearer <PKCE token>`; refresh token in
+  the OS credential store.
+- **CLI to kernel.** `Authorization: Bearer <device token>`; refresh token in
+  the OS credential store.
+- **Console to plane or kernel.** Person token plus console service token, as in
+  4.2.
+- **Plane to kernel.** Person token plus plane service token when the call is
+  about a person; the plane's own token alone when the plane is the caller.
+- **Service with no person.** The caller's `client_credentials` token alone.
 
-Introspection is required before any state-changing act and before any read
-that exposes governed data. The 60-second cache is a ceiling, not a target: a
-validator that can afford a fresh call makes one. Refusal on a failed check is
-total (section 8).
+### 4.4 Audience, resources and introspection authorization
 
-### 4.5 Forged and conflicting credentials
+- Each protected resource has one identifier, and tokens name it. A token minted
+  for one resource is refused by another (`invalid_target` at issuance, refusal
+  at validation).
+- Clients are linked to the resources they may be issued for, and introspection
+  follows the same link: the introspecting client must be the issuer client or
+  be linked to one of the token's audience resources. A service that validates
+  person tokens is therefore registered, linked and credentialed; holding an
+  application token grants nothing.
+- Desktop, CLI and console each register the resources they call and pass
+  `resource` on authorize or device requests.
+
+### 4.5 Validation calls and freshness
+
+| Check                              | Call                                                                          | Freshness                                      |
+| ---------------------------------- | ----------------------------------------------------------------------------- | ---------------------------------------------- |
+| Session cookie (in kernel)         | in-process session read                                                       | every request                                  |
+| JWT pre-filter                     | local signature, `iss`, `aud`, `exp` against `/jwks`                          | keys cached 300 s, refetch on unknown `kid`    |
+| In-process acceptance (kernel)     | `getOAuthProviderApi(ctx, options).requireActiveAccessToken(token, clientId)` | every request; measured equal to introspection |
+| Remote acceptance (plane, console) | `POST /auth/oauth2/introspect`                                                | cached at most 60 s, never past `exp`          |
+| Suspension                         | kernel record read                                                            | 5 s                                            |
+| Machine cutoff                     | introspection after delete                                                    | next introspection                             |
+
+### 4.6 Cached success with validation unavailable
+
+A state-changing request never proceeds on a cached success alone:
+
+- If the cached acceptance is unexpired and the fresh check is not required by
+  the operation, the request may proceed within the cache window.
+- If the operation requires a fresh check (every mutation, every decision, every
+  dispatch) and the validator cannot answer, the request is refused with
+  `validation_unavailable` (503). It is not queued and not retried
+  optimistically.
+- Reads inside the cache window proceed; reads outside it fail closed.
+- The kernel validates itself in process, so kernel-internal authorization never
+  depends on a network call to authentication. External validators depend on the
+  kernel and fail closed when it is unreachable.
+
+### 4.7 Forged and conflicting credentials
 
 - Inbound `X-DSG-Service-Token` and `x-goog-iap-jwt-assertion` are stripped
-  unless the request arrives from the configured peer address range; a header
-  that survives from anywhere else refuses the request.
-- Two credentials that name different acting principals, or a person token whose
-  `azp` is a client not registered for this resource, refuse the request. No
-  header wins by being checked first.
-- A machine token never satisfies a human-authority act. The decision routes
-  require the fresh Google proof regardless of which token carries the request.
-- Bootstrap and recursion: the kernel validates its own tokens in process and
-  never introspects itself, so authentication does not depend on a call to
-  authentication. Validators outside the kernel introspect the kernel, and the
-  code that calls introspection uses a service credential, not a token being
-  validated.
+  unless the request arrives from the configured peer range.
+- Two credentials naming different principals, or a person token whose `azp` is
+  not registered for this resource, refuse the request. No header wins by
+  inspection order.
+- A machine token never satisfies a human act; decisions require fresh Google
+  proof regardless of the token that carried the request.
 
-### 4.6 Retained Google infrastructure credentials
+### 4.8 Google infrastructure credentials
 
-The Google service accounts that reach GCP APIs, and IAP in front of the console
-domain, stay. They carry infrastructure identity only. IAP's assertion is
-verified at the front door for transport and is never rewritten into person
-authority; the person's Better Auth token is what the kernel trusts. A GCP
-service account is never accepted as a person.
+The Google service accounts that reach GCP APIs stay, carrying infrastructure
+identity only. IAP is removed as the **human gate** on the console domain (that
+is what the migration replaces) and remains where it already protects
+machine-facing infrastructure. Where it remains, its assertion is verified at
+the edge for transport and is never rewritten into person authority: the
+person's Better Auth token is what the kernel trusts, and a Google service
+account is never accepted as a person. In no path does an infrastructure token
+travel beside an application credential as a second identity for the same
+request.
 
 ## 5. Identity mapping
 
-Two different identifiers, kept apart:
+| Identifier             | Where it lives                                  | Authority                                              |
+| ---------------------- | ----------------------------------------------- | ------------------------------------------------------ |
+| Better Auth user id    | kernel PostgreSQL only                          | none; never in the record, an event, a URL or evidence |
+| Google subject (`sub`) | Better Auth `account` row (`providerId` google) | the identity the record binds                          |
+| Email                  | account attribute                               | lookup and display only                                |
 
-| Identifier             | Where it lives                                                       | Authority                                                                |
-| ---------------------- | -------------------------------------------------------------------- | ------------------------------------------------------------------------ |
-| Better Auth user id    | kernel PostgreSQL only                                               | none; internal row key, never in the record, an event, a URL or evidence |
-| Google subject (`sub`) | Better Auth `account` row (`providerId` google, `accountId` = `sub`) | the identity the record binds                                            |
+The recorded binding is unchanged: a principal whose `googleSubject` is
+`accounts.google.com:<sub>`, actor derived from that subject, `googleAccountId`
+holding the address. A verified sign-in resolves to a principal by issuer and
+subject, never by email and never by the Better Auth user id. A changed address
+does not rebind a principal. First access runs the existing enrollment path
+under the recorded organization policy and is idempotent. Account linking is
+governed and preserves the original principal and prior evidence.
 
-The recorded binding stays what it is today: a principal whose
-`googleSubject` is `accounts.google.com:<sub>` and whose actor is derived from
-that subject (`organizationActorForSubject`), with `googleAccountId` holding the
-address for lookup. The kernel resolves a verified Better Auth sign-in to a
-principal by `issuer + subject`, never by email and never by the Better Auth
-user id.
+### 5.1 Suspension and current authorization
 
-- **Email** is a lookup and display attribute. A changed Google address does not
-  rebind a principal and does not move authority; the recorded subject does.
-- **First access** runs the existing enrollment path: a verified eligible
-  Workspace identity is enrolled once under the recorded organization policy
-  (workspace domain and audiences are both checked), the act is idempotent, and
-  concurrent first sign-ins resolve to one recorded enrollment.
-- **Linked accounts** are governed. Linking a second Google account preserves the
-  original principal and prior evidence; an ordinary sign-in never creates
-  authority, and one person's sign-in never replaces another's binding.
-- **Suspension** lives in the record and is checked per request (5 s bound). A
-  suspended principal is refused at every protected route no matter how fresh
-  the session or token.
+Suspension lives in the record. It is checked on every protected request with a
+5-second read bound, so a suspended principal is refused even with a fresh
+session or token. A valid session never substitutes for a current permission
+check.
 
-### 5.1 Workspace membership: computation and refresh
+Existing streams: an open `EventSource` or long-lived read re-checks at open and
+at each heartbeat, and a stream whose subscription outlives the suspension bound
+is closed. A stream is never allowed to outlive a recorded suspension.
 
-Decided mechanism, in two parts:
+### 5.2 Workspace membership: what refresh really does
 
-1. **Sign-in gate.** The kernel configures the Google provider with the recorded
-   workspace domain (`hd`) and re-checks the returned claims: `hd` equals the
-   recorded domain and the address ends in it. An account outside the domain is
-   refused (`not_dsg_account`). This is the existing kernel behavior in both the
-   decision and binding routes and it keeps working after the swap.
-2. **Refresh.** Membership is re-evaluated at each token refresh and at each new
-   sign-in, because those are the points where Google hands back fresh claims.
-   Between those points the enforcement bound is the token lifetime:
-   access tokens at most 3600 s, sessions at most 24 h.
+Measured in the pinned source and probe:
 
-Removal detection therefore has a bound of the longest outstanding token or
-session, not zero. Closing that gap means calling the Google Workspace Directory
-API (`users.get`, scope
-`https://www.googleapis.com/auth/admin.directory.user.readonly`) on sign-in and
-on a timer, which needs domain-wide delegation for a service account in the
-Workspace tenant. **Blocker, named rather than assumed:** that delegation and
-the admin consent are Sayer's act (a Google admin action), and until it exists
-the deployed bound is the token lifetime stated above. The contract does not
-claim a shorter one.
+- The refresh grant (`handleRefreshTokenGrant`, `dist/introspect-Dlc-aIaF.mjs`)
+  reads the stored refresh token and the internal user, then mints tokens. It
+  contacts neither Google nor the session. A rolling refresh therefore extends
+  access with **no fresh Google observation**.
+- The refresh token row stores `authTime`, and each rotation carries the
+  original value forward. Provenance is preserved and cannot be reset by
+  refreshing. **Measured:** `id_token.auth_time` after a refresh equals the
+  original sign-in time.
 
-An old hosted-domain claim never establishes current membership. It establishes
-what Google said at sign-in.
+So the honest mechanisms are:
+
+1. **Interactive sign-in** obtains fresh Google claims. `hd` is re-checked
+   against the recorded workspace domain and the address must end in it.
+2. **Absolute upstream-authentication age**, enforced by the kernel at the token
+   endpoint through a supported `hooks.before` middleware: read
+   `oauthRefreshToken.authTime` for the presented token (found with the
+   provider's own `hashToken`), and refuse the refresh with `invalid_grant` when
+   the age exceeds `KERNEL_MAX_UPSTREAM_AUTH_AGE_SECONDS` (default 86400).
+   **Measured:** with the policy active, a fresh chain refreshes 200 and a chain
+   whose stored `authTime` is backdated 30 days is refused 400 `invalid_grant`.
+   Because the age is read from stored provenance, refreshing cannot reset it,
+   and this also caps the sign-out bypass in section 2 consequence 3.
+3. **Recorded suspension**, checked per request (5.1), immediate.
+4. **Directory observation** (`users.get`,
+   `https://www.googleapis.com/auth/admin.directory.user.readonly`) on sign-in
+   and on a timer, for removal detection tighter than the age limit. This needs
+   domain-wide delegation in the Workspace tenant: **Sayer's act**, not assumed
+   here.
+
+The removal-detection bound is therefore: **the configured upstream
+authentication age (default 24 hours) once mechanism 2 is wired, and the next
+interactive sign-in otherwise.** With mechanism 4 it becomes the observation
+interval. It is not the session or access-token lifetime, and an old
+hosted-domain claim never establishes current membership.
 
 ## 6. Client lifecycle
 
-- **Browser session.** Cookie as in 4.1. Sign-out ends the session; other
-  sessions survive. All-session logout is a separate recorded act. The client
-  clears protected cached state on sign-out.
-- **Desktop (PKCE).** S256 only, exact loopback redirect, system browser, public
-  native client with no embedded secret. Cancellation finalizes the pending flow
-  atomically with credential storage. Switching accounts clears the previous
-  person's protected state.
-- **CLI (device).** RFC 8628 vocabulary (`authorization_pending`, `slow_down`,
-  `expired_token`, `access_denied`), the advertised `interval` honored with
-  backoff, and the `refresh_token` rotated on use. Reuse of a rotated refresh
-  token answers `invalid_grant`: the client treats that as a lost credential and
-  starts a new device flow. The kernel CLI already speaks this flow through the
-  Better Auth device client.
+- **Browser.** Sign-out ends the session; other sessions survive. All-session
+  logout uses `POST /revoke-sessions`, which removes the session rows and cuts
+  `sid`-carrying tokens of that person. The client clears protected cached
+  state.
+- **Desktop.** PKCE S256, exact loopback redirect, system browser, no embedded
+  secret. Logout revokes the refresh token at `/auth/oauth2/revoke`, then signs
+  out, then clears local state, because sign-out alone leaves a refresh chain
+  alive (section 2). Account switching clears the previous person's state.
+- **CLI.** RFC 8628 vocabulary, the advertised `interval` honored with backoff,
+  refresh rotated on use. Logout revokes the refresh token and deletes the OS
+  credential entry; a rotated-token reuse (`invalid_grant`) is treated as a lost
+  credential requiring a new device flow.
 - **Services.** `client_credentials` with the ceiling in
-  `client_credentials_scopes`, the client linked to the resources it may call.
-  No service client may request a scope above its ceiling, and no service
-  credential carries human authority.
+  `client_credentials_scopes`, linked to the resources they call. Cutoff is
+  deletion or a TTL-bounded wait after rotation (section 2).
 
 ## 7. Human confirmation
 
-Unchanged in substance and now stated against real producers. The kernel mints a
-single-use challenge naming the digest of the proposed decision, the person, the
-Case, the gate node and the client identity the Google token must carry. The
-person answers it in Google's own account prompt; the kernel verifies Google's
-signature, the issuer, the recorded audience, token age and the nonce through
-the library's verifier, consumes the challenge, and seals the result.
+Unchanged in substance. The kernel mints a single-use challenge naming the
+digest of the proposed decision, the person, the Case, the gate node and the
+client identity the Google token must carry. The person answers it in Google's
+own account prompt; the kernel verifies Google's signature, issuer, recorded
+audience, token age and nonce through the library's verifier, consumes the
+challenge, and seals the result as the kernel's `google-signed-decision`
+envelope. Qualification and separation of duties are checked against the record
+at decision time. Neither a session, a refresh, a machine token nor another
+person's proof satisfies a decision.
 
-- The provenance of a confirmation is Google's signature over a token whose
-  nonce is the challenge. No session, no token refresh, no machine token and no
-  other person's proof satisfies it.
-- SEPARATION of duties and current qualification are checked against the record
-  at decision time, not at challenge time.
-- Desktop and CLI open the hosted confirmation page and retrieve the recorded
-  outcome; they never sign a decision with a key they hold.
+## 8. Frozen profiles and the sealed envelopes
 
-## 8. Compatibility with the frozen signed profiles
+Inspected at kernel `d29fa731`, plane `702dbf8b`, console `73d4e84`.
 
-Finding 3 asked what remains on the old profiles and what new shapes are
-required. Inspected at kernel `d29fa731`, plane `702dbf8b`, console `73d4e84`.
+| Profile                                           | Producer today                   | Status                                                                             |
+| ------------------------------------------------- | -------------------------------- | ---------------------------------------------------------------------------------- |
+| `dsg.core.identity-binding/1`                     | none                             | the detached personal-key binding path only; kernel's live path is Google-attested |
+| `dsg.run.decision/1`                              | none anywhere                    | frozen and unused; do not delete a released profile                                |
+| `dsg.core.refusal/1`                              | kernel refusals                  | still emitted; bytes untouched                                                     |
+| `dsg.core.refusal/2`                              | new authentication routes        | adds `validation_unavailable`, `confirmation_expired`                              |
+| `google-signed-decision`, `google-signed-binding` | kernel API via `packages/record` | the real sealed artifacts; kernel-owned shapes, no IDL profile                     |
 
-| Profile                                                                                | Producer today                                                                                                   | What it is now                                                                                                                   |
-| -------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| `dsg.core.identity-binding/1` (`signature`, CLI-signed, Google issuer literal)         | none                                                                                                             | describes the detached personal-key binding path only. The kernel's live path is Google-attested and seals a different artifact. |
-| `dsg.run.decision/1` (`signature`, verified against the decider's recorded public key) | none                                                                                                             | describes a detached-signature receipt. Nothing in kernel, plane, console or infra emits or consumes these bytes.                |
-| `dsg.core.refusal/1`                                                                   | kernel refusals                                                                                                  | still emitted; frozen, unchanged in this delivery.                                                                               |
-| `google-signed-decision` / `google-signed-binding` envelopes                           | kernel API (`apps/api/src/routes/decisions.ts`, `apps/api/src/routes/identity-binding.ts` via `packages/record`) | the real sealed artifacts. Kernel-owned TypeBox shapes, no IDL profile.                                                          |
-
-Statements the contract makes, so nobody reinterprets a frozen field:
-
-- The `signature` field on both frozen profiles keeps its documented meaning: a
-  detached signature by a key the person holds, verified against that person's
-  recorded public key. The kernel's third signing branch still supports that
-  path. Reusing the profile shape does not make it describe Google attestation,
-  and the contract does not claim it does.
-- The Google-attested channel is a different artifact with different fields
-  (`idToken`, `keySet`, `challenge`, `signer`). It is not a version of those
-  profiles and is not emitted under their literal.
-- **No new IDL profile is minted in this delivery.** The envelopes have exactly
-  one consumer today, the kernel that writes them, and an IDL profile exists to
-  fix a wire two systems must agree on. The trigger for minting one is stated
-  rather than left vague: the first consumer outside `dsg-kernel`, which is the
-  console's browser-side evidence verification or the plane's evidence sealing.
-  Whoever writes that consumer lifts the envelope shape into `dsg-idl` at that
-  point, from `packages/record/src/decision-envelope.ts` and
-  `binding-envelope.ts`, and both sides then pin it.
+The `signature` field on both frozen profiles keeps its documented meaning: a
+detached signature by a key the person holds, verified against the person's
+recorded public key. The Google-attested channel is a different artifact with
+different fields and is not emitted under those literals. No new IDL profile is
+minted now: the envelopes have exactly one consumer, the kernel that writes
+them. The trigger is named: the first external consumer (the console's
+browser-side evidence verification or the plane's evidence sealing) lifts the
+envelope shape from `packages/record/src/decision-envelope.ts` and
+`binding-envelope.ts` into `dsg-idl` at that point, and both sides pin it.
 
 ## 9. Errors
 
-The authentication surface needs two codes the frozen `/1` does not carry:
-`validation_unavailable` (a validator could not answer; the request fails
-closed) and `confirmation_expired` (a Google proof outside its window).
-`dsg.core.refusal/2` defines them beside `/1`, whose bytes are untouched.
+Version selection: new authentication routes emit `dsg.core.refusal/2`; `/2` is
+a superset of `/1`'s codes, so a `/2` reader accepts every `/1` document while a
+`/1` reader rejects the two new codes by design. A consumer that must read
+authentication refusals moves to `/2` in its implementation chunk before those
+routes ship. No dual-emit window exists, because the new codes appear only on
+routes that do not exist yet.
 
-Version selection, resolved:
+| Code                                                                                                                                                                    | Status | Where                     | Recovery                              |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | ------------------------- | ------------------------------------- |
+| `invalid_client`                                                                                                                                                        | 401    | token, introspect, revoke | fix the client credential             |
+| `invalid_token`                                                                                                                                                         | 401    | protected routes          | re-authenticate                       |
+| `session_expired`                                                                                                                                                       | 401    | protected routes          | sign in again                         |
+| `identity_unbound`                                                                                                                                                      | 403    | protected routes          | bind the principal in the record      |
+| `not_dsg_account`                                                                                                                                                       | 403    | sign-in, enrollment       | use a workspace account               |
+| `principal_suspended`                                                                                                                                                   | 403    | protected routes          | an administrator lifts the suspension |
+| `confirmation_expired`                                                                                                                                                  | 403    | decision routes           | mint a new challenge                  |
+| `validation_unavailable`                                                                                                                                                | 503    | protected routes          | retry when validation answers         |
+| `invalid_request`, `invalid_grant`, `invalid_scope`, `invalid_target`, `unsupported_token_type`, `authorization_pending`, `slow_down`, `expired_token`, `access_denied` | 400    | OAuth endpoints           | RFC-standard vocabularies             |
 
-- New authentication routes emit `dsg.core.refusal/2`.
-- Existing consumers of `/1` keep working unchanged until they are migrated:
-  `/2` is a superset of `/1`'s codes, so a `/2` reader accepts every `/1`
-  document, while a `/1` reader rejects the two new codes by design.
-- A consumer that must read authentication refusals (console, plane) moves to
-  `/2` in its implementation chunk, before the new routes ship. There is no
-  dual-emit window, because the two codes only appear on routes that do not
-  exist yet.
+Two measured specifics: a PKCE verifier mismatch with an otherwise valid code
+answers `invalid_grant` (RFC 6749), and revoking a JWT directly answers
+`unsupported_token_type`. The freshness-cap refusal at the token endpoint uses
+`invalid_grant`. No refusal carries a credential or identity detail beyond the
+recorded sentence.
 
-Status and recovery mapping:
+## 10. Client registrations and configuration
 
-| Code                                                                                                                                                                    | Status | Where                     | Recovery                                               |
-| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | ------------------------- | ------------------------------------------------------ |
-| `invalid_client`                                                                                                                                                        | 401    | token, introspect, revoke | fix the client credential; not a person-facing message |
-| `invalid_token`                                                                                                                                                         | 401    | protected routes          | re-authenticate                                        |
-| `session_expired`                                                                                                                                                       | 401    | protected routes          | re-authenticate                                        |
-| `identity_unbound`                                                                                                                                                      | 403    | protected routes          | bind the principal in the record                       |
-| `not_dsg_account`                                                                                                                                                       | 403    | sign-in, enrollment       | use a workspace account                                |
-| `principal_suspended`                                                                                                                                                   | 403    | protected routes          | an administrator lifts the suspension in the record    |
-| `confirmation_expired`                                                                                                                                                  | 403    | decision routes           | mint a new challenge and answer it                     |
-| `validation_unavailable`                                                                                                                                                | 503    | protected routes          | retry when validation answers                          |
-| `invalid_request`, `invalid_grant`, `invalid_scope`, `invalid_target`, `unsupported_token_type`, `authorization_pending`, `slow_down`, `expired_token`, `access_denied` | 400    | OAuth endpoints           | RFC-standard vocabularies and headers, unchanged       |
+One registration table. These are Better Auth clients, not Google clients. The
+Google web client is separate and used only by the provider.
 
-No refusal carries a credential, a token or identity detail beyond the recorded
-sentence.
+| Registration          | Client type               | Grant types                                                     | Token endpoint auth   | Redirect / verification                  | Scopes                                 | Resources      |
+| --------------------- | ------------------------- | --------------------------------------------------------------- | --------------------- | ---------------------------------------- | -------------------------------------- | -------------- |
+| `dsg-console-web`     | web, `skip_consent: true` | `authorization_code`, `refresh_token`                           | `none` (public, PKCE) | `https://<console-domain>/auth/callback` | `openid`, `offline_access`, `api:read` | kernel, plane  |
+| `dsg-desktop`         | native                    | `authorization_code`, `refresh_token`                           | `none` (public, PKCE) | loopback, exact                          | `openid`, `offline_access`, `api:read` | kernel, plane  |
+| `dsg-cli`             | native                    | `urn:ietf:params:oauth:grant-type:device_code`, `refresh_token` | `none`                | device verification URI on the console   | `openid`, `offline_access`, `api:read` | kernel         |
+| `dsg-console-service` | service                   | `client_credentials`                                            | `client_secret_basic` | n/a                                      | `api:read`                             | kernel, plane  |
+| `dsg-plane-service`   | service                   | `client_credentials`                                            | `client_secret_basic` | n/a                                      | `api:read`                             | kernel         |
+| `dsg-probe-*`         | test only, never deployed | as needed                                                       | as needed             | probe redirects                          | probe scopes                           | probe resource |
 
-## 10. Ownership and configuration
+| Key                                                       | Owner                          | Purpose                                                                                                                                |
+| --------------------------------------------------------- | ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `KERNEL_AUTH_BASE_URL`                                    | dsg-run-console                | public issuer and entry point                                                                                                          |
+| `KERNEL_AUTH_ISSUER`                                      | dsg-kernel, dsg-run            | expected `iss`                                                                                                                         |
+| `KERNEL_RESOURCE_IDENTIFIER`, `PLANE_RESOURCE_IDENTIFIER` | dsg-kernel, dsg-run            | token audiences                                                                                                                        |
+| `BETTER_AUTH_SECRET`                                      | dsg-secret-store               | session and token signing secret                                                                                                       |
+| JWKS signing keys                                         | dsg-secret-store               | minted and held by the kernel's `jwt` plugin; private key never leaves the kernel's secret mount, public halves served at `/auth/jwks` |
+| `GOOGLE_WEB_CLIENT_ID`, `GOOGLE_WEB_CLIENT_SECRET`        | dsg-secret-store               | browser sign-in; the secret is used only by the kernel's provider, never by a client                                                   |
+| `GOOGLE_WORKSPACE_DOMAIN`                                 | dsg-kernel                     | `hd` value enrollment and confirmation require                                                                                         |
+| `KERNEL_MAX_UPSTREAM_AUTH_AGE_SECONDS`                    | dsg-kernel                     | refresh-age limit, default 86400                                                                                                       |
+| `KERNEL_JWKS_CACHE_SECONDS`                               | dsg-kernel                     | key cache bound, default 300                                                                                                           |
+| `INTROSPECTION_CACHE_SECONDS`                             | dsg-run, dsg-run-console       | acceptance cache bound, default 60                                                                                                     |
+| `KERNEL_SUSPENSION_CACHE_SECONDS`                         | dsg-kernel                     | suspension read bound, default 5                                                                                                       |
+| `SERVICE_PEER_RANGES`                                     | dsg-infra                      | the addresses whose service-token headers are trusted                                                                                  |
+| `WORKSPACE_DIRECTORY_DELEGATION`                          | dsg-secret-store, Google admin | the delegation in 5.2; absent until Sayer acts                                                                                         |
 
-| Surface                                             | Owner            |
-| --------------------------------------------------- | ---------------- |
-| kernel authentication, hosted pages, CLI            | dsg-kernel       |
-| console clients, console API, backend configuration | dsg-run-console  |
-| plane validation and relay                          | dsg-run          |
-| this contract, its profiles and vectors             | dsg-idl          |
-| infrastructure ingress, IAM, front door             | dsg-infra        |
-| credentials, signing keys, secret containers        | dsg-secret-store |
-
-Configuration, named by key and owner. No values here.
-
-| Key                                     | Owner                          | Purpose                                        |
-| --------------------------------------- | ------------------------------ | ---------------------------------------------- |
-| `KERNEL_AUTH_BASE_URL`                  | dsg-run-console                | public issuer the browser and clients use      |
-| `KERNEL_AUTH_ISSUER`                    | dsg-kernel, dsg-run            | expected `iss` in every token                  |
-| `KERNEL_RESOURCE_IDENTIFIER`            | dsg-kernel                     | audience for tokens the kernel accepts         |
-| `PLANE_RESOURCE_IDENTIFIER`             | dsg-run                        | audience for tokens the plane accepts          |
-| `BETTER_AUTH_SECRET`                    | dsg-secret-store               | session and token signing secret               |
-| `GOOGLE_WEB_CLIENT_ID`                  | dsg-secret-store               | browser sign-in client                         |
-| `GOOGLE_DESKTOP_CLIENT_ID`              | dsg-secret-store               | PKCE client                                    |
-| `GOOGLE_DEVICE_CLIENT_ID`               | dsg-secret-store               | CLI device client                              |
-| `CONSOLE_SERVICE_CLIENT_ID` / `_SECRET` | dsg-secret-store               | console service credential                     |
-| `PLANE_SERVICE_CLIENT_ID` / `_SECRET`   | dsg-secret-store               | plane service credential                       |
-| `KERNEL_WORKSPACE_DOMAIN`               | dsg-kernel                     | `hd` value enrollment and confirmation require |
-| `KERNEL_JWKS_CACHE_SECONDS`             | dsg-kernel                     | key cache bound, default 300                   |
-| `INTROSPECTION_CACHE_SECONDS`           | dsg-run, dsg-run-console       | acceptance cache bound, default 60             |
-| `WORKSPACE_DIRECTORY_DELEGATION`        | dsg-secret-store, Google admin | the delegation in 5.1; absent until Sayer acts |
-
-Local development uses a separate issuer, separate client registrations,
-separate secrets and its own containers. The dev-identity shortcut
+Local development uses a separate issuer, separate registrations, separate
+secrets and its own containers. The dev-identity shortcut
 (`KERNEL_DEV_IDENTITY`, `trustActorHeader`, `x-kernel-actor`) is deleted in the
-kernel chunk; local sign-in runs the same protocol against the local issuer.
+kernel chunk.
 
 ## 11. Migration inventory
 
-Producers and consumers of the old mixture, by real path, with the deletion
-owner. Source revisions: kernel `d29fa731`, plane `702dbf8b`, console `73d4e84`.
+Source revisions: kernel `d29fa731`, plane `702dbf8b`, console `73d4e84`.
 
-| Old mechanism                                     | Real location                                                                                                                                                                | Replacement                                                                             | Deletion chunk        |
-| ------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- | --------------------- |
-| Dev identity shortcut                             | `apps/api/src/config.ts`, `apps/api/src/app.ts` (`devIdentity`, `KERNEL_DEV_IDENTITY`), `apps/cli/src/auth.ts` (`x-kernel-actor`, loopback only)                             | local issuer with the same protocol                                                     | kernel auth owner     |
-| IAP person transport into the plane               | `dsg-run/service/src/http/kernel-relay.ts` (`x-goog-iap-jwt-assertion`, `x-kernel-person-assertion`), `dsg-kernel/apps/api/src/auth/console-relay.ts` (`verifyIapAssertion`) | `Authorization` person token plus `X-DSG-Service-Token`; IAP stays front-door transport | plane relay chunk     |
-| Console service calls with no person credential   | `dsg-run-console/api/src/plane-relay.ts` (`service.authorization(...)`)                                                                                                      | same shape plus `X-DSG-Service-Token` on person-bearing calls                           | console backend chunk |
-| Existing Better Auth surface, no provider plugins | `dsg-kernel/apps/api/src/auth/google.ts` (1.7.2), `apps/cli/src/auth.ts` (device client)                                                                                     | 1.7.4 with `jwt`, `oauthProvider`, `oauthDeviceAuthorization`                           | kernel auth owner     |
-| Google-attested decisions                         | `apps/api/src/routes/decisions.ts`, `packages/record/src/decision-envelope.ts`                                                                                               | unchanged; challenge route and envelope stay                                            | none                  |
-| Google-attested bindings                          | `apps/api/src/routes/identity-binding.ts`, `packages/record/src/binding-envelope.ts`                                                                                         | unchanged                                                                               | none                  |
-| Record enrollment in the IAP relay                | `apps/api/src/routes/organization-access.ts` (`verifyIapAssertion` then `access.enroll`)                                                                                     | the same enrollment call driven by a verified Better Auth sign-in                       | kernel auth owner     |
-| `dsg.core.identity-binding/1` consumer            | `packages/core/src/index.ts` re-export, `packages/core/src/wire-conformance.test.ts`                                                                                         | stays; the profile is not the live path                                                 | none                  |
-| `dsg.run.decision/1`                              | no producer, no consumer anywhere                                                                                                                                            | stays frozen and unused; do not delete a released profile                               | none                  |
+| Old mechanism                                       | Real location                                                                                                                                         | Replacement                                                                         | Deletion chunk                                |
+| --------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- | --------------------------------------------- |
+| Dev identity shortcut                               | `apps/api/src/config.ts`, `apps/api/src/app.ts` (`devIdentity`), `apps/cli/src/auth.ts` (`x-kernel-actor`)                                            | local issuer, same protocol                                                         | kernel auth owner                             |
+| IAP person transport                                | `dsg-run/service/src/http/kernel-relay.ts` (`x-goog-iap-jwt-assertion`, `x-kernel-person-assertion`), `dsg-kernel/apps/api/src/auth/console-relay.ts` | person token plus `X-DSG-Service-Token`; IAP stays at the edge only                 | plane relay chunk                             |
+| Console service calls with no person credential     | `dsg-run-console/api/src/plane-relay.ts`                                                                                                              | the 4.2 code exchange, then person token plus service token                         | console backend chunk                         |
+| Public human IAP gate on the console domain         | console front door configuration                                                                                                                      | Better Auth sign-in; the domain and private upstreams stay                          | console backend chunk, dsg-infra for the gate |
+| Existing Better Auth surface, no provider plugins   | `dsg-kernel/apps/api/src/auth/google.ts` (1.7.2), `apps/cli/src/auth.ts` (device client)                                                              | 1.7.4 with `jwt`, `oauthProvider`, `oauthDeviceAuthorization`, the refresh-age hook | kernel auth owner                             |
+| Google-attested decisions and bindings              | `apps/api/src/routes/decisions.ts`, `identity-binding.ts`, `packages/record/src/*-envelope.ts`                                                        | unchanged                                                                           | none                                          |
+| Record enrollment through the IAP relay             | `apps/api/src/routes/organization-access.ts`                                                                                                          | the same enrollment driven by a verified sign-in                                    | kernel auth owner                             |
+| `dsg.core.identity-binding/1`, `dsg.run.decision/1` | re-export only, no producer                                                                                                                           | unchanged, frozen                                                                   | none                                          |
 
-Rollout: the console front door's human gate moves from IAP to Better Auth while
-the domain, HTTPS front door, private hosts and baseline stay. Old tokens stop
-being accepted at cutover; there is no dual-accept window for human identity,
-because a token minted against the old authority cannot be validated against the
-new one. Rollback cannot restore invalidated authority.
+Old tokens stop being accepted at cutover; there is no dual-accept window for
+human identity, because a token minted against the old authority cannot be
+validated against the new one. Rollback cannot restore invalidated authority.
 
-## 12. What changed from revision 1
+## 12. Deferred acceptance
 
-| Finding                          | Correction                                                                                                                                                                                                                                                                                                                    |
-| -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Revocation evidence overstated   | Section 2 measures each grant class. The flat 3600-second bound is replaced: PKCE tokens are session-bound and cut off immediately; device tokens carry no `sid` and are bounded by TTL plus refresh revocation; machines are cut by delete or rotate. Section 4 adds the validation calls, cache bounds and outage behavior. |
-| Transport incomplete             | Section 4 names every carrier per hop, retires `x-kernel-person-assertion`, fixes audience and resource linking, and states forged-header and recursion behavior.                                                                                                                                                             |
-| Frozen profile reuse claimed     | Section 8 inspects the real producers and says what each profile is, that `dsg.run.decision/1` has no producer at all, and that envelopes get a profile at their first external consumer rather than now.                                                                                                                     |
-| Identity and refresh hand-waved  | Section 5 separates the Better Auth user id from the Google subject, fixes the mapping, and names the Directory API delegation as Sayer's act rather than claiming an immediate membership check.                                                                                                                             |
-| Routes and errors wrong or vague | Section 3 is per-method (`/sign-in/social` is POST), includes session, hosted pages and discovery, and states that introspection requires client credentials with a resource link. Section 9 resolves refusal version selection and maps status and recovery.                                                                 |
-| Evidence not reproducible        | `docs/auth-probe/` runs from a clean checkout with a pinned lock and its own container; `docs/auth-probe-evidence.md` records the observed result of each scenario and what remains documentation-derived.                                                                                                                    |
+Real people and infrastructure: browser, desktop and CLI sign-in end to end;
+first organization access; outsider refusal; suspension including an open
+stream; desktop logout with refresh revocation; CLI revocation through refresh
+rotation; wrong-resource refusal; forged header refusal; machine and person
+credential separation; confirmation mutation and replay; deployed front door.
+Dependencies this delivery does not fabricate: a member account, a non-member
+account, two qualified decision-makers, OAuth registration access, a desktop
+signing identity, and the Workspace Directory delegation in 5.2.
 
-## 13. Later acceptance cases
+## 13. Corrections by revision
 
-Deferred to real people and real infrastructure, listed so they are not
-forgotten: browser, desktop and CLI sign-in end to end; first organization
-access; outsider refusal; suspension; session termination on desktop; CLI
-revocation through refresh rotation; wrong-resource token refusal; forged
-internal header refusal; machine and person credential separation; confirmation
-mutation and replay; token refresh; and the same journeys through the deployed
-front door.
-
-Dependencies this delivery does not fabricate: an organization member account
-and a non-member account, two qualified decision-makers, OAuth client
-registration access, a desktop signing identity, and the Workspace Directory
-delegation in 5.1.
+| Revision | Correction                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1 → 2    | Per-grant revocation evidence; per-hop transport; frozen-profile assessment; identity mapping and Directory blocker; per-method routes; refusal version selection; runnable probe                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| 2 → 3    | Membership: application refresh provably does not contact Google, so the lifetime bound is withdrawn and replaced by a refresh-age limit enforced through a supported `hooks.before` over stored `authTime` (probe-proven), with Directory still named as the tighter option. Rotation: separated from bearer revocation by measurement, and client deletion, old-secret rejection and old-token acceptance are now three distinct assertions. Browser relay: the console's cookie-to-person-token path is defined and measured through the library, with cookie scope and the public/private path table. Logout: desktop and CLI logout now include refresh revocation because sign-out alone leaves a chain alive; all-session logout is measured. Errors: PKCE mismatch is `invalid_grant`, JWT revocation is `unsupported_token_type`. Probe: assertions, required-scenario accounting, unique container, ephemeral loopback port, truthful teardown, no token material in output |
