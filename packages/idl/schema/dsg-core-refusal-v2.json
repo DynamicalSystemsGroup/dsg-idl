@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/DynamicalSystemsGroup/dsg-idl/schema/dsg-core-refusal-v2.json",
+  "title": "dsg.core.refusal/2",
+  "$defs": {
+    "refusal": {
+      "additionalProperties": false,
+      "type": "object",
+      "required": ["profile", "code", "sentence"],
+      "properties": {
+        "profile": {
+          "const": "dsg.core.refusal/2",
+          "type": "string"
+        },
+        "code": {
+          "anyOf": [
+            {
+              "const": "assertion_invalid",
+              "type": "string"
+            },
+            {
+              "const": "audience_mismatch",
+              "type": "string"
+            },
+            {
+              "const": "expired",
+              "type": "string"
+            },
+            {
+              "const": "issuer_unknown",
+              "type": "string"
+            },
+            {
+              "const": "transport_unverified",
+              "type": "string"
+            },
+            {
+              "const": "relay_untrusted",
+              "type": "string"
+            },
+            {
+              "const": "identity_unbound",
+              "type": "string"
+            },
+            {
+              "const": "binding_expired",
+              "type": "string"
+            },
+            {
+              "const": "principal_suspended",
+              "type": "string"
+            },
+            {
+              "const": "not_dsg_account",
+              "type": "string"
+            },
+            {
+              "const": "session_expired",
+              "type": "string"
+            },
+            {
+              "const": "unknown_workload_class",
+              "type": "string"
+            },
+            {
+              "const": "image_not_pinned",
+              "type": "string"
+            },
+            {
+              "const": "not_a_requester",
+              "type": "string"
+            },
+            {
+              "const": "document_invalid",
+              "type": "string"
+            },
+            {
+              "const": "self_decision",
+              "type": "string"
+            },
+            {
+              "const": "no_ceiling",
+              "type": "string"
+            },
+            {
+              "const": "validation_unavailable",
+              "type": "string"
+            },
+            {
+              "const": "confirmation_expired",
+              "type": "string"
+            }
+          ]
+        },
+        "sentence": {
+          "minLength": 1,
+          "type": "string"
+        }
+      }
+    }
+  },
+  "$ref": "#/$defs/refusal"
+}

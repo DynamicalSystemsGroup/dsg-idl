@@ -29,8 +29,18 @@ Rules, enforced by this repo's own tests and `just check`:
    consumers read it and never hold their own copy.
 
 Consumers pin a release tarball by URL and lockfile integrity, never a
-branch or git ref. No consumer repo may define a `dsg.*.*/N` literal;
-each consumer's CI greps its source for that pattern and fails on a hit.
+branch or git ref.
+
+Documents:
+
+- [Shared authentication contract](docs/authentication-contract.md): the
+  normative Better Auth authority, token-class revocation, per-hop credential
+  transport, validation, identity mapping, client lifecycle, human
+  confirmation, frozen-profile compatibility, errors, and migration inventory.
+- [Probe evidence](docs/auth-probe-evidence.md): what the runnable probe
+  observed and what remains documentation-derived. Reproduce with
+  `cd docs/auth-probe && npm ci && node probe.mjs`. No consumer repo may define a `dsg.*.*/N` literal;
+  each consumer's CI greps its source for that pattern and fails on a hit.
 
 ## Reproducible event stream seals
 
