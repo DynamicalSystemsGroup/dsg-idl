@@ -85,13 +85,15 @@ See [npm trusted publishing](https://docs.npmjs.com/trusted-publishers/).
 
 ### Resume a failed release
 
-Rerun the failed tag workflow. Before any publish, it checks both package
-versions on npm. An existing version is skipped only when its registry integrity
+Rerun the failed tag workflow. If the workflow itself needed a correction,
+choose Run workflow on `main` and enter the existing tag. This uses the corrected
+workflow while checking out and rebuilding the original tagged source. Before
+any publish, it checks both package versions on npm. An existing version is skipped only when its registry integrity
 and downloaded bytes match the tagged build. A mismatched existing version
 stops the release; never overwrite the tag or reuse that version.
 
 npm can take several minutes to expose an accepted publication. The workflow
-allows five minutes per package for registry visibility before failing.
+allows ten minutes per package for registry visibility before failing.
 
 If only one package published, the rerun verifies it and publishes the missing
 package. A GitHub Release is created only after both are verified. An existing

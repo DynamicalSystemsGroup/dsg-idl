@@ -184,7 +184,7 @@ async function publish(destination) {
       );
     }
     let verified = false;
-    for (let attempt = 0; attempt < 60; attempt += 1) {
+    for (let attempt = 0; attempt < 120; attempt += 1) {
       if ((await published(pkg)) === "verified") {
         verified = true;
         break;
