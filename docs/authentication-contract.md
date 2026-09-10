@@ -1,7 +1,8 @@
 # Shared authentication contract
 
-Status: normative, revision 3. Supersedes revision 2 (`de636812`) and the
-first delivery (`df84a13`); section 13 lists what each correction changed.
+Status: normative, revision 4. Supersedes revision 3 (`08a9ecd`).
+Section 13 records the corrections. Automatic Google Workspace offboarding
+is an explicit deployment dependency, not a capability of application refresh.
 
 This document freezes the protocol the kernel authentication owner, the
 console clients, and the plane validators implement against. It is the only
@@ -30,7 +31,7 @@ qualifications, permissions, human decisions and dispatch authority.
 
 `docs/auth-probe/` is the runnable evidence: `npm ci && node probe.mjs`. It
 starts its own PostgreSQL container under a unique name on an ephemeral
-loopback port, asserts 48 scenarios over the in-process handler, prints one
+loopback port, asserts the required scenarios over the in-process handler, prints one
 JSON line each, removes only what it created, and exits non-zero if any
 assertion fails or any required scenario did not run. Breaking one expectation
 was verified to exit 1 with the container removed. `docs/auth-probe-evidence.md`
@@ -169,8 +170,8 @@ a handwritten exchange:
 
 1. The browser calls the console with its cookie.
 2. The console, server-side, calls `/auth/oauth2/authorize` **with the
-   browser's cookie**, its own registered client, `resource` set to the target
-   service, and PKCE. Because that client sets `skip_consent`, the response is a
+   browser's cookie**, its own registered client, repeated `resource` parameters
+   naming both kernel and plane when forwarding through both, and PKCE. Because that client sets `skip_consent`, the response is a
    redirect carrying a code and no consent page. **Measured:** 302 with a code,
    no consent page.
 3. The console exchanges the code at `/auth/oauth2/token` for a person access
@@ -179,14 +180,35 @@ a handwritten exchange:
 4. The console calls the plane or kernel with `Authorization: Bearer <person
 token>` and `X-DSG-Service-Token: Bearer <console service token>`.
 
-Custody and lifecycle: the person token lives in the console process memory for
-its lifetime (max 3600 s), is never written to disk, never logged, and never
-reaches the browser. Browser JavaScript never holds a bearer credential. The
-console's client is a confidential or public client registered with
-`skip_consent`, `authorization_code` and `refresh_token` grants, the kernel and
-plane resources, and a redirect URI on its own origin. Renewal uses the refresh
-grant; when renewal fails the console returns 401 and the browser re-enters the
-sign-in page with the cookie still present.
+Custody and lifecycle: before every protected browser request, the console
+reads `/auth/get-session?disableCookieCache=true&disableRefresh=true` through
+the kernel with that request's cookie. A null or expired session returns 401;
+a failed session read returns 503. It must perform this check before consulting
+its token cache or attempting renewal. The probe verifies null after both
+expiry and sign-out. A cached refresh token never substitutes for the cookie.
+
+The console cache is process-local, keyed by the verified session ID, user ID,
+client ID, resource set and scope set. It holds only that session's tokens,
+never writes them to disk or logs, and drops entries when their session expires
+or fails validation. Account switching selects a different entry and clears
+previous protected response state. Logout revokes the cached refresh chain,
+ends the browser session and evicts the entry. Other replicas also refuse on
+their next session read. A restart simply requires another code exchange.
+
+The console client is public with PKCE, `skip_consent: true`, the two resource
+links and the exact redirect URI in section 10. Person tokens stay in server
+memory and never reach browser JavaScript. Renewal is serialized per cache
+entry because refresh rotates on use. Failed renewal evicts the entry and
+returns 401; it never falls back to a service credential. Bearer-token expiry
+and the current browser session are both required. Stream reads repeat the
+session and authorization checks on a heartbeat no slower than five seconds.
+
+A call entering the plane and continuing to the kernel uses the same person
+token with **both** audiences. The plane replaces the console's service token
+with its own service token on the kernel hop. The probe issues a token from
+repeated resource parameters, validates it with independently linked plane and
+kernel clients, and refuses a kernel-only token at the plane validator. No
+unproven token-exchange grant or audience rewriting is required.
 
 ### 4.3 Hop by hop
 
@@ -244,9 +266,10 @@ A state-changing request never proceeds on a cached success alone:
 
 - Inbound `X-DSG-Service-Token` and `x-goog-iap-jwt-assertion` are stripped
   unless the request arrives from the configured peer range.
-- Two credentials naming different principals, or a person token whose `azp` is
-  not registered for this resource, refuse the request. No header wins by
-  inspection order.
+- The person and calling service are deliberately different principals. Each
+  credential must have its expected class, audience and registered client.
+  Conflicting credentials for the same acting-person slot are refused. A service
+  token cannot replace, overwrite or impersonate that person.
 - A machine token never satisfies a human act; decisions require fresh Google
   proof regardless of the token that carried the request.
 
@@ -258,9 +281,11 @@ is what the migration replaces) and remains where it already protects
 machine-facing infrastructure. Where it remains, its assertion is verified at
 the edge for transport and is never rewritten into person authority: the
 person's Better Auth token is what the kernel trusts, and a Google service
-account is never accepted as a person. In no path does an infrastructure token
-travel beside an application credential as a second identity for the same
-request.
+account is never accepted as a person. Where an outbound hop still crosses IAP, its transport token goes in
+`Proxy-Authorization: Bearer <Google transport token>`; `Authorization` and
+`X-DSG-Service-Token` keep their application meanings. The edge verifies its
+IAP assertion and the backend prevents direct ingress. Transport identity
+never selects the acting person.
 
 ## 5. Identity mapping
 
@@ -289,44 +314,58 @@ Existing streams: an open `EventSource` or long-lived read re-checks at open and
 at each heartbeat, and a stream whose subscription outlives the suspension bound
 is closed. A stream is never allowed to outlive a recorded suspension.
 
-### 5.2 Workspace membership: what refresh really does
+### 5.2 Workspace membership and offboarding
 
-Measured in the pinned source and probe:
+Google sign-in establishes a point-in-time identity observation. The kernel
+verifies Google's issuer, stable subject and hosted-domain claim against the
+recorded organization policy. Email suffix alone never admits someone.
+Application refresh does not contact Google and does not establish current
+Workspace membership.
 
-- The refresh grant (`handleRefreshTokenGrant`, `dist/introspect-Dlc-aIaF.mjs`)
-  reads the stored refresh token and the internal user, then mints tokens. It
-  contacts neither Google nor the session. A rolling refresh therefore extends
-  access with **no fresh Google observation**.
-- The refresh token row stores `authTime`, and each rotation carries the
-  original value forward. Provenance is preserved and cannot be reset by
-  refreshing. **Measured:** `id_token.auth_time` after a refresh equals the
-  original sign-in time.
+The pinned library has these measured provenance and lifetime boundaries:
 
-So the honest mechanisms are:
+| Credential                          | Timestamp source                                                                             | What the candidate refresh-age hook actually does                                                                                                   |
+| ----------------------------------- | -------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Browser cookie                      | Better Auth `session.createdAt`, retained on ordinary renewal                                | Nothing. An old but unexpired cookie still reads successfully and can obtain a new code.                                                            |
+| Authorization code and PKCE refresh | Code copies `session.createdAt`; refresh row `authTime` and ID-token `auth_time` preserve it | Refuses a later refresh at or after the limit. A token issued just before the limit remains active afterward. Initial code exchange is not covered. |
+| Device grant and refresh            | Device redemption passes no `sessionId` or `authTime`; stored `authTime` is null             | A fail-closed provenance check refuses even a fresh device refresh. Initial device issuance and access still succeed.                               |
 
-1. **Interactive sign-in** obtains fresh Google claims. `hd` is re-checked
-   against the recorded workspace domain and the address must end in it.
-2. **Absolute upstream-authentication age**, enforced by the kernel at the token
-   endpoint through a supported `hooks.before` middleware: read
-   `oauthRefreshToken.authTime` for the presented token (found with the
-   provider's own `hashToken`), and refuse the refresh with `invalid_grant` when
-   the age exceeds `KERNEL_MAX_UPSTREAM_AUTH_AGE_SECONDS` (default 86400).
-   **Measured:** with the policy active, a fresh chain refreshes 200 and a chain
-   whose stored `authTime` is backdated 30 days is refused 400 `invalid_grant`.
-   Because the age is read from stored provenance, refreshing cannot reset it,
-   and this also caps the sign-out bypass in section 2 consequence 3.
-3. **Recorded suspension**, checked per request (5.1), immediate.
-4. **Directory observation** (`users.get`,
-   `https://www.googleapis.com/auth/admin.directory.user.readonly`) on sign-in
-   and on a timer, for removal detection tighter than the age limit. This needs
-   domain-wide delegation in the Workspace tenant: **Sayer's act**, not assumed
-   here.
+Session creation is a local library timestamp, not Google's `auth_time` or proof
+of a password entry. A production session can be treated as a new Google
+observation only when it was created by the verified Google callback. The probe
+uses synthetic email sign-in and proves library behavior only. Renewing a
+session, issuing an application grant or rotating a refresh token must never be
+reported as a fresh Google observation. Missing, invalid or future provenance
+cannot satisfy a freshness requirement.
 
-The removal-detection bound is therefore: **the configured upstream
-authentication age (default 24 hours) once mechanism 2 is wired, and the next
-interactive sign-in otherwise.** With mechanism 4 it becomes the observation
-interval. It is not the session or access-token lifetime, and an old
-hosted-domain claim never establishes current membership.
+**Revision 3's refresh-age hook is withdrawn from the production contract.**
+It cannot enforce a common upstream-authentication limit across the approved
+clients. The probe retains it solely as a counterexample, including the
+near-limit token, old-cookie grant and device-refresh refusal. Do not copy it
+into the kernel or configure a purported 24-hour offboarding guarantee.
+
+The selected baseline offboarding mechanism is **recorded suspension**. Every
+protected request checks it with the five-second bound in 5.1. Until Directory
+integration exists, an administrator must record suspension to cut off a
+removed Workspace member. A failed future Google sign-in refuses that sign-in;
+it does not retroactively revoke that person's other application credentials.
+
+The bounds are explicit. An individual access token lasts at most 3600 seconds,
+and validation caches never extend `exp`. That is not an offboarding bound:
+rolling sessions and refresh chains can keep issuing credentials. Without a
+recorded suspension or fresh Directory observation there is **no finite
+automatic Workspace-removal detection bound** for any of the three clients.
+A refresh-age check on one endpoint does not change that conclusion.
+
+Automatic Workspace offboarding requires a verified Directory `users.get`
+observation, including deletion and `suspended`, keyed by the Google-linked
+identity, followed by the existing record suspension path. The read-only
+`admin.directory.user.readonly` scope and domain-wide delegation require
+Workspace administrator action. That integration, its observation interval,
+and its outage behavior must be accepted before claiming bounded automatic
+Workspace offboarding. No Directory permission or observation was created by
+this contract task. This dependency does not prevent implementing sign-in,
+manual recorded suspension or the other approved client flows.
 
 ## 6. Client lifecycle
 
@@ -383,10 +422,13 @@ envelope shape from `packages/record/src/decision-envelope.ts` and
 ## 9. Errors
 
 Version selection: new authentication routes emit `dsg.core.refusal/2`; `/2` is
-a superset of `/1`'s codes, so a `/2` reader accepts every `/1` document while a
-`/1` reader rejects the two new codes by design. A consumer that must read
-authentication refusals moves to `/2` in its implementation chunk before those
-routes ship. No dual-emit window exists, because the new codes appear only on
+a superset of `/1`'s **code values**, but each schema retains its distinct
+literal `profile`. A `/2` schema rejects a `/1` document. A consumer reading
+both versions must dispatch on `profile` to `RefusalSchema` or
+`RefusalV2Schema`, or validate against their explicit TypeBox union. Unknown
+versions fail closed. Both schemas retain their frozen literals and neither
+rewrites historical bytes. Consumers add this reader before the new routes
+ship. No dual-emit window exists, because the new codes appear only on
 routes that do not exist yet.
 
 | Code                                                                                                                                                                    | Status | Where                     | Recovery                              |
@@ -401,10 +443,11 @@ routes that do not exist yet.
 | `validation_unavailable`                                                                                                                                                | 503    | protected routes          | retry when validation answers         |
 | `invalid_request`, `invalid_grant`, `invalid_scope`, `invalid_target`, `unsupported_token_type`, `authorization_pending`, `slow_down`, `expired_token`, `access_denied` | 400    | OAuth endpoints           | RFC-standard vocabularies             |
 
-Two measured specifics: a PKCE verifier mismatch with an otherwise valid code
-answers `invalid_grant` (RFC 6749), and revoking a JWT directly answers
-`unsupported_token_type`. The freshness-cap refusal at the token endpoint uses
-`invalid_grant`. No refusal carries a credential or identity detail beyond the
+The OAuth table gives the usual error statuses. The pinned library has a
+measured exception: a PKCE verifier mismatch with an otherwise valid code
+answers HTTP 401 `invalid_request` in the pinned library, and revoking a JWT directly answers
+`unsupported_token_type`. The candidate age hook uses `invalid_grant`; it is not a production
+offboarding mechanism. No refusal carries a credential or identity detail beyond the
 recorded sentence.
 
 ## 10. Client registrations and configuration
@@ -421,21 +464,20 @@ Google web client is separate and used only by the provider.
 | `dsg-plane-service`   | service                   | `client_credentials`                                            | `client_secret_basic` | n/a                                      | `api:read`                             | kernel         |
 | `dsg-probe-*`         | test only, never deployed | as needed                                                       | as needed             | probe redirects                          | probe scopes                           | probe resource |
 
-| Key                                                       | Owner                          | Purpose                                                                                                                                |
-| --------------------------------------------------------- | ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
-| `KERNEL_AUTH_BASE_URL`                                    | dsg-run-console                | public issuer and entry point                                                                                                          |
-| `KERNEL_AUTH_ISSUER`                                      | dsg-kernel, dsg-run            | expected `iss`                                                                                                                         |
-| `KERNEL_RESOURCE_IDENTIFIER`, `PLANE_RESOURCE_IDENTIFIER` | dsg-kernel, dsg-run            | token audiences                                                                                                                        |
-| `BETTER_AUTH_SECRET`                                      | dsg-secret-store               | session and token signing secret                                                                                                       |
-| JWKS signing keys                                         | dsg-secret-store               | minted and held by the kernel's `jwt` plugin; private key never leaves the kernel's secret mount, public halves served at `/auth/jwks` |
-| `GOOGLE_WEB_CLIENT_ID`, `GOOGLE_WEB_CLIENT_SECRET`        | dsg-secret-store               | browser sign-in; the secret is used only by the kernel's provider, never by a client                                                   |
-| `GOOGLE_WORKSPACE_DOMAIN`                                 | dsg-kernel                     | `hd` value enrollment and confirmation require                                                                                         |
-| `KERNEL_MAX_UPSTREAM_AUTH_AGE_SECONDS`                    | dsg-kernel                     | refresh-age limit, default 86400                                                                                                       |
-| `KERNEL_JWKS_CACHE_SECONDS`                               | dsg-kernel                     | key cache bound, default 300                                                                                                           |
-| `INTROSPECTION_CACHE_SECONDS`                             | dsg-run, dsg-run-console       | acceptance cache bound, default 60                                                                                                     |
-| `KERNEL_SUSPENSION_CACHE_SECONDS`                         | dsg-kernel                     | suspension read bound, default 5                                                                                                       |
-| `SERVICE_PEER_RANGES`                                     | dsg-infra                      | the addresses whose service-token headers are trusted                                                                                  |
-| `WORKSPACE_DIRECTORY_DELEGATION`                          | dsg-secret-store, Google admin | the delegation in 5.2; absent until Sayer acts                                                                                         |
+| Key                                                       | Owner                          | Purpose                                                                                                                                                                                           |
+| --------------------------------------------------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `KERNEL_AUTH_BASE_URL`                                    | dsg-run-console                | public issuer and entry point                                                                                                                                                                     |
+| `KERNEL_AUTH_ISSUER`                                      | dsg-kernel, dsg-run            | expected `iss`                                                                                                                                                                                    |
+| `KERNEL_RESOURCE_IDENTIFIER`, `PLANE_RESOURCE_IDENTIFIER` | dsg-kernel, dsg-run            | token audiences                                                                                                                                                                                   |
+| `BETTER_AUTH_SECRET`                                      | dsg-secret-store               | session and token signing secret                                                                                                                                                                  |
+| JWKS signing keys                                         | kernel Better Auth PostgreSQL  | `jwt` generates and encrypts private keys in its database; `BETTER_AUTH_SECRET` is held through dsg-secret-store. Public keys are served at `/auth/jwks`. Never copy private rows into artifacts. |
+| `GOOGLE_WEB_CLIENT_ID`, `GOOGLE_WEB_CLIENT_SECRET`        | dsg-secret-store               | browser sign-in; the secret is used only by the kernel's provider, never by a client                                                                                                              |
+| `GOOGLE_WORKSPACE_DOMAIN`                                 | dsg-kernel                     | `hd` value enrollment and confirmation require                                                                                                                                                    |
+| `KERNEL_JWKS_CACHE_SECONDS`                               | dsg-kernel                     | key cache bound, default 300                                                                                                                                                                      |
+| `INTROSPECTION_CACHE_SECONDS`                             | dsg-run, dsg-run-console       | acceptance cache bound, default 60                                                                                                                                                                |
+| `KERNEL_SUSPENSION_CACHE_SECONDS`                         | dsg-kernel                     | suspension read bound, default 5                                                                                                                                                                  |
+| `SERVICE_PEER_RANGES`                                     | dsg-infra                      | the addresses whose service-token headers are trusted                                                                                                                                             |
+| `WORKSPACE_DIRECTORY_DELEGATION`                          | dsg-secret-store, Google admin | the delegation in 5.2; absent until Sayer acts                                                                                                                                                    |
 
 Local development uses a separate issuer, separate registrations, separate
 secrets and its own containers. The dev-identity shortcut
@@ -446,16 +488,16 @@ kernel chunk.
 
 Source revisions: kernel `d29fa731`, plane `702dbf8b`, console `73d4e84`.
 
-| Old mechanism                                       | Real location                                                                                                                                         | Replacement                                                                         | Deletion chunk                                |
-| --------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- | --------------------------------------------- |
-| Dev identity shortcut                               | `apps/api/src/config.ts`, `apps/api/src/app.ts` (`devIdentity`), `apps/cli/src/auth.ts` (`x-kernel-actor`)                                            | local issuer, same protocol                                                         | kernel auth owner                             |
-| IAP person transport                                | `dsg-run/service/src/http/kernel-relay.ts` (`x-goog-iap-jwt-assertion`, `x-kernel-person-assertion`), `dsg-kernel/apps/api/src/auth/console-relay.ts` | person token plus `X-DSG-Service-Token`; IAP stays at the edge only                 | plane relay chunk                             |
-| Console service calls with no person credential     | `dsg-run-console/api/src/plane-relay.ts`                                                                                                              | the 4.2 code exchange, then person token plus service token                         | console backend chunk                         |
-| Public human IAP gate on the console domain         | console front door configuration                                                                                                                      | Better Auth sign-in; the domain and private upstreams stay                          | console backend chunk, dsg-infra for the gate |
-| Existing Better Auth surface, no provider plugins   | `dsg-kernel/apps/api/src/auth/google.ts` (1.7.2), `apps/cli/src/auth.ts` (device client)                                                              | 1.7.4 with `jwt`, `oauthProvider`, `oauthDeviceAuthorization`, the refresh-age hook | kernel auth owner                             |
-| Google-attested decisions and bindings              | `apps/api/src/routes/decisions.ts`, `identity-binding.ts`, `packages/record/src/*-envelope.ts`                                                        | unchanged                                                                           | none                                          |
-| Record enrollment through the IAP relay             | `apps/api/src/routes/organization-access.ts`                                                                                                          | the same enrollment driven by a verified sign-in                                    | kernel auth owner                             |
-| `dsg.core.identity-binding/1`, `dsg.run.decision/1` | re-export only, no producer                                                                                                                           | unchanged, frozen                                                                   | none                                          |
+| Old mechanism                                       | Real location                                                                                                                                         | Replacement                                                         | Deletion chunk                                |
+| --------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- | --------------------------------------------- |
+| Dev identity shortcut                               | `apps/api/src/config.ts`, `apps/api/src/app.ts` (`devIdentity`), `apps/cli/src/auth.ts` (`x-kernel-actor`)                                            | local issuer, same protocol                                         | kernel auth owner                             |
+| IAP person transport                                | `dsg-run/service/src/http/kernel-relay.ts` (`x-goog-iap-jwt-assertion`, `x-kernel-person-assertion`), `dsg-kernel/apps/api/src/auth/console-relay.ts` | person token plus `X-DSG-Service-Token`; IAP stays at the edge only | plane relay chunk                             |
+| Console service calls with no person credential     | `dsg-run-console/api/src/plane-relay.ts`                                                                                                              | the 4.2 code exchange, then person token plus service token         | console backend chunk                         |
+| Public human IAP gate on the console domain         | console front door configuration                                                                                                                      | Better Auth sign-in; the domain and private upstreams stay          | console backend chunk, dsg-infra for the gate |
+| Existing Better Auth surface, no provider plugins   | `dsg-kernel/apps/api/src/auth/google.ts` (1.7.2), `apps/cli/src/auth.ts` (device client)                                                              | 1.7.4 with `jwt`, `oauthProvider`, `oauthDeviceAuthorization`       | kernel auth owner                             |
+| Google-attested decisions and bindings              | `apps/api/src/routes/decisions.ts`, `identity-binding.ts`, `packages/record/src/*-envelope.ts`                                                        | unchanged                                                           | none                                          |
+| Record enrollment through the IAP relay             | `apps/api/src/routes/organization-access.ts`                                                                                                          | the same enrollment driven by a verified sign-in                    | kernel auth owner                             |
+| `dsg.core.identity-binding/1`, `dsg.run.decision/1` | re-export only, no producer                                                                                                                           | unchanged, frozen                                                   | none                                          |
 
 Old tokens stop being accepted at cutover; there is no dual-accept window for
 human identity, because a token minted against the old authority cannot be
@@ -478,3 +520,12 @@ signing identity, and the Workspace Directory delegation in 5.2.
 | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 1 → 2    | Per-grant revocation evidence; per-hop transport; frozen-profile assessment; identity mapping and Directory blocker; per-method routes; refusal version selection; runnable probe                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | 2 → 3    | Membership: application refresh provably does not contact Google, so the lifetime bound is withdrawn and replaced by a refresh-age limit enforced through a supported `hooks.before` over stored `authTime` (probe-proven), with Directory still named as the tighter option. Rotation: separated from bearer revocation by measurement, and client deletion, old-secret rejection and old-token acceptance are now three distinct assertions. Browser relay: the console's cookie-to-person-token path is defined and measured through the library, with cookie scope and the public/private path table. Logout: desktop and CLI logout now include refresh revocation because sign-out alone leaves a chain alive; all-session logout is measured. Errors: PKCE mismatch is `invalid_grant`, JWT revocation is `unsupported_token_type`. Probe: assertions, required-scenario accounting, unique container, ephemeral loopback port, truthful teardown, no token material in output |
+
+Revision 4 corrects the wrong-verifier probe to use the first exchange of a
+fresh code, with a separate success control and replay assertion. It withdraws
+the unsupported common age limit with measured counterexamples for all human
+credential classes, defines browser cache ownership and current-cookie checks,
+proves the two-resource relay, and specifies explicit refusal version dispatch.
+It also resolves the service/person principal wording and retained IAP header
+placement. Prior revision descriptions above are historical, not current
+instructions.

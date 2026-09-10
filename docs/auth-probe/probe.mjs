@@ -25,22 +25,28 @@ const IMAGE =
   "postgres:17-alpine@sha256:18cfe3ef5e6815560c98237d6216d1e5119702fb0f3894c8785dd58b8bbe5d73";
 const BASE = "http://127.0.0.1:3999";
 const RESOURCE = "https://probe.invalid/api";
+const PLANE_RESOURCE = "https://plane.probe.invalid/api";
 const CONTAINER = `dsg-auth-probe-${process.pid}-${Math.random().toString(36).slice(2, 8)}`;
 
 // --- assertions -------------------------------------------------------------
 const REQUIRED = [
   "migrations",
-  "resource.create",
   "sign-up",
+  "sign-up-cookie",
+  "resource.create",
+  "plane-resource.create",
   "machine-client.create",
   "machine-client.link",
+  "machine-client.validator-ready",
   "machine-client.token",
   "machine-client.over-ceiling",
   "machine-client.unlinked-resource",
   "machine-client.introspect",
+  "machine-client.rotate-status",
   "machine-client.rotate-old-secret-refused",
   "machine-client.rotate-old-token-still-active",
   "machine-client.rotate-new-secret-issues",
+  "machine-client.delete-status",
   "machine-client.deleted-token-inactive",
   "machine-client.deleted-issuance-refused",
   "device.flow",
@@ -49,9 +55,12 @@ const REQUIRED = [
   "device.session-terminated-still-active",
   "device.refresh-revoked",
   "device.revoke-jwt-direct",
+  "pkce-client.create",
+  "console-client.create",
   "pkce.authorize",
   "pkce.consent",
   "pkce.exchange",
+  "pkce.id-token-auth-time",
   "pkce.introspect-before",
   "pkce.in-process-validation-matches",
   "pkce.session-terminated",
@@ -60,12 +69,28 @@ const REQUIRED = [
   "pkce.refresh-revoked",
   "pkce.revoke-sessions",
   "refresh.preserves-auth-time",
-  "refresh.age-policy-refusal",
   "refresh.age-policy-control",
+  "refresh.before-age-limit",
+  "refresh.access-outlives-age-limit",
+  "refresh.age-policy-refusal",
   "browser-relay.code-without-consent",
   "browser-relay.person-token-audience",
+  "browser-relay.two-resource-path",
+  "browser-relay.wrong-resource-refused",
+  "browser.age-policy-does-not-limit-session",
+  "browser.old-cookie-issues-code",
+  "browser.old-code-refresh-refused",
+  "device.age-policy-missing-provenance",
+  "device.age-policy-refuses-even-fresh-refresh",
+  "device.age-policy-does-not-limit-access",
+  "device.refresh-without-age-policy",
+  "browser.expired-cookie-refused",
+  "browser.signed-out-cookie-refused",
   "session.bogus-cookie",
+  "pkce.wrong-verifier-prerequisite",
   "pkce.wrong-verifier",
+  "pkce.correct-verifier-control",
+  "pkce.consumed-code-replay",
 ];
 const seen = new Set();
 let failures = 0;
@@ -144,15 +169,14 @@ async function run() {
     }),
   });
 
-  // The kernel's refresh-age policy, expressed as a supported middleware: read
-  // the stored upstream authentication time and refuse a refresh that would
-  // extend a session past the limit. Disabled until the scenario sets it.
+  // Candidate policy retained to prove its limits. It is not a production
+  // freshness guarantee: device grants omit authTime and access tokens outlive it.
   let maxUpstreamAuthAgeSeconds = null;
   const providerOptions = {
     loginPage: "/sign-in",
     consentPage: "/consent",
     scopes: ["openid", "profile", "offline_access", "api:read"],
-    resources: [RESOURCE],
+    resources: [RESOURCE, PLANE_RESOURCE],
     clientPrivileges: async () => true,
   };
   const inProcessValidationPlugin = {
@@ -208,7 +232,11 @@ async function run() {
           });
         }
         const ageSeconds = (Date.now() - authTime.getTime()) / 1000;
-        if (ageSeconds > maxUpstreamAuthAgeSeconds) {
+        if (
+          !Number.isFinite(ageSeconds) ||
+          ageSeconds < 0 ||
+          ageSeconds >= maxUpstreamAuthAgeSeconds
+        ) {
           throw new APIError("BAD_REQUEST", {
             error_description: "upstream authentication is older than the limit",
             error: "invalid_grant",
@@ -256,11 +284,11 @@ async function run() {
       };
     }
   };
-  const linkResource = async (clientId, headers) => {
+  const linkResource = async (clientId, headers, identifier = RESOURCE) => {
     try {
       return await auth.api.adminLinkClientResource({
         headers: new Headers(headers),
-        params: { identifier: RESOURCE, client_id: clientId },
+        params: { identifier, client_id: clientId },
       });
     } catch (error) {
       return { linked: false, detail: String(error.message).slice(0, 120) };
@@ -302,6 +330,13 @@ async function run() {
     await adminHeaders(),
   );
   eq("resource.create", resource.status, 200, "status");
+
+  const planeResource = await api(
+    "adminCreateOAuthResource",
+    { identifier: PLANE_RESOURCE, name: "probe-plane" },
+    await adminHeaders(),
+  );
+  eq("plane-resource.create", planeResource.status, 200, "status");
 
   // --- machine clients -----------------------------------------------------
   const machine = await api(
@@ -584,7 +619,7 @@ async function run() {
       application_type: "web",
       redirect_uris: ["https://console.probe.invalid/auth/callback"],
       skip_consent: true,
-      resources: [RESOURCE],
+      resources: [RESOURCE, PLANE_RESOURCE],
       client_name: "probe-console",
     },
     await adminHeaders(),
@@ -593,7 +628,25 @@ async function run() {
   check("console-client.create", consoleClient.status === 200 && Boolean(consoleClientId));
   await linkResource(consoleClientId, await adminHeaders());
 
-  const pkceFlow = async (flowCookie, clientId, redirectUri, skipConsent) => {
+  await linkResource(consoleClientId, await adminHeaders(), PLANE_RESOURCE);
+  const planeValidator = await api(
+    "adminCreateOAuthClient",
+    {
+      token_endpoint_auth_method: "client_secret_basic",
+      grant_types: ["client_credentials"],
+      client_credentials_scopes: ["api:read"],
+      resources: [PLANE_RESOURCE],
+      client_name: "probe-plane-validator",
+    },
+    await adminHeaders(),
+  );
+  await linkResource(planeValidator.body?.client_id, await adminHeaders(), PLANE_RESOURCE);
+  const planeValidatorBasic = basic(
+    planeValidator.body?.client_id,
+    planeValidator.body?.client_secret,
+  );
+
+  const issueCode = async (flowCookie, clientId, redirectUri, resources = [RESOURCE]) => {
     const verifier = Buffer.from(crypto.getRandomValues(new Uint8Array(32))).toString("base64url");
     const challenge = Buffer.from(
       await crypto.subtle.digest("SHA-256", Buffer.from(verifier)),
@@ -603,11 +656,11 @@ async function run() {
       client_id: clientId,
       redirect_uri: redirectUri,
       scope: "openid offline_access api:read",
-      resource: RESOURCE,
       code_challenge: challenge,
       code_challenge_method: "S256",
       state: "probe-state",
-    }).toString();
+    });
+    for (const resource of resources) query.append("resource", resource);
     const authorize = await auth.handler(
       new Request(`${BASE}/auth/oauth2/authorize?${query}`, {
         headers: { cookie: flowCookie },
@@ -631,25 +684,28 @@ async function run() {
       location = redirect;
       code = redirect ? new URL(redirect, BASE).searchParams.get("code") : null;
     }
-    if (!code) return { authorize, consent, code: null, verifier };
-    const exchange = await call(
+    return { authorize, consent, code, verifier, query, clientId, redirectUri };
+  };
+  const exchangeCode = (issued, verifier = issued.verifier) =>
+    call(
       "POST",
       "/oauth2/token",
       form({
         grant_type: "authorization_code",
-        code,
-        redirect_uri: redirectUri,
-        client_id: clientId,
+        code: issued.code,
+        redirect_uri: issued.redirectUri,
+        client_id: issued.clientId,
         code_verifier: verifier,
       }),
       FORM,
     );
-    void skipConsent;
-    return { authorize, consent, code, verifier, query, exchange };
+  const pkceFlow = async (flowCookie, clientId, redirectUri, resources = [RESOURCE]) => {
+    const issued = await issueCode(flowCookie, clientId, redirectUri, resources);
+    return { ...issued, exchange: issued.code ? await exchangeCode(issued) : null };
   };
 
   const pkceCookie = await freshCookie();
-  const pkce = await pkceFlow(pkceCookie, pkceClientId, "http://127.0.0.1:5377/callback", false);
+  const pkce = await pkceFlow(pkceCookie, pkceClientId, "http://127.0.0.1:5377/callback");
   eq("pkce.authorize", pkce.authorize.status, 302, "status");
   check("pkce.consent", pkce.consent !== null && pkce.consent.status === 200 && Boolean(pkce.code));
   const pkceJwt = pkce.exchange.body?.access_token;
@@ -754,7 +810,7 @@ async function run() {
 
   // All-session cutoff: a fresh desktop session, revoked wholesale.
   const allCookie = await freshCookie();
-  const all = await pkceFlow(allCookie, pkceClientId, "http://127.0.0.1:5377/callback", false);
+  const all = await pkceFlow(allCookie, pkceClientId, "http://127.0.0.1:5377/callback");
   const allJwt = all.exchange.body?.access_token;
   const introAllBefore = await call("POST", "/oauth2/introspect", form({ token: allJwt }), {
     authorization: `Basic ${validatorBasic}`,
@@ -784,7 +840,6 @@ async function run() {
     freshRefreshCookie,
     pkceClientId,
     "http://127.0.0.1:5377/callback",
-    false,
   );
   const freshRefresh = freshFlow.exchange.body?.refresh_token;
   const firstAuthTime = claims(freshFlow.exchange.body?.id_token).auth_time ?? null;
@@ -842,10 +897,10 @@ async function run() {
     .executeTakeFirst();
   await db
     .updateTable("oauthRefreshToken")
-    .set({ authTime: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) })
+    .set({ authTime: new Date(Date.now() - (maxUpstreamAuthAgeSeconds - 2) * 1000) })
     .where("id", "=", storedRow?.id)
     .execute();
-  const staleRefresh = await call(
+  const nearLimit = await call(
     "POST",
     "/oauth2/token",
     form({
@@ -855,10 +910,31 @@ async function run() {
     }),
     FORM,
   );
+  eq("refresh.before-age-limit", nearLimit.status, 200, "status");
+  await new Promise((resolve) => setTimeout(resolve, 3100));
+  const afterLimitAccess = await call(
+    "POST",
+    "/oauth2/introspect",
+    form({ token: nearLimit.body?.access_token }),
+    {
+      authorization: `Basic ${validatorBasic}`,
+      ...FORM,
+    },
+  );
+  eq("refresh.access-outlives-age-limit", afterLimitAccess.body?.active, true, "active");
+  const staleRefresh = await call(
+    "POST",
+    "/oauth2/token",
+    form({
+      grant_type: "refresh_token",
+      refresh_token: nearLimit.body?.refresh_token,
+      client_id: pkceClientId,
+    }),
+    FORM,
+  );
   check(
     "refresh.age-policy-refusal",
     staleRefresh.status === 400 && staleRefresh.body?.error === "invalid_grant",
-    { status: staleRefresh.status, error: staleRefresh.body?.error ?? null },
   );
   maxUpstreamAuthAgeSeconds = null;
 
@@ -870,7 +946,7 @@ async function run() {
     relayCookie,
     consoleClientId,
     "https://console.probe.invalid/auth/callback",
-    true,
+    [PLANE_RESOURCE, RESOURCE],
   );
   check(
     "browser-relay.code-without-consent",
@@ -888,6 +964,148 @@ async function run() {
     { status: relay.exchange.status, aud: claims(relayJwt)?.aud ?? null },
   );
 
+  const introspectWith = (token, credential) =>
+    call("POST", "/oauth2/introspect", form({ token }), {
+      authorization: `Basic ${credential}`,
+      ...FORM,
+    });
+  const relayAtPlane = await introspectWith(relayJwt, planeValidatorBasic);
+  const relayAtKernel = await introspectWith(relayJwt, validatorBasic);
+  check(
+    "browser-relay.two-resource-path",
+    claims(relayJwt).aud.includes(RESOURCE) &&
+      claims(relayJwt).aud.includes(PLANE_RESOURCE) &&
+      relayAtPlane.body?.active === true &&
+      relayAtKernel.body?.active === true,
+  );
+  const kernelOnly = await pkceFlow(
+    relayCookie,
+    consoleClientId,
+    "https://console.probe.invalid/auth/callback",
+  );
+  const kernelOnlyAtPlane = await introspectWith(
+    kernelOnly.exchange.body?.access_token,
+    planeValidatorBasic,
+  );
+  eq("browser-relay.wrong-resource-refused", kernelOnlyAtPlane.body?.active, false, "active");
+
+  const sessionRead = await call(
+    "GET",
+    "/get-session?disableCookieCache=true&disableRefresh=true",
+    undefined,
+    { cookie: relayCookie },
+  );
+  const sessionId = sessionRead.body?.session?.id;
+  const originalCreatedAt = new Date(Date.now() - 30 * 86400 * 1000);
+  await db
+    .updateTable("session")
+    .set({ createdAt: originalCreatedAt })
+    .where("id", "=", sessionId)
+    .execute();
+  maxUpstreamAuthAgeSeconds = 7 * 86400;
+  const oldBrowser = await call(
+    "GET",
+    "/get-session?disableCookieCache=true&disableRefresh=true",
+    undefined,
+    { cookie: relayCookie },
+  );
+  check("browser.age-policy-does-not-limit-session", oldBrowser.body?.session?.id === sessionId);
+  const oldCookieCode = await pkceFlow(
+    relayCookie,
+    consoleClientId,
+    "https://console.probe.invalid/auth/callback",
+  );
+  check(
+    "browser.old-cookie-issues-code",
+    oldCookieCode.exchange?.status === 200 &&
+      claims(oldCookieCode.exchange.body.id_token).auth_time ===
+        Math.floor(originalCreatedAt.getTime() / 1000),
+  );
+  const oldCodeRefresh = await call(
+    "POST",
+    "/oauth2/token",
+    form({
+      grant_type: "refresh_token",
+      client_id: consoleClientId,
+      refresh_token: oldCookieCode.exchange.body?.refresh_token,
+    }),
+    FORM,
+  );
+  check(
+    "browser.old-code-refresh-refused",
+    oldCodeRefresh.status === 400 && oldCodeRefresh.body?.error === "invalid_grant",
+  );
+
+  const policyDevice = await deviceFlow(relayCookie);
+  const policyDeviceRefresh = policyDevice.after.body?.refresh_token;
+  const deviceHash = (await call("POST", "/probe/hash-refresh", { token: policyDeviceRefresh }))
+    .body?.hashed;
+  const deviceRow = await db
+    .selectFrom("oauthRefreshToken")
+    .select(["authTime"])
+    .where("token", "=", deviceHash)
+    .executeTakeFirst();
+  check(
+    "device.age-policy-missing-provenance",
+    policyDevice.after.status === 200 && deviceRow?.authTime === null,
+  );
+  const devicePolicyRenewal = await call(
+    "POST",
+    "/oauth2/token",
+    form({
+      grant_type: "refresh_token",
+      client_id: deviceClientId,
+      refresh_token: policyDeviceRefresh,
+    }),
+    FORM,
+  );
+  check(
+    "device.age-policy-refuses-even-fresh-refresh",
+    devicePolicyRenewal.status === 400 && devicePolicyRenewal.body?.error === "invalid_grant",
+  );
+  const deviceAfterAge = await introspectWith(
+    policyDevice.after.body?.access_token,
+    validatorBasic,
+  );
+  eq("device.age-policy-does-not-limit-access", deviceAfterAge.body?.active, true, "active");
+  maxUpstreamAuthAgeSeconds = null;
+  const deviceWithoutPolicy = await call(
+    "POST",
+    "/oauth2/token",
+    form({
+      grant_type: "refresh_token",
+      client_id: deviceClientId,
+      refresh_token: policyDeviceRefresh,
+    }),
+    FORM,
+  );
+  eq("device.refresh-without-age-policy", deviceWithoutPolicy.status, 200, "status");
+
+  const expiredCookie = await freshCookie();
+  const expiringSession = await call("GET", "/get-session?disableRefresh=true", undefined, {
+    cookie: expiredCookie,
+  });
+  await db
+    .updateTable("session")
+    .set({ expiresAt: new Date(Date.now() - 1000) })
+    .where("id", "=", expiringSession.body?.session?.id)
+    .execute();
+  const expiredRead = await call(
+    "GET",
+    "/get-session?disableCookieCache=true&disableRefresh=true",
+    undefined,
+    { cookie: expiredCookie },
+  );
+  check("browser.expired-cookie-refused", expiredRead.body === null);
+  await call("POST", "/sign-out", {}, { cookie: relayCookie, origin: BASE });
+  const signedOutRead = await call(
+    "GET",
+    "/get-session?disableCookieCache=true&disableRefresh=true",
+    undefined,
+    { cookie: relayCookie },
+  );
+  check("browser.signed-out-cookie-refused", signedOutRead.body === null);
+
   // --- failure paths -------------------------------------------------------
   const bogus = await call("GET", "/get-session", undefined, {
     cookie: "better-auth.session_token=fabricated",
@@ -896,24 +1114,25 @@ async function run() {
     status: bogus.status,
   });
 
-  // First prove a valid code exists under the correct session, then change
-  // only the verifier.
   const badCookie = await freshCookie();
-  const bad = await pkceFlow(badCookie, pkceClientId, "http://127.0.0.1:5377/callback", false);
-  check("pkce.wrong-verifier-prerequisite", Boolean(bad.code));
-  const wrong = await call(
-    "POST",
-    "/oauth2/token",
-    form({
-      grant_type: "authorization_code",
-      code: bad.code,
-      redirect_uri: "http://127.0.0.1:5377/callback",
-      client_id: pkceClientId,
-      code_verifier: "wrong-verifier",
-    }),
-    FORM,
+  const bad = await issueCode(badCookie, pkceClientId, "http://127.0.0.1:5377/callback");
+  check("pkce.wrong-verifier-prerequisite", bad.authorize.status === 302 && Boolean(bad.code));
+  const differentVerifier = Buffer.from(crypto.getRandomValues(new Uint8Array(32))).toString(
+    "base64url",
   );
-  eq("pkce.wrong-verifier", wrong.body?.error, "invalid_grant", "error");
+  const wrong = await exchangeCode(bad, differentVerifier);
+  check("pkce.wrong-verifier", wrong.status === 401 && wrong.body?.error === "invalid_request", {
+    status: wrong.status,
+    error: wrong.body?.error ?? null,
+  });
+  const control = await issueCode(badCookie, pkceClientId, "http://127.0.0.1:5377/callback");
+  const correct = await exchangeCode(control);
+  eq("pkce.correct-verifier-control", correct.status, 200, "status");
+  const replay = await exchangeCode(control);
+  check(
+    "pkce.consumed-code-replay",
+    replay.status === 400 && replay.body?.error === "invalid_grant",
+  );
 
   await db.destroy();
 }
