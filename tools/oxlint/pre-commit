@@ -1,0 +1,8 @@
+#!/bin/sh
+set -eu
+tooling=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+if [ ! -f "$tooling/node_modules/lint-staged/bin/lint-staged.js" ]; then
+  echo "Install commit checks with: pnpm --dir tools/oxlint install --frozen-lockfile" >&2
+  exit 1
+fi
+exec node "$tooling/node_modules/lint-staged/bin/lint-staged.js" --cwd "$(git rev-parse --show-toplevel)" --config "$tooling/lint-staged.config.mjs"
