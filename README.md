@@ -66,3 +66,17 @@ The older `accept/streamSeal-*.json` documents check shape only. Their repeated
 `b` digest has no corresponding source stream. A vector with a placeholder
 digest cannot fail on incorrect hashing and is not a stream-seal conformance
 vector. It must not be cited as evidence of digest agreement.
+
+## Commit checks
+
+Install the staged JavaScript and TypeScript checks with Node 24 and pnpm 11.22.0:
+
+```sh
+pnpm --dir tools/oxlint install --frozen-lockfile
+pnpm --dir tools/oxlint install-hooks
+```
+
+The hook runs the vendored anti-slop rules through Oxlint. lint-staged hides
+unstaged changes while checking the staged files and restores them afterward.
+Existing commit hooks remain in place. Each checkout installs its hook locally;
+linked worktrees share the installed hook and its tooling. The hook does not fix files.

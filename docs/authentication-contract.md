@@ -195,10 +195,10 @@ previous protected response state. Logout revokes the cached refresh chain,
 ends the browser session and evicts the entry. Other replicas also refuse on
 their next session read. A restart simply requires another code exchange.
 
-The console client is public with PKCE, `skip_consent: true`, the two resource
-links and the exact redirect URI in section 10. Person tokens stay in server
-memory and never reach browser JavaScript. Renewal is serialized per cache
-entry because refresh rotates on use. Failed renewal evicts the entry and
+The console client is a confidential BFF with PKCE, `skip_consent: true`, the
+two resource links and the exact redirect URI in section 10. Person tokens stay
+in server memory and never reach browser JavaScript. Renewal is serialized per
+cache entry because refresh rotates on use. Failed renewal evicts the entry and
 returns 401; it never falls back to a service credential. Bearer-token expiry
 and the current browser session are both required. Stream reads repeat the
 session and authorization checks on a heartbeat no slower than five seconds.
@@ -455,14 +455,14 @@ recorded sentence.
 One registration table. These are Better Auth clients, not Google clients. The
 Google web client is separate and used only by the provider.
 
-| Registration          | Client type               | Grant types                                                     | Token endpoint auth   | Redirect / verification                  | Scopes                                 | Resources      |
-| --------------------- | ------------------------- | --------------------------------------------------------------- | --------------------- | ---------------------------------------- | -------------------------------------- | -------------- |
-| `dsg-console-web`     | web, `skip_consent: true` | `authorization_code`, `refresh_token`                           | `none` (public, PKCE) | `https://<console-domain>/auth/callback` | `openid`, `offline_access`, `api:read` | kernel, plane  |
-| `dsg-desktop`         | native                    | `authorization_code`, `refresh_token`                           | `none` (public, PKCE) | loopback, exact                          | `openid`, `offline_access`, `api:read` | kernel, plane  |
-| `dsg-cli`             | native                    | `urn:ietf:params:oauth:grant-type:device_code`, `refresh_token` | `none`                | device verification URI on the console   | `openid`, `offline_access`, `api:read` | kernel         |
-| `dsg-console-service` | service                   | `client_credentials`                                            | `client_secret_basic` | n/a                                      | `api:read`                             | kernel, plane  |
-| `dsg-plane-service`   | service                   | `client_credentials`                                            | `client_secret_basic` | n/a                                      | `api:read`                             | kernel         |
-| `dsg-probe-*`         | test only, never deployed | as needed                                                       | as needed             | probe redirects                          | probe scopes                           | probe resource |
+| Registration          | Client type                                 | Grant types                                                     | Token endpoint auth          | Redirect / verification                  | Scopes                                 | Resources      |
+| --------------------- | ------------------------------------------- | --------------------------------------------------------------- | ---------------------------- | ---------------------------------------- | -------------------------------------- | -------------- |
+| `dsg-console-web`     | web, confidential BFF, `skip_consent: true` | `authorization_code`, `refresh_token`                           | `client_secret_basic` (PKCE) | `https://<console-domain>/auth/callback` | `openid`, `offline_access`, `api:read` | kernel, plane  |
+| `dsg-desktop`         | native                                      | `authorization_code`, `refresh_token`                           | `none` (public, PKCE)        | loopback, exact                          | `openid`, `offline_access`, `api:read` | kernel, plane  |
+| `dsg-cli`             | native                                      | `urn:ietf:params:oauth:grant-type:device_code`, `refresh_token` | `none`                       | device verification URI on the console   | `openid`, `offline_access`, `api:read` | kernel         |
+| `dsg-console-service` | service                                     | `client_credentials`                                            | `client_secret_basic`        | n/a                                      | `api:read`                             | kernel, plane  |
+| `dsg-plane-service`   | service                                     | `client_credentials`                                            | `client_secret_basic`        | n/a                                      | `api:read`                             | kernel         |
+| `dsg-probe-*`         | test only, never deployed                   | as needed                                                       | as needed                    | probe redirects                          | probe scopes                           | probe resource |
 
 | Key                                                       | Owner                          | Purpose                                                                                                                                                                                           |
 | --------------------------------------------------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
