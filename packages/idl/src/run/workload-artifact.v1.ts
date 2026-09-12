@@ -11,6 +11,10 @@ import {
 } from "../primitives.js";
 
 export const WORKLOAD_ARTIFACT_PROFILE = "dsg.run.workload-artifact/1" as const;
+const OciRepository = Type.String({
+  pattern:
+    "^(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)*[a-z0-9](?:[a-z0-9-]*[a-z0-9])?(?::[1-9][0-9]{0,4})?/[a-z0-9]+(?:[._-][a-z0-9]+)*(?:/[a-z0-9]+(?:[._-][a-z0-9]+)*)*$",
+});
 export const WorkloadSourceSchema = closed({
   repository: NonEmptyString,
   revision: Type.String({ pattern: "^(?:[0-9a-f]{40}|[0-9a-f]{64})$" }),
@@ -41,6 +45,7 @@ export const WorkloadArtifactSchema = closed({
     }),
   ]),
   executable: closed({
+    repository: OciRepository,
     platform: OciPlatformSchema,
     manifest: closed({
       sha256: Hex64,

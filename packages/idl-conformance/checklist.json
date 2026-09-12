@@ -23,7 +23,7 @@
     "dsg.extension.release/1": 13,
     "dsg.organization.release/1": 54,
     "dsg.run.job-class/1": 3,
-    "dsg.run.workload-artifact/1": 7,
+    "dsg.run.workload-artifact/1": 12,
     "dsg.run.execution-binding/1": 39
   }
 }
