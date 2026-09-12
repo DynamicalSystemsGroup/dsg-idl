@@ -318,6 +318,8 @@ export function releaseSemanticAdapters(): Adapter {
     "dsg.run.execution-binding/1#semantic.executionAuthorization": parse(
       ExecutionAuthorizationContext,
       ({ request, lease, accepted, checkedAt }) => {
+        if (accepted.generation !== request.operation.expectedGeneration + 1)
+          return "accepted-generation-mismatch";
         if (accepted.operationId !== request.operation.operationId)
           return "accepted-operation-mismatch";
         if (accepted.planDigest !== request.operation.planDigest) return "accepted-plan-mismatch";
@@ -350,6 +352,7 @@ export function releaseSemanticAdapters(): Adapter {
         selection,
         catalogEntry,
       }) => {
+        if (releaseEligibility.operation !== "execute") return "eligibility-operation-mismatch";
         if (releaseEligibility.observation.status === "revoked") return "release-revoked";
         if (!same(releaseEligibility.observation.subject, releaseEligibility.release))
           return "eligibility-subject-mismatch";
@@ -390,6 +393,18 @@ export function releaseSemanticAdapters(): Adapter {
         )
           return "eligibility-active-set-mismatch";
         if (admission.status !== "admitted") return "admission-refused";
+        if (
+          !admission.approvedUses.some(
+            (approved) => approved.use === "execute" && same(approved.binding, binding.jobClass),
+          )
+        )
+          return "execution-use-not-approved";
+        if (operation.document.resources.maxRunSeconds > jobClass.bounds.maxRunSeconds)
+          return "run-seconds-exceed-class";
+        if (operation.document.resources.maxGpuSeconds > jobClass.bounds.maxGpuSeconds)
+          return "gpu-seconds-exceed-class";
+        if (operation.document.resources.maxParallelism > jobClass.bounds.maxParallelism)
+          return "parallelism-exceeds-class";
         if (binding.admission.sha256 !== digest(admission)) return "admission-digest-mismatch";
         if (binding.activeSet.sha256 !== digest(activeSet)) return "active-set-digest-mismatch";
         if (
