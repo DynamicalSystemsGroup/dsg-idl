@@ -51,3 +51,7 @@ vendor-infra-assets *infra:
 # Prepare both package versions. The tagged workflow owns publication.
 release-version version:
     node scripts/release.mjs prepare {{quote(version)}}
+
+# Prepare, check, merge the delivery PR, tag, and wait for verified publication.
+release version:
+    node scripts/release.mjs ship {{quote(version)}}

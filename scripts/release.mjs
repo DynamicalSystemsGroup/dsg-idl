@@ -210,14 +210,142 @@ async function publish(destination) {
   if (summary) writeFileSync(summary, `${notes}\n`, { flag: "a" });
 }
 
+async function ship(version) {
+  assert(VERSION.test(version), "version must be MAJOR.MINOR.PATCH");
+  clean(ROOT);
+  const branch = run("git", ["branch", "--show-current"]);
+  assert(branch && branch !== "main", "run release from the clean delivery feature branch");
+  run("gh", ["auth", "status"]);
+  run("git", ["fetch", "origin", "main", "--tags"]);
+  run("git", ["merge-base", "--is-ancestor", "origin/main", "HEAD"]);
+  const tag = `v${version}`;
+  assert.equal(
+    run("git", ["tag", "--list", tag]),
+    "",
+    "tag already exists; resume its release workflow instead",
+  );
+  for (const pkg of packageInfo()) {
+    const response = await fetch(`${REGISTRY}/${encodeURIComponent(pkg.name)}/${version}`, {
+      signal: AbortSignal.timeout(30_000),
+    });
+    assert.equal(response.status, 404, `${pkg.name}@${version} exists or registry lookup failed`);
+  }
+  prepare(version);
+  execFileSync("just", ["check"], { cwd: ROOT, stdio: "inherit" });
+  run("git", ["add", "packages/idl/package.json", "packages/idl-conformance/package.json"]);
+  if (run("git", ["diff", "--cached", "--name-only"])) {
+    run("git", ["commit", "-m", `Prepare shared profiles ${version}`]);
+  }
+  clean(ROOT);
+  const commit = run("git", ["rev-parse", "HEAD"]);
+  run("git", ["push", "origin", `HEAD:refs/heads/${branch}`]);
+  const prs = JSON.parse(
+    run("gh", [
+      "pr",
+      "list",
+      "--head",
+      branch,
+      "--base",
+      "main",
+      "--state",
+      "open",
+      "--json",
+      "url",
+    ]),
+  );
+  assert(prs.length <= 1, "multiple release pull requests");
+  const pr =
+    prs[0]?.url ??
+    run("gh", [
+      "pr",
+      "create",
+      "--base",
+      "main",
+      "--head",
+      branch,
+      "--title",
+      `Release shared profiles ${version}`,
+      "--body",
+      "Checked release source and paired package versions. Publication follows only after CI and merge; consumer pins are unchanged.",
+    ]);
+  console.log(pr);
+  let checked = false;
+  for (let attempt = 0; attempt < 180; attempt += 1) {
+    const state = JSON.parse(
+      run("gh", ["pr", "view", pr, "--json", "headRefOid,statusCheckRollup"]),
+    );
+    assert.equal(state.headRefOid, commit, "release branch changed during checks");
+    const checks = state.statusCheckRollup;
+    assert(
+      !checks.some((check) =>
+        ["FAILURE", "CANCELLED", "TIMED_OUT", "ACTION_REQUIRED", "ERROR"].includes(
+          check.conclusion ?? check.state,
+        ),
+      ),
+      "release CI failed; inspect the pull request",
+    );
+    if (
+      checks.length &&
+      checks.every((check) =>
+        ["SUCCESS", "NEUTRAL", "SKIPPED"].includes(check.conclusion ?? check.state),
+      )
+    ) {
+      checked = true;
+      break;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 10_000));
+  }
+  assert(checked, "release CI did not complete within 30 minutes");
+  run("gh", ["pr", "merge", pr, "--merge", "--match-head-commit", commit]);
+  const merged = JSON.parse(run("gh", ["pr", "view", pr, "--json", "state,mergeCommit"]));
+  assert.equal(merged.state, "MERGED", "release must be merged before tagging");
+  run("git", ["fetch", "origin", "main"]);
+  run("git", ["merge", "--ff-only", merged.mergeCommit.oid]);
+  run("git", ["tag", "-a", tag, "-m", `Release shared profiles ${version}`]);
+  checkSource(tag);
+  run("git", ["push", "origin", `refs/tags/${tag}`]);
+  let releaseRun;
+  for (let attempt = 0; attempt < 60; attempt += 1) {
+    const runs = JSON.parse(
+      run("gh", [
+        "run",
+        "list",
+        "--workflow",
+        "release.yml",
+        "--branch",
+        tag,
+        "--event",
+        "push",
+        "--json",
+        "databaseId,headSha",
+        "--limit",
+        "10",
+      ]),
+    );
+    releaseRun = runs.find((candidate) => candidate.headSha === merged.mergeCommit.oid);
+    if (releaseRun) break;
+    await new Promise((resolve) => setTimeout(resolve, 5000));
+  }
+  assert(
+    releaseRun,
+    "tag pushed but workflow not visible; inspect the existing tag before retrying",
+  );
+  execFileSync("gh", ["run", "watch", String(releaseRun.databaseId), "--exit-status"], {
+    cwd: ROOT,
+    stdio: "inherit",
+  });
+  console.log(run("gh", ["release", "view", tag, "--json", "url,assets"]));
+}
+
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const [command, argument] = process.argv.slice(2);
   try {
     assert(
       argument,
-      "usage: release.mjs prepare <version> | check <tag> | pack <directory> | verify <directory> | publish <directory>",
+      "usage: release.mjs ship <version> | prepare <version> | check <tag> | pack <directory> | verify <directory> | publish <directory>",
     );
     if (command === "prepare") prepare(argument);
+    else if (command === "ship") await ship(argument);
     else if (command === "check") console.log(checkSource(argument));
     else if (command === "pack") pack(argument);
     else if (command === "verify") console.log(JSON.stringify(verifyArtifacts(resolve(argument))));

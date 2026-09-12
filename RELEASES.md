@@ -51,26 +51,29 @@ The GitHub Release manifest records provenance for releases from 0.9.0 onward.
 The table above retains the older release history. No second bookkeeping commit
 is required to name the commit that produced a new release.
 
-### Prepare a version
+### Release with one command
 
-Run this from a clean task worktree based on current `main`:
-
-```sh
-just release-version 0.9.0
-just check
-```
-
-Commit and integrate the version change into `main` using the repository's
-normal Git rules. Then create and push the annotated tag from that commit:
+From the clean delivery feature branch containing current `origin/main`, with
+Node 24, pnpm, just, and authenticated `gh` available:
 
 ```sh
-git tag -a v0.9.0 -m "Release shared profiles 0.9.0"
-git push origin v0.9.0
+just release 0.12.0
 ```
 
-Use the next unused version for later releases. The workflow publishes both
-packages, verifies them and creates the release. It does not change consumer
-pins. The new refusal profile first becomes frozen at `v0.9.0`.
+Use the next unused version. This command prepares both package versions, runs
+`just check`, commits the versions, pushes the current branch, creates or reuses
+its main-targeted PR, waits for CI, and merges the exact checked head. It then
+fast-forwards the feature checkout to that merge, creates and pushes an annotated
+tag, and waits for the existing trusted-publishing workflow to verify both npm
+archives and create the GitHub Release. Running it authorizes those external
+actions; it does not update consumer pins or deploy services.
+
+Dirty checkouts, missing main ancestry, existing tags or npm versions, changed PR
+heads, and failed checks stop publication. Failures preserve the current state.
+Before a tag exists, repair and commit the failure, then rerun the command. Once
+a tag exists, use the failed-release procedure below; never move the tag.
+`just release-version <version>` remains available for preparation without
+publication.
 
 ### Configure npm once
 
