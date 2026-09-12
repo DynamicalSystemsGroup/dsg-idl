@@ -16,6 +16,8 @@ import {
   ExecutionRequestEnvelopeSchema,
   ExtensionReleaseSignatureSchema,
   DispatchLeaseSchema,
+  AcceptedSchema,
+  UtcSecond,
 } from "@dynamicalsystems/idl";
 import type { Adapter, ParseResult } from "./adapter.js";
 
@@ -85,6 +87,8 @@ const ExecutionIdentityContext = ExecutionRequestEnvelopeSchema;
 const ExecutionAuthorizationContext = closed({
   request: ExecutionRequestEnvelopeSchema,
   lease: DispatchLeaseSchema,
+  accepted: AcceptedSchema,
+  checkedAt: UtcSecond,
 });
 const ReleaseSignatureContext = closed({
   release: ExtensionReleaseSchema,
@@ -313,19 +317,22 @@ export function releaseSemanticAdapters(): Adapter {
     ),
     "dsg.run.execution-binding/1#semantic.executionAuthorization": parse(
       ExecutionAuthorizationContext,
-      ({ request, lease }) => {
+      ({ request, lease, accepted, checkedAt }) => {
+        if (accepted.operationId !== request.operation.operationId)
+          return "accepted-operation-mismatch";
+        if (accepted.planDigest !== request.operation.planDigest) return "accepted-plan-mismatch";
         const { operation, binding } = request;
         if (!same(binding.reservation, operation.reservation))
           return "binding-reservation-mismatch";
         if (lease.operationId !== operation.operationId) return "lease-operation-mismatch";
-        if (lease.generation !== operation.expectedGeneration) return "lease-generation-mismatch";
+        if (lease.generation !== accepted.generation) return "lease-generation-mismatch";
         if (lease.caseOrn !== operation.case.orn) return "lease-case-mismatch";
         if (lease.envelopeSha256 !== digest(operation)) return "lease-envelope-mismatch";
         if (lease.lawSha256 !== operation.document.law.bundle.sha256) return "lease-law-mismatch";
         if (!same(lease.reservation, binding.reservation)) return "lease-reservation-mismatch";
-        if (!lease.fresh) return "stale-dispatch-lease";
         if (Date.parse(lease.expiresAt) <= Date.parse(lease.consumedAt))
-          return "expired-dispatch-lease";
+          return "invalid-dispatch-lease-window";
+        if (Date.parse(checkedAt) >= Date.parse(lease.expiresAt)) return "expired-dispatch-lease";
         return;
       },
     ),
@@ -340,7 +347,39 @@ export function releaseSemanticAdapters(): Adapter {
         admission,
         activeSet,
         releaseEligibility,
+        selection,
+        catalogEntry,
       }) => {
+        if (releaseEligibility.observation.status === "revoked") return "release-revoked";
+        if (!same(releaseEligibility.observation.subject, releaseEligibility.release))
+          return "eligibility-subject-mismatch";
+        if (!same(releaseEligibility.observation.trustView, releaseEligibility.trustView))
+          return "eligibility-observation-trust-mismatch";
+        if (
+          releaseEligibility.observation.status === "retired" &&
+          (releaseEligibility.operation !== "execute" ||
+            releaseEligibility.activeSet === null ||
+            !same(releaseEligibility.activeSet, binding.activeSet))
+        )
+          return "release-retired";
+        if (binding.selection.sha256 !== digest(selection)) return "selection-digest-mismatch";
+        if (selection.id !== catalogEntry.selectionId || selection.id !== admission.selectionId)
+          return "selection-id-mismatch";
+        if (
+          !same(selection.extensionRelease, binding.extensionRelease) ||
+          !same(catalogEntry.extensionRelease, binding.extensionRelease)
+        )
+          return "selection-release-mismatch";
+        if (catalogEntry.availability !== "available") return "catalog-entry-unavailable";
+        if (
+          !same(catalogEntry.activeSet, binding.activeSet) ||
+          !same(catalogEntry.workflow, binding.workflow) ||
+          catalogEntry.jobClass === null ||
+          !same(catalogEntry.jobClass, binding.jobClass) ||
+          catalogEntry.workloadArtifact === null ||
+          !same(catalogEntry.workloadArtifact, binding.workloadArtifact)
+        )
+          return "catalog-binding-mismatch";
         if (!same(releaseEligibility.release, binding.extensionRelease))
           return "eligibility-release-mismatch";
         if (!same(releaseEligibility.trustView, binding.trustView))
@@ -376,6 +415,12 @@ export function releaseSemanticAdapters(): Adapter {
             same(member.extensionRelease, binding.extensionRelease),
         );
         if (!activeMember) return "release-not-active";
+        if (
+          activeMember.selectionId !== selection.id ||
+          activeMember.memberId !== catalogEntry.memberId
+        )
+          return "active-member-identity-mismatch";
+        const selectedComponents = selection.members.map((component) => component.reference);
         const activeComponents = activeMember.components.map((component) => component.reference);
         const admittedComponents = admission.components.map((component) => component.reference);
         for (const required of [
@@ -384,6 +429,8 @@ export function releaseSemanticAdapters(): Adapter {
           binding.workloadArtifact,
           binding.eventCatalog,
         ]) {
+          if (!selectedComponents.some((component) => same(component, required)))
+            return "selected-component-mismatch";
           if (!activeComponents.some((component) => same(component, required)))
             return "active-component-mismatch";
           if (!admittedComponents.some((component) => same(component, required)))

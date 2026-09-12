@@ -6,6 +6,8 @@ import { closed, Hex64, Orn, Reference, type ProfileEntry } from "../primitives.
 import {
   AdmissionRecordSchema,
   ActiveSetSchema,
+  BuildSelectionSchema,
+  CatalogEntrySchema,
   ReleaseEligibilitySchema,
 } from "../organization/release.v1.js";
 import { OperationRequestSchema } from "./operation.v1.js";
@@ -52,6 +54,8 @@ export const ExecutionRequestEnvelopeSchema = closed({
   workloadArtifactProvenance: WorkloadArtifactProvenanceSchema,
   admission: AdmissionRecordSchema,
   activeSet: ActiveSetSchema,
+  selection: BuildSelectionSchema,
+  catalogEntry: CatalogEntrySchema,
   releaseEligibility: ReleaseEligibilitySchema,
 });
 export type ExecutionRequestEnvelope = Static<typeof ExecutionRequestEnvelopeSchema>;
