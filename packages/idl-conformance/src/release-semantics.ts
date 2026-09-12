@@ -246,12 +246,7 @@ export function releaseSemanticAdapters(): Adapter {
       ({ build, dependencyLock }) => {
         if (build.dependencyLock.sha256 !== digest(dependencyLock))
           return "dependency-lock-digest-mismatch";
-        const expected = dependencyLock.entries.map(({ id, kind, reference }) => ({
-          id,
-          kind,
-          reference,
-        }));
-        if (jcsStringify(build.typedReleases) !== jcsStringify(expected))
+        if (jcsStringify(build.typedReleases) !== jcsStringify(dependencyLock.entries))
           return "typed-release-lock-mismatch";
         return;
       },
