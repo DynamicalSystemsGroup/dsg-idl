@@ -202,7 +202,7 @@ export const ExtensionReleaseSignatureSchema = closed({
   publicKey: Hex64,
   bodySha256: Hex64,
   canonicalization: Type.Literal(EXTENSION_RELEASE_CANONICALIZATION),
-  signature: NonEmptyString,
+  signature: Type.String({ pattern: "^[0-9a-f]{128}$" }),
   signedAt: UtcSecond,
 });
 export type ExtensionReleaseSignature = Static<typeof ExtensionReleaseSignatureSchema>;

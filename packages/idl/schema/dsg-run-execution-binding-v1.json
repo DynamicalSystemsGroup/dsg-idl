@@ -11,6 +11,7 @@
         "schemaVersion",
         "kind",
         "installation",
+        "operation",
         "activeSet",
         "admission",
         "organizationRelease",
@@ -21,6 +22,7 @@
         "jobClass",
         "workloadArtifact",
         "executableManifestSha256",
+        "target",
         "eventCatalog",
         "law",
         "lease",
@@ -42,6 +44,21 @@
         "installation": {
           "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
           "type": "string"
+        },
+        "operation": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["orn", "sha256"],
+          "properties": {
+            "orn": {
+              "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+              "type": "string"
+            },
+            "sha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            }
+          }
         },
         "activeSet": {
           "additionalProperties": false,
@@ -181,6 +198,21 @@
         "executableManifestSha256": {
           "pattern": "^[0-9a-f]{64}$",
           "type": "string"
+        },
+        "target": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["orn", "sha256"],
+          "properties": {
+            "orn": {
+              "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+              "type": "string"
+            },
+            "sha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            }
+          }
         },
         "eventCatalog": {
           "additionalProperties": false,

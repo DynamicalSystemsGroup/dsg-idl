@@ -1,4 +1,4 @@
-import { createHash } from "node:crypto";
+import { createHash, createPublicKey, verify } from "node:crypto";
 import { type Static, type TSchema } from "@sinclair/typebox";
 import { Value } from "@sinclair/typebox/value";
 import { jcsStringify } from "@dynamicalsystems/orn-schemas";
@@ -18,6 +18,7 @@ import {
   WorkloadArtifactSchema,
   WorkloadArtifactProvenanceSchema,
   ExtensionReleaseSignatureSchema,
+  OperationRequestSchema,
 } from "@dynamicalsystems/idl";
 import type { Adapter, ParseResult } from "./adapter.js";
 
@@ -85,6 +86,7 @@ function parse<T extends TSchema>(
 // Consumers run them against their real verifier through the semantic adapter.
 const ExecutionIdentityContext = closed({
   binding: ExecutionBindingSchema,
+  operation: OperationRequestSchema,
   jobClass: JobClassSchema,
   artifact: WorkloadArtifactSchema,
   provenance: WorkloadArtifactProvenanceSchema,
@@ -92,6 +94,10 @@ const ExecutionIdentityContext = closed({
 const ReleaseSignatureContext = closed({
   release: ExtensionReleaseSchema,
   signature: ExtensionReleaseSignatureSchema,
+});
+const OrganizationBuildContext = closed({
+  build: OrganizationBuildSchema,
+  dependencyLock: DependencyLockSchema,
 });
 const ReleaseEligibilityContext = closed({
   eligibility: ReleaseEligibilitySchema,
@@ -130,6 +136,27 @@ export function releaseSemanticAdapters(): Adapter {
           signature.publisher !== release.publisher
         )
           return "signature-identity-mismatch";
+        try {
+          const publicKey = createPublicKey({
+            key: Buffer.concat([
+              Buffer.from("302a300506032b6570032100", "hex"),
+              Buffer.from(signature.publicKey, "hex"),
+            ]),
+            format: "der",
+            type: "spki",
+          });
+          if (
+            !verify(
+              null,
+              Buffer.from(jcsStringify(release), "utf8"),
+              publicKey,
+              Buffer.from(signature.signature, "hex"),
+            )
+          )
+            return "invalid-release-signature";
+        } catch {
+          return "invalid-release-signature";
+        }
         return;
       },
     ),
@@ -159,8 +186,33 @@ export function releaseSemanticAdapters(): Adapter {
       return;
     }),
     "dsg.organization.release/1#organizationBuild": parse(OrganizationBuildSchema, (build) => {
-      if (!ordered(build.sourceDocuments.map((document) => document.path)))
+      const orderedBy = <T>(values: readonly T[], key: (value: T) => string): boolean =>
+        ordered(values.map(key));
+      if (!orderedBy(build.sourceDocuments, (document) => document.path))
         return "unsorted-source-closure";
+      if (
+        !orderedBy(build.projects, (project) => project.id) ||
+        !orderedBy(build.selections, (selection) => selection.id) ||
+        build.selections.some(
+          (selection) => !orderedBy(selection.members, (member) => member.id),
+        ) ||
+        !orderedBy(build.components, (component) =>
+          [
+            component.extensionRelease.orn,
+            component.extensionRelease.sha256,
+            component.memberId,
+          ].join("\0"),
+        ) ||
+        !orderedBy(build.typedReleases, (release) => release.id) ||
+        !orderedBy(build.instructions, (reference) => `${reference.orn}\0${reference.sha256}`) ||
+        !orderedBy(build.handling, (reference) => `${reference.orn}\0${reference.sha256}`) ||
+        !orderedBy(
+          build.releaseDeclarations,
+          (reference) => `${reference.orn}\0${reference.sha256}`,
+        ) ||
+        !orderedBy(build.releaseMembers, (member) => member.id)
+      )
+        return "unsorted-build";
       if (
         !unique(build.projects.map((project) => project.id)) ||
         !unique(build.selections.map((selection) => selection.id)) ||
@@ -189,6 +241,21 @@ export function releaseSemanticAdapters(): Adapter {
       }
       return;
     }),
+    "dsg.organization.release/1#semantic.organizationBuild": parse(
+      OrganizationBuildContext,
+      ({ build, dependencyLock }) => {
+        if (build.dependencyLock.sha256 !== digest(dependencyLock))
+          return "dependency-lock-digest-mismatch";
+        const expected = dependencyLock.entries.map(({ id, kind, reference }) => ({
+          id,
+          kind,
+          reference,
+        }));
+        if (jcsStringify(build.typedReleases) !== jcsStringify(expected))
+          return "typed-release-lock-mismatch";
+        return;
+      },
+    ),
     "dsg.organization.release/1#organizationRelease": parse(OrganizationReleaseSchema, (release) =>
       unique(release.members.map((member) => member.id)) ? undefined : "duplicate-member-id",
     ),
@@ -256,7 +323,14 @@ export function releaseSemanticAdapters(): Adapter {
     ),
     "dsg.run.execution-binding/1#semantic.executionIdentity": parse(
       ExecutionIdentityContext,
-      ({ binding, jobClass, artifact, provenance }) => {
+      ({ binding, operation, jobClass, artifact, provenance }) => {
+        if (binding.operation.sha256 !== digest(operation)) return "operation-digest-mismatch";
+        if (!same(binding.target, operation.document.placement)) return "operation-target-mismatch";
+        if (!same(binding.jobClass, operation.document.classContract))
+          return "operation-job-class-mismatch";
+        if (!same(binding.workloadArtifact, operation.document.workload))
+          return "operation-workload-mismatch";
+        if (!same(binding.law, operation.document.law.bundle)) return "operation-law-mismatch";
         if (binding.workloadArtifact.sha256 !== digest(artifact))
           return "artifact-metadata-digest-mismatch";
         if (binding.jobClass.sha256 !== digest(jobClass)) return "job-class-digest-mismatch";

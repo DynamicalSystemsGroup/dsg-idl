@@ -852,7 +852,7 @@
           "type": "string"
         },
         "signature": {
-          "minLength": 1,
+          "pattern": "^[0-9a-f]{128}$",
           "type": "string"
         },
         "signedAt": {
