@@ -13,12 +13,9 @@ import {
   ActiveSetSchema,
   CatalogSchema,
   ReleaseEligibilitySchema,
-  ExecutionBindingSchema,
-  JobClassSchema,
-  WorkloadArtifactSchema,
-  WorkloadArtifactProvenanceSchema,
+  ExecutionRequestEnvelopeSchema,
   ExtensionReleaseSignatureSchema,
-  OperationRequestSchema,
+  DispatchLeaseSchema,
 } from "@dynamicalsystems/idl";
 import type { Adapter, ParseResult } from "./adapter.js";
 
@@ -84,12 +81,10 @@ function parse<T extends TSchema>(
 
 // These contexts are vector inputs, not new authority records or provider APIs.
 // Consumers run them against their real verifier through the semantic adapter.
-const ExecutionIdentityContext = closed({
-  binding: ExecutionBindingSchema,
-  operation: OperationRequestSchema,
-  jobClass: JobClassSchema,
-  artifact: WorkloadArtifactSchema,
-  provenance: WorkloadArtifactProvenanceSchema,
+const ExecutionIdentityContext = ExecutionRequestEnvelopeSchema;
+const ExecutionAuthorizationContext = closed({
+  request: ExecutionRequestEnvelopeSchema,
+  lease: DispatchLeaseSchema,
 });
 const ReleaseSignatureContext = closed({
   release: ExtensionReleaseSchema,
@@ -316,9 +311,84 @@ export function releaseSemanticAdapters(): Adapter {
         return;
       },
     ),
+    "dsg.run.execution-binding/1#semantic.executionAuthorization": parse(
+      ExecutionAuthorizationContext,
+      ({ request, lease }) => {
+        const { operation, binding } = request;
+        if (!same(binding.reservation, operation.reservation))
+          return "binding-reservation-mismatch";
+        if (lease.operationId !== operation.operationId) return "lease-operation-mismatch";
+        if (lease.generation !== operation.expectedGeneration) return "lease-generation-mismatch";
+        if (lease.caseOrn !== operation.case.orn) return "lease-case-mismatch";
+        if (lease.envelopeSha256 !== digest(operation)) return "lease-envelope-mismatch";
+        if (lease.lawSha256 !== operation.document.law.bundle.sha256) return "lease-law-mismatch";
+        if (!same(lease.reservation, binding.reservation)) return "lease-reservation-mismatch";
+        if (!lease.fresh) return "stale-dispatch-lease";
+        if (Date.parse(lease.expiresAt) <= Date.parse(lease.consumedAt))
+          return "expired-dispatch-lease";
+        return;
+      },
+    ),
     "dsg.run.execution-binding/1#semantic.executionIdentity": parse(
       ExecutionIdentityContext,
-      ({ binding, operation, jobClass, artifact, provenance }) => {
+      ({
+        binding,
+        operation,
+        jobClass,
+        workloadArtifact: artifact,
+        workloadArtifactProvenance: provenance,
+        admission,
+        activeSet,
+        releaseEligibility,
+      }) => {
+        if (!same(releaseEligibility.release, binding.extensionRelease))
+          return "eligibility-release-mismatch";
+        if (!same(releaseEligibility.trustView, binding.trustView))
+          return "eligibility-trust-view-mismatch";
+        if (
+          releaseEligibility.activeSet === null ||
+          !same(releaseEligibility.activeSet, binding.activeSet)
+        )
+          return "eligibility-active-set-mismatch";
+        if (admission.status !== "admitted") return "admission-refused";
+        if (binding.admission.sha256 !== digest(admission)) return "admission-digest-mismatch";
+        if (binding.activeSet.sha256 !== digest(activeSet)) return "active-set-digest-mismatch";
+        if (
+          binding.installation !== admission.installation ||
+          binding.installation !== activeSet.installation
+        )
+          return "installation-mismatch";
+        if (
+          !same(binding.organizationBuild, admission.build) ||
+          !same(binding.organizationBuild, activeSet.build)
+        )
+          return "organization-build-mismatch";
+        if (
+          !same(binding.organizationRelease, admission.release) ||
+          !same(binding.organizationRelease, activeSet.release)
+        )
+          return "organization-release-mismatch";
+        if (!same(binding.extensionRelease, admission.extensionRelease))
+          return "admission-release-mismatch";
+        const activeMember = activeSet.members.find(
+          (member) =>
+            same(member.admission, binding.admission) &&
+            same(member.extensionRelease, binding.extensionRelease),
+        );
+        if (!activeMember) return "release-not-active";
+        const activeComponents = activeMember.components.map((component) => component.reference);
+        const admittedComponents = admission.components.map((component) => component.reference);
+        for (const required of [
+          binding.workflow,
+          binding.jobClass,
+          binding.workloadArtifact,
+          binding.eventCatalog,
+        ]) {
+          if (!activeComponents.some((component) => same(component, required)))
+            return "active-component-mismatch";
+          if (!admittedComponents.some((component) => same(component, required)))
+            return "admitted-component-mismatch";
+        }
         if (binding.operation.sha256 !== digest(operation)) return "operation-digest-mismatch";
         if (!same(binding.target, operation.document.placement)) return "operation-target-mismatch";
         if (!same(binding.jobClass, operation.document.classContract))

@@ -303,8 +303,12 @@ export type {
   WorkloadSource,
   OciPlatform,
 } from "./run/workload-artifact.v1.js";
-export { EXECUTION_BINDING_PROFILE, ExecutionBindingSchema } from "./run/execution-binding.v1.js";
-export type { ExecutionBinding } from "./run/execution-binding.v1.js";
+export {
+  EXECUTION_BINDING_PROFILE,
+  ExecutionBindingSchema,
+  ExecutionRequestEnvelopeSchema,
+} from "./run/execution-binding.v1.js";
+export type { ExecutionBinding, ExecutionRequestEnvelope } from "./run/execution-binding.v1.js";
 
 import type { ProfileEntry } from "./primitives.js";
 import { dispatchConsumeV1 } from "./kernel/dispatch-consume.v1.js";
