@@ -40,14 +40,20 @@ const RefusalCodeV2SchemaValue = Type.Union([
 export const RefusalCodeV2Schema: typeof RefusalCodeV2SchemaValue = RefusalCodeV2SchemaValue;
 export type RefusalCodeV2 = Static<typeof RefusalCodeV2Schema>;
 
+const RefusalStageV2SchemaValue = Type.Union([
+  Type.Literal("proxy"),
+  Type.Literal("provider"),
+  Type.Literal("identity_read"),
+  Type.Literal("plane"),
+]);
+export const RefusalStageV2Schema: typeof RefusalStageV2SchemaValue = RefusalStageV2SchemaValue;
+export type RefusalStageV2 = Static<typeof RefusalStageV2Schema>;
+
 const RefusalV2SchemaValue = closed({
   profile: Type.Literal(REFUSAL_V2_PROFILE),
   code: RefusalCodeV2Schema,
   sentence: NonEmptyString,
-  // The proxy is the only producer today; a second stage is added here,
-  // never invented as a parallel compatibility scheme, when a second one
-  // exists.
-  stage: Type.Optional(Type.Literal("proxy")),
+  stage: Type.Optional(RefusalStageV2Schema),
   correlationId: Type.Optional(NonEmptyString),
 });
 export const RefusalV2Schema: typeof RefusalV2SchemaValue = RefusalV2SchemaValue;

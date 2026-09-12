@@ -1,0 +1,8 @@
+{
+  "profile": "dsg.core.refusal/2",
+  "shape": "refusal",
+  "name": "empty-correlation-id",
+  "verdict": "reject",
+  "bytes": "eyJwcm9maWxlIjoiZHNnLmNvcmUucmVmdXNhbC8yIiwiY29kZSI6InZhbGlkYXRpb25fdW5hdmFpbGFibGUiLCJzZW50ZW5jZSI6IkNyZWRlbnRpYWwgdmFsaWRhdGlvbiBpcyB1bmF2YWlsYWJsZS4iLCJzdGFnZSI6InByb3h5IiwiY29ycmVsYXRpb25JZCI6IiJ9",
+  "rule": "correlationId must be a non-empty string"
+}

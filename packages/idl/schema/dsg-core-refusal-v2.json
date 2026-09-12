@@ -97,8 +97,24 @@
           "type": "string"
         },
         "stage": {
-          "const": "proxy",
-          "type": "string"
+          "anyOf": [
+            {
+              "const": "proxy",
+              "type": "string"
+            },
+            {
+              "const": "provider",
+              "type": "string"
+            },
+            {
+              "const": "identity_read",
+              "type": "string"
+            },
+            {
+              "const": "plane",
+              "type": "string"
+            }
+          ]
         },
         "correlationId": {
           "minLength": 1,
