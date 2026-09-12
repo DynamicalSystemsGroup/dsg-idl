@@ -1,0 +1,7 @@
+{
+  "profile": "dsg.core.refusal/3",
+  "shape": "refusal",
+  "name": "single-hop",
+  "verdict": "accept",
+  "bytes": "eyJwcm9maWxlIjoiZHNnLmNvcmUucmVmdXNhbC8zIiwiY29kZSI6InZhbGlkYXRpb25fdW5hdmFpbGFibGUiLCJzZW50ZW5jZSI6IlRoZSBzaWduLWluIGNoZWNrIGNvdWxkIG5vdCBiZSBjb21wbGV0ZWQuIFRyeSBhZ2FpbiBpbiBhIG1vbWVudC4ifQ=="
+}

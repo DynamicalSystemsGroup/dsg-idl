@@ -41,17 +41,18 @@ export const PersonReference = closed({
   source: NonEmptyString,
 });
 
-/** One wire profile: the literal, and every top-level shape that crosses
- * the seam it names. Shape names are stable identifiers ("request",
- * "lease", "refusal"); vectors address a shape as "<literal>#<shape>". */
+/** One wire profile: the literal, and every top-level document that
+ * crosses the seam it names. Document names are stable identifiers
+ * ("request", "lease", "refusal"); vectors address one as
+ * "<literal>#<document>". */
 export type ProfileEntry = {
   readonly literal: `dsg.${string}.${string}/${number}`;
-  readonly shapes: Readonly<Record<string, TSchema>>;
+  readonly documents: Readonly<Record<string, TSchema>>;
   /** Set ONLY when the wire cannot carry the literal as a field of any
-   * shape (a frozen /1); names exactly where the literal lives instead. */
+   * document (a frozen /1); names exactly where the literal lives instead. */
   readonly literalNote?: string;
-  /** Names the shape non-TS consumers validate a whole document against;
+  /** Names the document non-TS consumers validate a whole payload against;
    * the emitted JSON Schema gains a root $ref to it. Only meaningful for
    * profiles with a single document root. */
-  readonly rootShape?: string;
+  readonly rootDocument?: string;
 };

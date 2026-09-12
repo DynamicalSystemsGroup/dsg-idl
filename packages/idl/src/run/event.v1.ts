@@ -90,6 +90,6 @@ export type EventStreamSeal = Static<typeof EventStreamSealSchema>;
 
 export const eventV1: ProfileEntry = {
   literal: EVENT_PROFILE,
-  rootShape: "event",
-  shapes: { event: EventSchema, streamSeal: EventStreamSealSchema },
+  rootDocument: "event",
+  documents: { event: EventSchema, streamSeal: EventStreamSealSchema },
 };

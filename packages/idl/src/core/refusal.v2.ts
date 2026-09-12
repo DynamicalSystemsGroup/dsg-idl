@@ -3,6 +3,9 @@
 // requires: a validator that cannot answer fails closed and says so, and a
 // human confirmation outside its window is its own refusal, not a generic
 // expiry. /1 is frozen; this ships beside it.
+// Frozen since v0.9.0. The stage and correlation fields a proxy hop needs
+// ship in /3 beside it, because an emitted schema that differs from its
+// released bytes is the one thing this profile may not do.
 import { type Static, Type } from "@sinclair/typebox";
 import { closed, NonEmptyString, type ProfileEntry } from "../primitives.js";
 
@@ -42,6 +45,6 @@ export type RefusalV2 = Static<typeof RefusalV2Schema>;
 
 export const refusalV2: ProfileEntry = {
   literal: REFUSAL_V2_PROFILE,
-  rootShape: "refusal",
-  shapes: { refusal: RefusalV2Schema },
+  rootDocument: "refusal",
+  documents: { refusal: RefusalV2Schema },
 };

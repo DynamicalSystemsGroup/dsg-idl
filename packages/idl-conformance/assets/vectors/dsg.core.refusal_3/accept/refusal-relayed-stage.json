@@ -1,0 +1,7 @@
+{
+  "profile": "dsg.core.refusal/3",
+  "shape": "refusal",
+  "name": "relayed-stage",
+  "verdict": "accept",
+  "bytes": "eyJwcm9maWxlIjoiZHNnLmNvcmUucmVmdXNhbC8zIiwiY29kZSI6InNlc3Npb25fZXhwaXJlZCIsInNlbnRlbmNlIjoiWW91ciBzaWduLWluIGhhcyBleHBpcmVkLiBTaWduIGluIGFnYWluLiIsInN0YWdlIjoicHJveHkiLCJjb3JyZWxhdGlvbklkIjoicmVxLTcifQ=="
+}

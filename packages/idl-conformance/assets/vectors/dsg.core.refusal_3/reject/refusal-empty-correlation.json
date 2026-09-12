@@ -1,0 +1,8 @@
+{
+  "profile": "dsg.core.refusal/3",
+  "shape": "refusal",
+  "name": "empty-correlation",
+  "verdict": "reject",
+  "bytes": "eyJwcm9maWxlIjoiZHNnLmNvcmUucmVmdXNhbC8zIiwiY29kZSI6InNlc3Npb25fZXhwaXJlZCIsInNlbnRlbmNlIjoiWW91ciBzaWduLWluIGhhcyBleHBpcmVkLiBTaWduIGluIGFnYWluLiIsInN0YWdlIjoicHJveHkiLCJjb3JyZWxhdGlvbklkIjoiIn0=",
+  "rule": "a correlation id that finds no log line is worse than none"
+}

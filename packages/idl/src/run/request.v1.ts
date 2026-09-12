@@ -45,6 +45,6 @@ export type RunRequest = Static<typeof RunRequestSchema>;
 
 export const requestV1: ProfileEntry = {
   literal: REQUEST_PROFILE,
-  rootShape: "request",
-  shapes: { request: RunRequestSchema },
+  rootDocument: "request",
+  documents: { request: RunRequestSchema },
 };

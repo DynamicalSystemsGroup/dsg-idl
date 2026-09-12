@@ -53,6 +53,6 @@ export const resourceDescriptorV1: ProfileEntry = {
   literal: RESOURCE_DESCRIPTOR_PROFILE,
   literalNote:
     "carried as kind (unversioned) plus schemaVersion on the document; the /1 literal is the version marker signed-law pins",
-  rootShape: "descriptor",
-  shapes: { descriptor: ResourceDescriptorSchema },
+  rootDocument: "descriptor",
+  documents: { descriptor: ResourceDescriptorSchema },
 };

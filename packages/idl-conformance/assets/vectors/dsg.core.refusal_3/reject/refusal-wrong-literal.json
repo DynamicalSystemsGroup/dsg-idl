@@ -1,0 +1,8 @@
+{
+  "profile": "dsg.core.refusal/3",
+  "shape": "refusal",
+  "name": "wrong-literal",
+  "verdict": "reject",
+  "bytes": "eyJwcm9maWxlIjoiZHNnLmNvcmUucmVmdXNhbC8yIiwiY29kZSI6InNlc3Npb25fZXhwaXJlZCIsInNlbnRlbmNlIjoiWW91ciBzaWduLWluIGhhcyBleHBpcmVkLiBTaWduIGluIGFnYWluLiIsInN0YWdlIjoicHJveHkifQ==",
+  "rule": "the literal names the contract the bytes obey"
+}

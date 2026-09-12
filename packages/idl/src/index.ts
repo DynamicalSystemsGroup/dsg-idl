@@ -134,6 +134,13 @@ export type { Refusal, RefusalCode } from "./core/refusal.v1.js";
 export { REFUSAL_V2_PROFILE, RefusalCodeV2Schema, RefusalV2Schema } from "./core/refusal.v2.js";
 export type { RefusalCodeV2, RefusalV2 } from "./core/refusal.v2.js";
 export {
+  REFUSAL_V3_PROFILE,
+  RefusalCodeV3Schema,
+  RefusalStageV3Schema,
+  RefusalV3Schema,
+} from "./core/refusal.v3.js";
+export type { RefusalCodeV3, RefusalStageV3, RefusalV3 } from "./core/refusal.v3.js";
+export {
   GOOGLE_SIGN_IN_ISSUER,
   IDENTITY_BINDING_PROFILE,
   IdentityBindingSchema,
@@ -149,6 +156,7 @@ import { decisionV1 } from "./run/decision.v1.js";
 import { runSummaryV1 } from "./run/run-summary.v1.js";
 import { refusalV1 } from "./core/refusal.v1.js";
 import { refusalV2 } from "./core/refusal.v2.js";
+import { refusalV3 } from "./core/refusal.v3.js";
 import { identityBindingV1 } from "./core/identity-binding.v1.js";
 import { signedLawV1 } from "./infra/signed-law.v1.js";
 import { resourceDescriptorV1 } from "./infra/resource-descriptor.v1.js";
@@ -162,7 +170,7 @@ import { standingOrderActivationV1 } from "./kernel/standing-order-activation.v1
  * Profile modules are added here as they are extracted; the rules test
  * and the schema emitter walk this registry, so a module that is not
  * registered does not exist. */
-export const PROFILES: Readonly<Record<string, ProfileEntry>> = {
+export const PROFILES = {
   [dispatchConsumeV1.literal]: dispatchConsumeV1,
   [operationV1.literal]: operationV1,
   [eventV1.literal]: eventV1,
@@ -171,6 +179,7 @@ export const PROFILES: Readonly<Record<string, ProfileEntry>> = {
   [runSummaryV1.literal]: runSummaryV1,
   [refusalV1.literal]: refusalV1,
   [refusalV2.literal]: refusalV2,
+  [refusalV3.literal]: refusalV3,
   [identityBindingV1.literal]: identityBindingV1,
   [signedLawV1.literal]: signedLawV1,
   [resourceDescriptorV1.literal]: resourceDescriptorV1,
@@ -179,4 +188,4 @@ export const PROFILES: Readonly<Record<string, ProfileEntry>> = {
   [bootstrapV1.literal]: bootstrapV1,
   [ordinaryAuthorityV1.literal]: ordinaryAuthorityV1,
   [standingOrderActivationV1.literal]: standingOrderActivationV1,
-};
+} satisfies Readonly<Record<string, ProfileEntry>>;
