@@ -106,7 +106,7 @@ export type DispatchRefusal = Static<typeof DispatchRefusalSchema>;
 
 export const dispatchConsumeV1: ProfileEntry = {
   literal: DISPATCH_CONSUME_PROFILE,
-  shapes: {
+  documents: {
     request: DispatchConsumeRequestSchema,
     lease: DispatchLeaseSchema,
     refusal: DispatchRefusalSchema,

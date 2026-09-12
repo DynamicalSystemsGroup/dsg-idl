@@ -40,6 +40,6 @@ export type Refusal = Static<typeof RefusalSchema>;
 
 export const refusalV1: ProfileEntry = {
   literal: REFUSAL_PROFILE,
-  rootShape: "refusal",
-  shapes: { refusal: RefusalSchema },
+  rootDocument: "refusal",
+  documents: { refusal: RefusalSchema },
 };

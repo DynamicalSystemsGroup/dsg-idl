@@ -167,7 +167,7 @@ import { standingOrderActivationV1 } from "./kernel/standing-order-activation.v1
  * Profile modules are added here as they are extracted; the rules test
  * and the schema emitter walk this registry, so a module that is not
  * registered does not exist. */
-export const PROFILES: Readonly<Record<string, ProfileEntry>> = {
+export const PROFILES = {
   [dispatchConsumeV1.literal]: dispatchConsumeV1,
   [operationV1.literal]: operationV1,
   [eventV1.literal]: eventV1,
@@ -184,4 +184,4 @@ export const PROFILES: Readonly<Record<string, ProfileEntry>> = {
   [bootstrapV1.literal]: bootstrapV1,
   [ordinaryAuthorityV1.literal]: ordinaryAuthorityV1,
   [standingOrderActivationV1.literal]: standingOrderActivationV1,
-};
+} satisfies Readonly<Record<string, ProfileEntry>>;

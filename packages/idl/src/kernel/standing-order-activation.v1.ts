@@ -63,8 +63,8 @@ export type SignedStandingOrderActivation = Static<typeof SignedStandingOrderAct
 
 export const standingOrderActivationV1: ProfileEntry = {
   literal: STANDING_ORDER_ACTIVATION_PROFILE,
-  rootShape: "event",
-  shapes: {
+  rootDocument: "event",
+  documents: {
     activation: StandingOrderActivationSchema,
     signed: SignedStandingOrderActivationSchema,
     event: StandingOrderActivationEventSchema,

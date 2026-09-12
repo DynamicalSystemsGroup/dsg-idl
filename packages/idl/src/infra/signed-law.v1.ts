@@ -273,5 +273,5 @@ export const signedLawV1: ProfileEntry = {
   literal: SIGNED_LAW_PROFILE,
   literalNote:
     "carried as the domain member of the canonical signature input, not as a bundle field",
-  shapes: { bundle: SignedLawBundleSchema },
+  documents: { bundle: SignedLawBundleSchema },
 };

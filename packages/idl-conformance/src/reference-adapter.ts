@@ -22,16 +22,16 @@ export function referenceAdapter(): Adapter {
       const digest = createHash("sha256").update(jcsStringify(parsed)).digest("hex");
       return { ok: true, digest };
     };
-    for (const [shapeName, shape] of Object.entries(entry.shapes)) {
-      adapter[`${entry.literal}#${shapeName}`] = (bytes) => {
+    for (const [documentName, documentSchema] of Object.entries(entry.documents)) {
+      adapter[`${entry.literal}#${documentName}`] = (bytes) => {
         let parsed: unknown;
         try {
           parsed = JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(bytes));
         } catch (error) {
           return { ok: false, reason: `not UTF-8 JSON: ${String(error)}` };
         }
-        if (Value.Check(shape, parsed)) return { ok: true };
-        const first = Value.Errors(shape, parsed).First();
+        if (Value.Check(documentSchema, parsed)) return { ok: true };
+        const first = Value.Errors(documentSchema, parsed).First();
         return {
           ok: false,
           reason: `${first?.path ?? ""}: ${first?.message ?? "schema mismatch"}`,

@@ -46,12 +46,12 @@ export const PersonReference = closed({
  * "lease", "refusal"); vectors address a shape as "<literal>#<shape>". */
 export type ProfileEntry = {
   readonly literal: `dsg.${string}.${string}/${number}`;
-  readonly shapes: Readonly<Record<string, TSchema>>;
+  readonly documents: Readonly<Record<string, TSchema>>;
   /** Set ONLY when the wire cannot carry the literal as a field of any
    * shape (a frozen /1); names exactly where the literal lives instead. */
   readonly literalNote?: string;
   /** Names the shape non-TS consumers validate a whole document against;
    * the emitted JSON Schema gains a root $ref to it. Only meaningful for
    * profiles with a single document root. */
-  readonly rootShape?: string;
+  readonly rootDocument?: string;
 };

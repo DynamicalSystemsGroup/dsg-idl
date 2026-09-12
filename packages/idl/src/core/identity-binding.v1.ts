@@ -21,6 +21,6 @@ export type IdentityBinding = Static<typeof IdentityBindingSchema>;
 
 export const identityBindingV1: ProfileEntry = {
   literal: IDENTITY_BINDING_PROFILE,
-  rootShape: "binding",
-  shapes: { binding: IdentityBindingSchema },
+  rootDocument: "binding",
+  documents: { binding: IdentityBindingSchema },
 };
