@@ -349,12 +349,11 @@ authorization checks on a heartbeat no slower than five seconds.
   own tokens and, for a client the issuer also introspects for, presenting
   credentials to `/oauth2/introspect` - must use that exact wire shape, or
   the issuer refuses it as a method mismatch before it ever checks the
-  secret. Both the console's service client and the plane's service
-  client use `client_secret_basic` (an `Authorization: Basic` header),
-  matching the registrations in section 10 and the probe. The console
-  does not call introspection directly; the plane forces remote
-  verification on every incoming credential (4.5), and that call's wire
-  shape is fixed at the same header method.
+  secret. The console service uses `client_secret_basic` (an
+  `Authorization: Basic` header). The plane service uses
+  `client_secret_post` (`client_id` and `client_secret` form fields)
+  for both token issuance and forced remote introspection. The pinned
+  resource verifier sends Post; its registration must match that method.
 
 ### 4.5 Validation calls and freshness
 
@@ -596,7 +595,7 @@ Google web client is separate and used only by the provider.
 | `dsg-desktop`                                             | native                                         | `authorization_code`, `refresh_token`                                                                                                                                                             | `none` (public, PKCE) | loopback, exact                        | `http://127.0.0.1:45877/`, exact (3.5)   | `openid`, `offline_access`, `api:read` | kernel, plane  |
 | `dsg-cli`                                                 | native                                         | `urn:ietf:params:oauth:grant-type:device_code`, `refresh_token`                                                                                                                                   | `none`                | device verification URI on the console | none registered; grant-only logout (3.5) | `openid`, `offline_access`, `api:read` | kernel         |
 | `dsg-console-service`                                     | service                                        | `client_credentials`                                                                                                                                                                              | `client_secret_basic` | n/a                                    | n/a                                      | `api:read`                             | kernel, plane  |
-| `dsg-plane-service`                                       | service                                        | `client_credentials`                                                                                                                                                                              | `client_secret_basic` | n/a                                    | n/a                                      | `api:read`                             | kernel         |
+| `dsg-plane-service`                                       | service                                        | `client_credentials`                                                                                                                                                                              | `client_secret_post`  | n/a                                    | n/a                                      | `api:read`                             | kernel, plane  |
 | `dsg-probe-*`                                             | test only, never deployed                      | as needed                                                                                                                                                                                         | as needed             | probe redirects                        | probe redirects                          | probe scopes                           | probe resource |
 | Key                                                       | Owner                                          | Purpose                                                                                                                                                                                           |
 | --------------------------------------------------------- | ------------------------------                 | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -692,9 +691,10 @@ The old `iap-` prefix is gone. The helper that derives it is renamed
 from `organizationActorForSubject` to `personActorForGoogleAccount`.
 
 An organization begins with a claim. The deployment names the founder
-through `KERNEL_FOUNDER_EMAIL`. A verified Google sign-in whose
-`googleSubject` matches that founder is the only path to the first
-recorded organization. The claim writes policy, founder principal with
+through `KERNEL_FOUNDER_EMAIL`. A verified Google sign-in whose email
+matches that founder and whose hosted domain matches the deployment may
+claim the organization. The fresh confirmation binds the Google subject.
+The claim writes policy, founder principal with
 the `organization-administrator` role, and the claim event in one
 ordered transaction under the existing organization access lock.
 After the claim, every other verified account in the domain is a
@@ -703,11 +703,10 @@ events.
 
 ### 14.1 The eight refusal codes (dsg.core.refusal/3)
 
-The organization endpoints and the governed identity reads answer
-with exactly these eight refusal codes. Each code names one cause; no
-code is collapsed into another, and a failure to read the record is
-dependency, never a verdict about a person. Every hop forwards the
-code it received unchanged, with its own `stage`.
+The organization endpoints and governed identity reads preserve these
+eight reasons. A failed record read is `dependency`, not a person verdict.
+The shared profile describes a normalized refusal; HTTP adapters preserve
+the reason while using the response envelopes below.
 
 | Code                    | Sentence                                                           |
 | ----------------------- | ------------------------------------------------------------------ |
@@ -720,8 +719,9 @@ code it received unchanged, with its own `stage`.
 | `not_qualified`         | You do not hold the role this action requires.                     |
 | `subject_conflict`      | A different account number is already bound to that address.       |
 
-The refusal body shape is `{ profile, code, sentence }`; `stage`,
-`correlationId` and `detail` are optional additions that the producer
-hop sets without rewriting the code. Session-expiry and signed-out are
-HTTP transport conditions at the hop that observed them (401), not
-members of the governed union.
+The normalized profile body is `{ profile, code, sentence }`, with optional
+`stage`, `correlationId` and `detail`. Kernel organization routes emit
+`{ status: "refused", reason, detail? }`. Browser-facing console routes emit
+`{ error: "refused", reason, detail, stage, correlationId }`. The adapters
+must preserve the reason. Signed-out and session-expiry responses are HTTP
+401 transport conditions, not members of this organization refusal union.

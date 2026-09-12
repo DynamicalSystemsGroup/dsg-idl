@@ -1,14 +1,6 @@
-// dsg.core.refusal/3
-// Owner: shared. Adds the eight codes the organization genesis requires.
-// /1 and /2 are frozen; this ships beside them. A failure to read the
-// record is dependency, never a verdict about a person; no code is
-// collapsed into another; every hop forwards the code it received
-// unchanged, with its own stage.
-//
-// The body is { profile, code, sentence }. stage, correlationId and
-// detail are optional. The kernel, plane and console read this profile,
-// so a refusal travels the same envelope on every hop and the producer
-// names itself in stage.
+// Normalized organization refusal. HTTP adapters preserve code as their
+// reason field; their transport envelopes are documented separately.
+// Dependency outages are not verdicts about a person.
 import { type Static, Type } from "@sinclair/typebox";
 import { closed, NonEmptyString, type ProfileEntry } from "../primitives.js";
 
