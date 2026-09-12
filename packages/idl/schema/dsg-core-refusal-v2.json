@@ -95,6 +95,14 @@
         "sentence": {
           "minLength": 1,
           "type": "string"
+        },
+        "stage": {
+          "const": "proxy",
+          "type": "string"
+        },
+        "correlationId": {
+          "minLength": 1,
+          "type": "string"
         }
       }
     }

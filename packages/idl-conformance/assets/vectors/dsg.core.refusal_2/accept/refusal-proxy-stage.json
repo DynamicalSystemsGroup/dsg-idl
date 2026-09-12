@@ -1,0 +1,7 @@
+{
+  "profile": "dsg.core.refusal/2",
+  "shape": "refusal",
+  "name": "proxy-stage",
+  "verdict": "accept",
+  "bytes": "eyJwcm9maWxlIjoiZHNnLmNvcmUucmVmdXNhbC8yIiwiY29kZSI6InZhbGlkYXRpb25fdW5hdmFpbGFibGUiLCJzZW50ZW5jZSI6IkNyZWRlbnRpYWwgdmFsaWRhdGlvbiBpcyB1bmF2YWlsYWJsZS4iLCJzdGFnZSI6InByb3h5IiwiY29ycmVsYXRpb25JZCI6InJlcS04ZjJjOWI3YS1wcm94eSJ9"
+}

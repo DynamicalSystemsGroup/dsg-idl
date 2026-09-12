@@ -21,9 +21,12 @@ Rules, enforced by this repo's own tests and `just check`:
 3. Digests are lowercase sha256 hex. Timestamps are exact UTC seconds.
    No profile defines its own primitive.
 4. A released `/N` WIRE is frozen: the emitted JSON Schema may never
-   change after its first release tag (scripts/check-frozen.sh). Source
-   refactors that keep the emitted bytes are legal. Changes ship as
-   `/N+1` beside `/1`.
+   change after its first STABLE release tag, major >= 1
+   (scripts/check-frozen.sh). Pre-1.0 tags are development-stage and
+   never freeze anything - this stack has not shipped, so no 0.x-tagged
+   byte sequence is held by a deployed consumer that cannot re-fetch it.
+   Source refactors that keep the emitted bytes are legal. Changes ship
+   as `/N+1` beside `/1` once a schema is actually frozen.
 5. A profile with no vectors does not build.
 6. `schema/` is generated JSON Schema, committed, checked fresh. Non-TS
    consumers read it and never hold their own copy.
