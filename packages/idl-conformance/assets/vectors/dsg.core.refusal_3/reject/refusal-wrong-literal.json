@@ -1,0 +1,8 @@
+{
+  "profile": "dsg.core.refusal/3",
+  "shape": "refusal",
+  "name": "wrong-literal",
+  "verdict": "reject",
+  "bytes": "eyJwcm9maWxlIjoiZHNnLmNvcmUucmVmdXNhbC8yIiwiY29kZSI6Im9yZ2FuaXphdGlvbl9hYnNlbnQiLCJzZW50ZW5jZSI6IlRoaXMgb3JnYW5pemF0aW9uIGhhcyBub3QgYmVlbiBjbGFpbWVkIHlldC4ifQ==",
+  "rule": "the profile literal is the version"
+}

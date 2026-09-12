@@ -1,0 +1,7 @@
+{
+  "profile": "dsg.core.refusal/3",
+  "shape": "refusal",
+  "name": "organization-exists",
+  "verdict": "accept",
+  "bytes": "eyJwcm9maWxlIjoiZHNnLmNvcmUucmVmdXNhbC8zIiwiY29kZSI6Im9yZ2FuaXphdGlvbl9leGlzdHMiLCJzZW50ZW5jZSI6IlRoaXMgb3JnYW5pemF0aW9uIGlzIGFscmVhZHkgY2xhaW1lZC4ifQ=="
+}

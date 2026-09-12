@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/DynamicalSystemsGroup/dsg-idl/schema/dsg-core-google-identity-v1.json",
+  "title": "dsg.core.google-identity/1",
+  "$defs": {
+    "googleIdentity": {
+      "additionalProperties": false,
+      "type": "object",
+      "required": ["profile", "issuer", "googleSubject", "audience"],
+      "properties": {
+        "profile": {
+          "const": "dsg.core.google-identity/1",
+          "type": "string"
+        },
+        "issuer": {
+          "const": "https://accounts.google.com",
+          "type": "string"
+        },
+        "googleSubject": {
+          "pattern": "^accounts\\.google\\.com:[0-9]+$",
+          "type": "string"
+        },
+        "audience": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "hostedDomain": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "email": {
+          "minLength": 1,
+          "type": "string"
+        }
+      }
+    }
+  },
+  "$ref": "#/$defs/googleIdentity"
+}

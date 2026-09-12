@@ -1,0 +1,7 @@
+{
+  "profile": "dsg.core.refusal/3",
+  "shape": "refusal",
+  "name": "domain-mismatch",
+  "verdict": "accept",
+  "bytes": "eyJwcm9maWxlIjoiZHNnLmNvcmUucmVmdXNhbC8zIiwiY29kZSI6ImRvbWFpbl9taXNtYXRjaCIsInNlbnRlbmNlIjoiWW91ciBhY2NvdW50IGlzIGZyb20gYSBkaWZmZXJlbnQgd29ya3NwYWNlIHRoYW4gdGhpcyBvcmdhbml6YXRpb24uIn0="
+}
