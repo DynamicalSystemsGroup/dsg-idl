@@ -183,6 +183,128 @@ export type {
   ReleaseMemberKind,
   WorkspaceProfile,
 } from "./organization/source.v2.js";
+export {
+  EXTENSION_RELEASE_PROFILE,
+  EXTENSION_RELEASE_CANONICALIZATION,
+  ExtensionReleaseReferenceSchema,
+  ExtensionComponentReferenceSchema,
+  ExtensionComponentKindSchema,
+  ExtensionComponentSchema,
+  ExtensionDependencyKindSchema,
+  ExtensionDependencySchema,
+  ExtensionRequirementsSchema,
+  ExtensionComputeRequirementsSchema,
+  ExtensionBoundsSchema,
+  ExtensionReleaseSchema,
+  ExtensionReleaseSignatureSchema,
+} from "./extension/release.v1.js";
+export type {
+  ExtensionReleaseReference,
+  ExtensionComponentReference,
+  ExtensionComponentKind,
+  ExtensionComponent,
+  ExtensionDependencyKind,
+  ExtensionDependency,
+  ExtensionRequirements,
+  ExtensionComputeRequirements,
+  ExtensionBounds,
+  ExtensionRelease,
+  ExtensionReleaseSignature,
+} from "./extension/release.v1.js";
+export {
+  ORGANIZATION_SOURCE_V3_PROFILE,
+  OrganizationRootV3Schema,
+  WorkspaceProfileV3Schema,
+  OrganizationSourceProjectSchema,
+  CapabilitySelectionV3Schema,
+  OrganizationSelectionDispositionSchema,
+  AuthoredOverlaySchema,
+  OrganizationDependencyLockSchema,
+  OrganizationSourceReleaseMemberSchema,
+  OrganizationReleaseDeclarationSchema,
+} from "./organization/source.v3.js";
+export type {
+  OrganizationRootV3,
+  WorkspaceProfileV3,
+  OrganizationSourceProject,
+  CapabilitySelectionV3,
+  OrganizationSelectionDisposition,
+  AuthoredOverlay,
+  OrganizationDependencyLock,
+  OrganizationSourceReleaseMember,
+  OrganizationReleaseDeclaration,
+} from "./organization/source.v3.js";
+export {
+  ORGANIZATION_RELEASE_PROFILE,
+  ORGANIZATION_RELEASE_CANONICALIZATION,
+  CompilerContractSchema,
+  DependencyKindSchema,
+  DependencyLockEntrySchema,
+  DependencyLockSchema,
+  OrganizationBuildSchema,
+  BuildSelectionSchema,
+  BuildComponentSchema,
+  OrganizationReleaseMemberKindSchema,
+  OrganizationReleaseMemberSchema,
+  OrganizationReleaseSchema,
+  ComponentBindingSchema,
+  ImportDispositionSchema,
+  ReleaseStatusSchema,
+  ReleaseStatusObservationSchema,
+  ReleaseEligibilitySchema,
+  ApprovedUseSchema,
+  AdmissionRecordSchema,
+  AdmissionStatusObservationSchema,
+  MemberObservationSchema,
+  ActiveMemberSchema,
+  ActiveSetSchema,
+  CatalogEntrySchema,
+  CatalogSchema,
+  BoundAttestationSchema,
+} from "./organization/release.v1.js";
+export type {
+  CompilerContract,
+  DependencyKind,
+  DependencyLockEntry,
+  DependencyLock,
+  OrganizationBuild,
+  BuildSelection,
+  BuildComponent,
+  OrganizationReleaseMemberKind,
+  OrganizationReleaseMember,
+  OrganizationRelease,
+  ComponentBinding,
+  ImportDisposition,
+  ReleaseStatus,
+  ReleaseStatusObservation,
+  ReleaseEligibility,
+  ApprovedUse,
+  AdmissionRecord,
+  AdmissionStatusObservation,
+  MemberObservation,
+  ActiveMember,
+  ActiveSet,
+  CatalogEntry,
+  Catalog,
+  BoundAttestation,
+} from "./organization/release.v1.js";
+export { JOB_CLASS_PROFILE, JobClassBoundsSchema, JobClassSchema } from "./run/job-class.v1.js";
+export type { JobClassBounds, JobClass } from "./run/job-class.v1.js";
+export {
+  WORKLOAD_ARTIFACT_PROFILE,
+  WorkloadArtifactSchema,
+  WorkloadArtifactProvenanceSchema,
+  WorkloadSourceSchema,
+  OciPlatformSchema,
+} from "./run/workload-artifact.v1.js";
+export type {
+  WorkloadArtifact,
+  WorkloadArtifactProvenance,
+  WorkloadSource,
+  OciPlatform,
+} from "./run/workload-artifact.v1.js";
+export { EXECUTION_BINDING_PROFILE, ExecutionBindingSchema } from "./run/execution-binding.v1.js";
+export type { ExecutionBinding } from "./run/execution-binding.v1.js";
 
 import type { ProfileEntry } from "./primitives.js";
 import { dispatchConsumeV1 } from "./kernel/dispatch-consume.v1.js";
@@ -204,6 +326,12 @@ import { bootstrapV1 } from "./kernel/bootstrap.v1.js";
 import { ordinaryAuthorityV1 } from "./kernel/ordinary-authority.v1.js";
 import { standingOrderActivationV1 } from "./kernel/standing-order-activation.v1.js";
 import { organizationSourceV2 } from "./organization/source.v2.js";
+import { extensionReleaseV1 } from "./extension/release.v1.js";
+import { organizationSourceV3 } from "./organization/source.v3.js";
+import { organizationReleaseV1 } from "./organization/release.v1.js";
+import { jobClassV1 } from "./run/job-class.v1.js";
+import { workloadArtifactV1 } from "./run/workload-artifact.v1.js";
+import { executionBindingV1 } from "./run/execution-binding.v1.js";
 /** Every profile this version of the package defines, keyed by literal.
  * Profile modules are added here as they are extracted; the rules test
  * and the schema emitter walk this registry, so a module that is not
@@ -228,4 +356,10 @@ export const PROFILES = {
   [ordinaryAuthorityV1.literal]: ordinaryAuthorityV1,
   [standingOrderActivationV1.literal]: standingOrderActivationV1,
   [organizationSourceV2.literal]: organizationSourceV2,
+  [extensionReleaseV1.literal]: extensionReleaseV1,
+  [organizationSourceV3.literal]: organizationSourceV3,
+  [organizationReleaseV1.literal]: organizationReleaseV1,
+  [jobClassV1.literal]: jobClassV1,
+  [workloadArtifactV1.literal]: workloadArtifactV1,
+  [executionBindingV1.literal]: executionBindingV1,
 } satisfies Readonly<Record<string, ProfileEntry>>;

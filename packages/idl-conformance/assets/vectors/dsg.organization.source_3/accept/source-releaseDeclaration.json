@@ -1,0 +1,8 @@
+{
+  "profile": "dsg.organization.source/3",
+  "shape": "releaseDeclaration",
+  "name": "source-releaseDeclaration",
+  "verdict": "accept",
+  "rule": "source-releaseDeclaration",
+  "bytes": "eyJzY2hlbWFWZXJzaW9uIjozLCJraW5kIjoib3JnYW5pemF0aW9uLXJlbGVhc2UtZGVjbGFyYXRpb24iLCJpZCI6ImluaXRpYWwiLCJkZXBlbmRlbmN5TG9jayI6ImxvY2suanNvbiIsInNlbGVjdGlvbnMiOltdLCJtZW1iZXJzIjpbeyJpZCI6InNldHVwIiwia2luZCI6InNldHVwLWNvbmRpdGlvbiIsInJlcXVpcmVkIjp0cnVlLCJhY2NlcHRhYmxlRGlzcG9zaXRpb25zIjpbInJlYWR5Il0sInN1YmplY3QiOiJzZXR1cC5qc29uIn1dLCJhY2NlcHRhbmNlIjp7InJlcXVpcmVkTWVtYmVycyI6WyJzZXR1cCJdLCJhY2NlcHRhYmxlRGlzcG9zaXRpb25zIjpbInJlYWR5Il19fQ=="
+}

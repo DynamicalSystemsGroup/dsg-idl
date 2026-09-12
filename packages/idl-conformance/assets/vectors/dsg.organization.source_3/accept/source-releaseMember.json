@@ -1,0 +1,8 @@
+{
+  "profile": "dsg.organization.source/3",
+  "shape": "releaseMember",
+  "name": "source-releaseMember",
+  "verdict": "accept",
+  "rule": "source-releaseMember",
+  "bytes": "eyJpZCI6InNldHVwIiwia2luZCI6InNldHVwLWNvbmRpdGlvbiIsInJlcXVpcmVkIjp0cnVlLCJhY2NlcHRhYmxlRGlzcG9zaXRpb25zIjpbInJlYWR5Il0sInN1YmplY3QiOiJzZXR1cC5qc29uIn0="
+}

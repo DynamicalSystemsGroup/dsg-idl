@@ -1,0 +1,8 @@
+{
+  "profile": "dsg.organization.release/1",
+  "shape": "catalog",
+  "name": "catalog-valid",
+  "verdict": "accept",
+  "rule": "catalog-valid",
+  "bytes": "eyJwcm9maWxlIjoiZHNnLm9yZ2FuaXphdGlvbi5yZWxlYXNlLzEiLCJzY2hlbWFWZXJzaW9uIjoxLCJraW5kIjoiY2F0YWxvZyIsImFjdGl2ZVNldCI6eyJvcm4iOiJvcm46ZHNnLmNvcmUuYXJ0aWZhY3QuZG9jdW1lbnQ6YWN0aXZlLXNldCIsInNoYTI1NiI6ImNjNjQ0YjFiYzU2NDRjOGVkNGJkMzgxNjhlODJjM2JhNDkzNzFmODU0MzIzNWU3OWYzOThmOGVlNzE3NWUzZjUifSwiZW50cmllcyI6W119"
+}

@@ -1,0 +1,866 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/DynamicalSystemsGroup/dsg-idl/schema/dsg-extension-release-v1.json",
+  "title": "dsg.extension.release/1",
+  "$defs": {
+    "release": {
+      "anyOf": [
+        {
+          "additionalProperties": false,
+          "type": "object",
+          "required": [
+            "profile",
+            "schemaVersion",
+            "kind",
+            "publisher",
+            "name",
+            "version",
+            "releaseOrn",
+            "namespace",
+            "source",
+            "build",
+            "canonicalization",
+            "dependencies",
+            "compute",
+            "components",
+            "requirements",
+            "bounds"
+          ],
+          "properties": {
+            "profile": {
+              "const": "dsg.extension.release/1",
+              "type": "string"
+            },
+            "schemaVersion": {
+              "const": 1,
+              "type": "number"
+            },
+            "kind": {
+              "const": "extension-release",
+              "type": "string"
+            },
+            "publisher": {
+              "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+              "type": "string"
+            },
+            "name": {
+              "pattern": "^[a-z][a-z0-9-]*(?:[.-][a-z0-9]+)*$",
+              "type": "string"
+            },
+            "version": {
+              "pattern": "^(?:0|[1-9][0-9]*)\\.[0-9]+\\.[0-9]+$",
+              "type": "string"
+            },
+            "releaseOrn": {
+              "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+              "type": "string"
+            },
+            "namespace": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "source": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["repository", "revision"],
+              "properties": {
+                "repository": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "revision": {
+                  "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$",
+                  "type": "string"
+                }
+              }
+            },
+            "build": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["provenance", "sourceDigest"],
+              "properties": {
+                "provenance": {
+                  "additionalProperties": false,
+                  "type": "object",
+                  "required": ["orn", "sha256"],
+                  "properties": {
+                    "orn": {
+                      "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                      "type": "string"
+                    },
+                    "sha256": {
+                      "pattern": "^[0-9a-f]{64}$",
+                      "type": "string"
+                    }
+                  }
+                },
+                "sourceDigest": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            },
+            "canonicalization": {
+              "const": "RFC8785-JCS-UTF8",
+              "type": "string"
+            },
+            "dependencies": {
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "additionalProperties": false,
+                "type": "object",
+                "required": ["id", "kind", "reference", "required"],
+                "properties": {
+                  "id": {
+                    "pattern": "^[a-z][a-z0-9-]*(?:[.-][a-z0-9]+)*$",
+                    "type": "string"
+                  },
+                  "kind": {
+                    "anyOf": [
+                      {
+                        "const": "extension-release",
+                        "type": "string"
+                      },
+                      {
+                        "const": "idl-package",
+                        "type": "string"
+                      },
+                      {
+                        "const": "module-release",
+                        "type": "string"
+                      },
+                      {
+                        "const": "law-release",
+                        "type": "string"
+                      },
+                      {
+                        "const": "event-catalog",
+                        "type": "string"
+                      },
+                      {
+                        "const": "example-release",
+                        "type": "string"
+                      },
+                      {
+                        "const": "target-release",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "reference": {
+                    "additionalProperties": false,
+                    "type": "object",
+                    "required": ["orn", "sha256"],
+                    "properties": {
+                      "orn": {
+                        "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                        "type": "string"
+                      },
+                      "sha256": {
+                        "pattern": "^[0-9a-f]{64}$",
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            },
+            "compute": {
+              "const": true,
+              "type": "boolean"
+            },
+            "components": {
+              "minItems": 1,
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "additionalProperties": false,
+                "type": "object",
+                "required": ["id", "reference", "mediaType", "required", "dependsOn", "kind"],
+                "properties": {
+                  "id": {
+                    "pattern": "^[a-z][a-z0-9-]*(?:[.-][a-z0-9]+)*$",
+                    "type": "string"
+                  },
+                  "reference": {
+                    "additionalProperties": false,
+                    "type": "object",
+                    "required": ["orn", "sha256"],
+                    "properties": {
+                      "orn": {
+                        "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                        "type": "string"
+                      },
+                      "sha256": {
+                        "pattern": "^[0-9a-f]{64}$",
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "mediaType": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "required": {
+                    "type": "boolean"
+                  },
+                  "dependsOn": {
+                    "uniqueItems": true,
+                    "type": "array",
+                    "items": {
+                      "pattern": "^[a-z][a-z0-9-]*(?:[.-][a-z0-9]+)*$",
+                      "type": "string"
+                    }
+                  },
+                  "kind": {
+                    "anyOf": [
+                      {
+                        "const": "workflow",
+                        "type": "string"
+                      },
+                      {
+                        "const": "example",
+                        "type": "string"
+                      },
+                      {
+                        "const": "contract",
+                        "type": "string"
+                      },
+                      {
+                        "const": "job-class",
+                        "type": "string"
+                      },
+                      {
+                        "const": "workload-artifact",
+                        "type": "string"
+                      },
+                      {
+                        "const": "event-catalog",
+                        "type": "string"
+                      },
+                      {
+                        "const": "connector",
+                        "type": "string"
+                      },
+                      {
+                        "const": "module",
+                        "type": "string"
+                      },
+                      {
+                        "const": "check",
+                        "type": "string"
+                      },
+                      {
+                        "const": "vocabulary",
+                        "type": "string"
+                      },
+                      {
+                        "const": "assurance",
+                        "type": "string"
+                      },
+                      {
+                        "const": "documentation",
+                        "type": "string"
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            "requirements": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": [
+                "idlProfiles",
+                "roles",
+                "handling",
+                "supportedPlatforms",
+                "targets",
+                "isolation",
+                "retention",
+                "completion",
+                "teardown",
+                "evidence",
+                "replay"
+              ],
+              "properties": {
+                "idlProfiles": {
+                  "uniqueItems": true,
+                  "type": "array",
+                  "items": {
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "roles": {
+                  "uniqueItems": true,
+                  "type": "array",
+                  "items": {
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "qualification": {
+                  "additionalProperties": false,
+                  "type": "object",
+                  "required": ["orn", "sha256"],
+                  "properties": {
+                    "orn": {
+                      "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                      "type": "string"
+                    },
+                    "sha256": {
+                      "pattern": "^[0-9a-f]{64}$",
+                      "type": "string"
+                    }
+                  }
+                },
+                "handling": {
+                  "anyOf": [
+                    {
+                      "const": "public",
+                      "type": "string"
+                    },
+                    {
+                      "const": "restricted",
+                      "type": "string"
+                    },
+                    {
+                      "const": "confidential",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "supportedPlatforms": {
+                  "minItems": 1,
+                  "uniqueItems": true,
+                  "type": "array",
+                  "items": {
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "targets": {
+                  "uniqueItems": true,
+                  "type": "array",
+                  "items": {
+                    "additionalProperties": false,
+                    "type": "object",
+                    "required": ["orn", "sha256"],
+                    "properties": {
+                      "orn": {
+                        "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                        "type": "string"
+                      },
+                      "sha256": {
+                        "pattern": "^[0-9a-f]{64}$",
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "isolation": {
+                  "anyOf": [
+                    {
+                      "const": "ephemeral",
+                      "type": "string"
+                    },
+                    {
+                      "const": "dedicated",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "retention": {
+                  "anyOf": [
+                    {
+                      "const": "ephemeral",
+                      "type": "string"
+                    },
+                    {
+                      "const": "bounded",
+                      "type": "string"
+                    },
+                    {
+                      "const": "durable",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "completion": {
+                  "additionalProperties": false,
+                  "type": "object",
+                  "required": ["orn", "sha256"],
+                  "properties": {
+                    "orn": {
+                      "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                      "type": "string"
+                    },
+                    "sha256": {
+                      "pattern": "^[0-9a-f]{64}$",
+                      "type": "string"
+                    }
+                  }
+                },
+                "teardown": {
+                  "additionalProperties": false,
+                  "type": "object",
+                  "required": ["orn", "sha256"],
+                  "properties": {
+                    "orn": {
+                      "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                      "type": "string"
+                    },
+                    "sha256": {
+                      "pattern": "^[0-9a-f]{64}$",
+                      "type": "string"
+                    }
+                  }
+                },
+                "evidence": {
+                  "additionalProperties": false,
+                  "type": "object",
+                  "required": ["orn", "sha256"],
+                  "properties": {
+                    "orn": {
+                      "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                      "type": "string"
+                    },
+                    "sha256": {
+                      "pattern": "^[0-9a-f]{64}$",
+                      "type": "string"
+                    }
+                  }
+                },
+                "replay": {
+                  "additionalProperties": false,
+                  "type": "object",
+                  "required": ["orn", "sha256"],
+                  "properties": {
+                    "orn": {
+                      "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                      "type": "string"
+                    },
+                    "sha256": {
+                      "pattern": "^[0-9a-f]{64}$",
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "bounds": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["maxDurationSeconds", "maxParallelism", "maxUsdMicroUnits"],
+              "properties": {
+                "maxDurationSeconds": {
+                  "minimum": 0,
+                  "maximum": 9007199254740991,
+                  "type": "integer"
+                },
+                "maxParallelism": {
+                  "minimum": 0,
+                  "maximum": 9007199254740991,
+                  "type": "integer"
+                },
+                "maxUsdMicroUnits": {
+                  "minimum": 0,
+                  "maximum": 9007199254740991,
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        {
+          "additionalProperties": false,
+          "type": "object",
+          "required": [
+            "profile",
+            "schemaVersion",
+            "kind",
+            "publisher",
+            "name",
+            "version",
+            "releaseOrn",
+            "namespace",
+            "source",
+            "build",
+            "canonicalization",
+            "dependencies",
+            "compute",
+            "components",
+            "requirements"
+          ],
+          "properties": {
+            "profile": {
+              "const": "dsg.extension.release/1",
+              "type": "string"
+            },
+            "schemaVersion": {
+              "const": 1,
+              "type": "number"
+            },
+            "kind": {
+              "const": "extension-release",
+              "type": "string"
+            },
+            "publisher": {
+              "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+              "type": "string"
+            },
+            "name": {
+              "pattern": "^[a-z][a-z0-9-]*(?:[.-][a-z0-9]+)*$",
+              "type": "string"
+            },
+            "version": {
+              "pattern": "^(?:0|[1-9][0-9]*)\\.[0-9]+\\.[0-9]+$",
+              "type": "string"
+            },
+            "releaseOrn": {
+              "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+              "type": "string"
+            },
+            "namespace": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "source": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["repository", "revision"],
+              "properties": {
+                "repository": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "revision": {
+                  "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$",
+                  "type": "string"
+                }
+              }
+            },
+            "build": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["provenance", "sourceDigest"],
+              "properties": {
+                "provenance": {
+                  "additionalProperties": false,
+                  "type": "object",
+                  "required": ["orn", "sha256"],
+                  "properties": {
+                    "orn": {
+                      "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                      "type": "string"
+                    },
+                    "sha256": {
+                      "pattern": "^[0-9a-f]{64}$",
+                      "type": "string"
+                    }
+                  }
+                },
+                "sourceDigest": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            },
+            "canonicalization": {
+              "const": "RFC8785-JCS-UTF8",
+              "type": "string"
+            },
+            "dependencies": {
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "additionalProperties": false,
+                "type": "object",
+                "required": ["id", "kind", "reference", "required"],
+                "properties": {
+                  "id": {
+                    "pattern": "^[a-z][a-z0-9-]*(?:[.-][a-z0-9]+)*$",
+                    "type": "string"
+                  },
+                  "kind": {
+                    "anyOf": [
+                      {
+                        "const": "extension-release",
+                        "type": "string"
+                      },
+                      {
+                        "const": "idl-package",
+                        "type": "string"
+                      },
+                      {
+                        "const": "module-release",
+                        "type": "string"
+                      },
+                      {
+                        "const": "law-release",
+                        "type": "string"
+                      },
+                      {
+                        "const": "event-catalog",
+                        "type": "string"
+                      },
+                      {
+                        "const": "example-release",
+                        "type": "string"
+                      },
+                      {
+                        "const": "target-release",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "reference": {
+                    "additionalProperties": false,
+                    "type": "object",
+                    "required": ["orn", "sha256"],
+                    "properties": {
+                      "orn": {
+                        "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                        "type": "string"
+                      },
+                      "sha256": {
+                        "pattern": "^[0-9a-f]{64}$",
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            },
+            "compute": {
+              "const": false,
+              "type": "boolean"
+            },
+            "components": {
+              "minItems": 1,
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "additionalProperties": false,
+                "type": "object",
+                "required": ["id", "reference", "mediaType", "required", "dependsOn", "kind"],
+                "properties": {
+                  "id": {
+                    "pattern": "^[a-z][a-z0-9-]*(?:[.-][a-z0-9]+)*$",
+                    "type": "string"
+                  },
+                  "reference": {
+                    "additionalProperties": false,
+                    "type": "object",
+                    "required": ["orn", "sha256"],
+                    "properties": {
+                      "orn": {
+                        "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                        "type": "string"
+                      },
+                      "sha256": {
+                        "pattern": "^[0-9a-f]{64}$",
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "mediaType": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "required": {
+                    "type": "boolean"
+                  },
+                  "dependsOn": {
+                    "uniqueItems": true,
+                    "type": "array",
+                    "items": {
+                      "pattern": "^[a-z][a-z0-9-]*(?:[.-][a-z0-9]+)*$",
+                      "type": "string"
+                    }
+                  },
+                  "kind": {
+                    "anyOf": [
+                      {
+                        "const": "workflow",
+                        "type": "string"
+                      },
+                      {
+                        "const": "example",
+                        "type": "string"
+                      },
+                      {
+                        "const": "contract",
+                        "type": "string"
+                      },
+                      {
+                        "const": "event-catalog",
+                        "type": "string"
+                      },
+                      {
+                        "const": "connector",
+                        "type": "string"
+                      },
+                      {
+                        "const": "module",
+                        "type": "string"
+                      },
+                      {
+                        "const": "check",
+                        "type": "string"
+                      },
+                      {
+                        "const": "vocabulary",
+                        "type": "string"
+                      },
+                      {
+                        "const": "assurance",
+                        "type": "string"
+                      },
+                      {
+                        "const": "documentation",
+                        "type": "string"
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            "requirements": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["idlProfiles", "roles", "handling"],
+              "properties": {
+                "idlProfiles": {
+                  "uniqueItems": true,
+                  "type": "array",
+                  "items": {
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "roles": {
+                  "uniqueItems": true,
+                  "type": "array",
+                  "items": {
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "qualification": {
+                  "additionalProperties": false,
+                  "type": "object",
+                  "required": ["orn", "sha256"],
+                  "properties": {
+                    "orn": {
+                      "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                      "type": "string"
+                    },
+                    "sha256": {
+                      "pattern": "^[0-9a-f]{64}$",
+                      "type": "string"
+                    }
+                  }
+                },
+                "handling": {
+                  "anyOf": [
+                    {
+                      "const": "public",
+                      "type": "string"
+                    },
+                    {
+                      "const": "restricted",
+                      "type": "string"
+                    },
+                    {
+                      "const": "confidential",
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "signature": {
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "profile",
+        "schemaVersion",
+        "kind",
+        "release",
+        "publisher",
+        "publicKey",
+        "bodySha256",
+        "canonicalization",
+        "signature",
+        "signedAt"
+      ],
+      "properties": {
+        "profile": {
+          "const": "dsg.extension.release/1",
+          "type": "string"
+        },
+        "schemaVersion": {
+          "const": 1,
+          "type": "number"
+        },
+        "kind": {
+          "const": "extension-release-signature",
+          "type": "string"
+        },
+        "release": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["orn", "sha256"],
+          "properties": {
+            "orn": {
+              "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+              "type": "string"
+            },
+            "sha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            }
+          }
+        },
+        "publisher": {
+          "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+          "type": "string"
+        },
+        "publicKey": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "bodySha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "canonicalization": {
+          "const": "RFC8785-JCS-UTF8",
+          "type": "string"
+        },
+        "signature": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "signedAt": {
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$",
+          "type": "string"
+        }
+      }
+    }
+  },
+  "$ref": "#/$defs/release"
+}

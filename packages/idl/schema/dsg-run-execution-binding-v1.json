@@ -1,0 +1,249 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/DynamicalSystemsGroup/dsg-idl/schema/dsg-run-execution-binding-v1.json",
+  "title": "dsg.run.execution-binding/1",
+  "$defs": {
+    "executionBinding": {
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "profile",
+        "schemaVersion",
+        "kind",
+        "installation",
+        "activeSet",
+        "admission",
+        "organizationRelease",
+        "organizationBuild",
+        "selection",
+        "extensionRelease",
+        "workflow",
+        "jobClass",
+        "workloadArtifact",
+        "executableManifestSha256",
+        "eventCatalog",
+        "law",
+        "lease",
+        "trustView"
+      ],
+      "properties": {
+        "profile": {
+          "const": "dsg.run.execution-binding/1",
+          "type": "string"
+        },
+        "schemaVersion": {
+          "const": 1,
+          "type": "number"
+        },
+        "kind": {
+          "const": "execution-binding",
+          "type": "string"
+        },
+        "installation": {
+          "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+          "type": "string"
+        },
+        "activeSet": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["orn", "sha256"],
+          "properties": {
+            "orn": {
+              "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+              "type": "string"
+            },
+            "sha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            }
+          }
+        },
+        "admission": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["orn", "sha256"],
+          "properties": {
+            "orn": {
+              "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+              "type": "string"
+            },
+            "sha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            }
+          }
+        },
+        "organizationRelease": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["orn", "sha256"],
+          "properties": {
+            "orn": {
+              "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+              "type": "string"
+            },
+            "sha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            }
+          }
+        },
+        "organizationBuild": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["orn", "sha256"],
+          "properties": {
+            "orn": {
+              "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+              "type": "string"
+            },
+            "sha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            }
+          }
+        },
+        "selection": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["orn", "sha256"],
+          "properties": {
+            "orn": {
+              "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+              "type": "string"
+            },
+            "sha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            }
+          }
+        },
+        "extensionRelease": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["orn", "sha256"],
+          "properties": {
+            "orn": {
+              "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+              "type": "string"
+            },
+            "sha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            }
+          }
+        },
+        "workflow": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["orn", "sha256"],
+          "properties": {
+            "orn": {
+              "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+              "type": "string"
+            },
+            "sha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            }
+          }
+        },
+        "jobClass": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["orn", "sha256"],
+          "properties": {
+            "orn": {
+              "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+              "type": "string"
+            },
+            "sha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            }
+          }
+        },
+        "workloadArtifact": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["orn", "sha256"],
+          "properties": {
+            "orn": {
+              "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+              "type": "string"
+            },
+            "sha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            }
+          }
+        },
+        "executableManifestSha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "eventCatalog": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["orn", "sha256"],
+          "properties": {
+            "orn": {
+              "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+              "type": "string"
+            },
+            "sha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            }
+          }
+        },
+        "law": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["orn", "sha256"],
+          "properties": {
+            "orn": {
+              "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+              "type": "string"
+            },
+            "sha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            }
+          }
+        },
+        "lease": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["orn", "sha256"],
+          "properties": {
+            "orn": {
+              "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+              "type": "string"
+            },
+            "sha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            }
+          }
+        },
+        "trustView": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["orn", "sha256"],
+          "properties": {
+            "orn": {
+              "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+              "type": "string"
+            },
+            "sha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  },
+  "$ref": "#/$defs/executionBinding"
+}

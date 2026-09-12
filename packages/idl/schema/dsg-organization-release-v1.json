@@ -1,0 +1,3924 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/DynamicalSystemsGroup/dsg-idl/schema/dsg-organization-release-v1.json",
+  "title": "dsg.organization.release/1",
+  "$defs": {
+    "dependencyLock": {
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "profile",
+        "schemaVersion",
+        "kind",
+        "canonicalization",
+        "roots",
+        "entries",
+        "compiler"
+      ],
+      "properties": {
+        "profile": {
+          "const": "dsg.organization.release/1",
+          "type": "string"
+        },
+        "schemaVersion": {
+          "const": 1,
+          "type": "number"
+        },
+        "kind": {
+          "const": "dependency-lock",
+          "type": "string"
+        },
+        "canonicalization": {
+          "const": "RFC8785-JCS-UTF8",
+          "type": "string"
+        },
+        "roots": {
+          "uniqueItems": true,
+          "type": "array",
+          "items": {
+            "pattern": "^[a-z][a-z0-9-]*(?:[.-][a-z0-9]+)*$",
+            "type": "string"
+          }
+        },
+        "entries": {
+          "uniqueItems": true,
+          "type": "array",
+          "items": {
+            "additionalProperties": false,
+            "type": "object",
+            "required": ["id", "kind", "reference", "mediaType", "selectedMemberIds", "dependsOn"],
+            "properties": {
+              "id": {
+                "pattern": "^[a-z][a-z0-9-]*(?:[.-][a-z0-9]+)*$",
+                "type": "string"
+              },
+              "kind": {
+                "anyOf": [
+                  {
+                    "const": "extension-release",
+                    "type": "string"
+                  },
+                  {
+                    "const": "component",
+                    "type": "string"
+                  },
+                  {
+                    "const": "idl-package",
+                    "type": "string"
+                  },
+                  {
+                    "const": "module-release",
+                    "type": "string"
+                  },
+                  {
+                    "const": "law-release",
+                    "type": "string"
+                  },
+                  {
+                    "const": "definition",
+                    "type": "string"
+                  },
+                  {
+                    "const": "workload-artifact",
+                    "type": "string"
+                  },
+                  {
+                    "const": "event-catalog",
+                    "type": "string"
+                  },
+                  {
+                    "const": "example",
+                    "type": "string"
+                  },
+                  {
+                    "const": "project",
+                    "type": "string"
+                  },
+                  {
+                    "const": "target",
+                    "type": "string"
+                  }
+                ]
+              },
+              "reference": {
+                "additionalProperties": false,
+                "type": "object",
+                "required": ["orn", "sha256"],
+                "properties": {
+                  "orn": {
+                    "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                    "type": "string"
+                  },
+                  "sha256": {
+                    "pattern": "^[0-9a-f]{64}$",
+                    "type": "string"
+                  }
+                }
+              },
+              "mediaType": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "selectedMemberIds": {
+                "uniqueItems": true,
+                "type": "array",
+                "items": {
+                  "pattern": "^[a-z][a-z0-9-]*(?:[.-][a-z0-9]+)*$",
+                  "type": "string"
+                }
+              },
+              "dependsOn": {
+                "uniqueItems": true,
+                "type": "array",
+                "items": {
+                  "pattern": "^[a-z][a-z0-9-]*(?:[.-][a-z0-9]+)*$",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "compiler": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["profile", "version", "implementation"],
+          "properties": {
+            "profile": {
+              "pattern": "^dsg\\.[a-z0-9.-]+/[1-9][0-9]*$",
+              "type": "string"
+            },
+            "version": {
+              "pattern": "^(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)$",
+              "type": "string"
+            },
+            "implementation": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["orn", "sha256"],
+              "properties": {
+                "orn": {
+                  "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                  "type": "string"
+                },
+                "sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "organizationBuild": {
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "profile",
+        "schemaVersion",
+        "kind",
+        "organization",
+        "canonicalization",
+        "source",
+        "facts",
+        "workspaceProfile",
+        "projects",
+        "sourceDocuments",
+        "selections",
+        "components",
+        "typedReleases",
+        "dependencyLock",
+        "compiler",
+        "instructions",
+        "handling",
+        "releaseDeclarations",
+        "releaseMembers"
+      ],
+      "properties": {
+        "profile": {
+          "const": "dsg.organization.release/1",
+          "type": "string"
+        },
+        "schemaVersion": {
+          "const": 1,
+          "type": "number"
+        },
+        "kind": {
+          "const": "organization-build",
+          "type": "string"
+        },
+        "organization": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "canonicalization": {
+          "const": "RFC8785-JCS-UTF8",
+          "type": "string"
+        },
+        "source": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["root", "revision"],
+          "properties": {
+            "root": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["orn", "sha256"],
+              "properties": {
+                "orn": {
+                  "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                  "type": "string"
+                },
+                "sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            },
+            "revision": {
+              "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$",
+              "type": "string"
+            }
+          }
+        },
+        "facts": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["name", "purpose", "space"],
+          "properties": {
+            "name": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "purpose": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "space": {
+              "minLength": 1,
+              "type": "string"
+            }
+          }
+        },
+        "workspaceProfile": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["orn", "sha256"],
+          "properties": {
+            "orn": {
+              "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+              "type": "string"
+            },
+            "sha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            }
+          }
+        },
+        "projects": {
+          "uniqueItems": true,
+          "type": "array",
+          "items": {
+            "additionalProperties": false,
+            "type": "object",
+            "required": ["id", "membership", "revision"],
+            "properties": {
+              "id": {
+                "pattern": "^[a-z][a-z0-9-]*(?:[.-][a-z0-9]+)*$",
+                "type": "string"
+              },
+              "membership": {
+                "additionalProperties": false,
+                "type": "object",
+                "required": ["orn", "sha256"],
+                "properties": {
+                  "orn": {
+                    "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                    "type": "string"
+                  },
+                  "sha256": {
+                    "pattern": "^[0-9a-f]{64}$",
+                    "type": "string"
+                  }
+                }
+              },
+              "revision": {
+                "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$",
+                "type": "string"
+              }
+            }
+          }
+        },
+        "sourceDocuments": {
+          "minItems": 1,
+          "uniqueItems": true,
+          "type": "array",
+          "items": {
+            "additionalProperties": false,
+            "type": "object",
+            "required": ["path", "sha256", "mediaType"],
+            "properties": {
+              "path": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "sha256": {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              },
+              "mediaType": {
+                "minLength": 1,
+                "type": "string"
+              }
+            }
+          }
+        },
+        "selections": {
+          "uniqueItems": true,
+          "type": "array",
+          "items": {
+            "additionalProperties": false,
+            "type": "object",
+            "required": ["id", "selection", "extensionRelease", "members"],
+            "properties": {
+              "id": {
+                "pattern": "^[a-z][a-z0-9-]*(?:[.-][a-z0-9]+)*$",
+                "type": "string"
+              },
+              "selection": {
+                "additionalProperties": false,
+                "type": "object",
+                "required": ["orn", "sha256"],
+                "properties": {
+                  "orn": {
+                    "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                    "type": "string"
+                  },
+                  "sha256": {
+                    "pattern": "^[0-9a-f]{64}$",
+                    "type": "string"
+                  }
+                }
+              },
+              "extensionRelease": {
+                "additionalProperties": false,
+                "type": "object",
+                "required": ["orn", "sha256"],
+                "properties": {
+                  "orn": {
+                    "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                    "type": "string"
+                  },
+                  "sha256": {
+                    "pattern": "^[0-9a-f]{64}$",
+                    "type": "string"
+                  }
+                }
+              },
+              "members": {
+                "minItems": 1,
+                "uniqueItems": true,
+                "type": "array",
+                "items": {
+                  "additionalProperties": false,
+                  "type": "object",
+                  "required": ["id", "kind", "reference"],
+                  "properties": {
+                    "id": {
+                      "pattern": "^[a-z][a-z0-9-]*(?:[.-][a-z0-9]+)*$",
+                      "type": "string"
+                    },
+                    "kind": {
+                      "anyOf": [
+                        {
+                          "const": "workflow",
+                          "type": "string"
+                        },
+                        {
+                          "const": "example",
+                          "type": "string"
+                        },
+                        {
+                          "const": "contract",
+                          "type": "string"
+                        },
+                        {
+                          "const": "job-class",
+                          "type": "string"
+                        },
+                        {
+                          "const": "workload-artifact",
+                          "type": "string"
+                        },
+                        {
+                          "const": "event-catalog",
+                          "type": "string"
+                        },
+                        {
+                          "const": "connector",
+                          "type": "string"
+                        },
+                        {
+                          "const": "module",
+                          "type": "string"
+                        },
+                        {
+                          "const": "check",
+                          "type": "string"
+                        },
+                        {
+                          "const": "vocabulary",
+                          "type": "string"
+                        },
+                        {
+                          "const": "assurance",
+                          "type": "string"
+                        },
+                        {
+                          "const": "documentation",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "reference": {
+                      "additionalProperties": false,
+                      "type": "object",
+                      "required": ["orn", "sha256"],
+                      "properties": {
+                        "orn": {
+                          "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                          "type": "string"
+                        },
+                        "sha256": {
+                          "pattern": "^[0-9a-f]{64}$",
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "components": {
+          "uniqueItems": true,
+          "type": "array",
+          "items": {
+            "additionalProperties": false,
+            "type": "object",
+            "required": ["extensionRelease", "memberId", "kind", "reference", "mediaType"],
+            "properties": {
+              "extensionRelease": {
+                "additionalProperties": false,
+                "type": "object",
+                "required": ["orn", "sha256"],
+                "properties": {
+                  "orn": {
+                    "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                    "type": "string"
+                  },
+                  "sha256": {
+                    "pattern": "^[0-9a-f]{64}$",
+                    "type": "string"
+                  }
+                }
+              },
+              "memberId": {
+                "pattern": "^[a-z][a-z0-9-]*(?:[.-][a-z0-9]+)*$",
+                "type": "string"
+              },
+              "kind": {
+                "anyOf": [
+                  {
+                    "const": "workflow",
+                    "type": "string"
+                  },
+                  {
+                    "const": "example",
+                    "type": "string"
+                  },
+                  {
+                    "const": "contract",
+                    "type": "string"
+                  },
+                  {
+                    "const": "job-class",
+                    "type": "string"
+                  },
+                  {
+                    "const": "workload-artifact",
+                    "type": "string"
+                  },
+                  {
+                    "const": "event-catalog",
+                    "type": "string"
+                  },
+                  {
+                    "const": "connector",
+                    "type": "string"
+                  },
+                  {
+                    "const": "module",
+                    "type": "string"
+                  },
+                  {
+                    "const": "check",
+                    "type": "string"
+                  },
+                  {
+                    "const": "vocabulary",
+                    "type": "string"
+                  },
+                  {
+                    "const": "assurance",
+                    "type": "string"
+                  },
+                  {
+                    "const": "documentation",
+                    "type": "string"
+                  }
+                ]
+              },
+              "reference": {
+                "additionalProperties": false,
+                "type": "object",
+                "required": ["orn", "sha256"],
+                "properties": {
+                  "orn": {
+                    "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                    "type": "string"
+                  },
+                  "sha256": {
+                    "pattern": "^[0-9a-f]{64}$",
+                    "type": "string"
+                  }
+                }
+              },
+              "mediaType": {
+                "minLength": 1,
+                "type": "string"
+              }
+            }
+          }
+        },
+        "typedReleases": {
+          "uniqueItems": true,
+          "type": "array",
+          "items": {
+            "additionalProperties": false,
+            "type": "object",
+            "required": ["id", "kind", "reference", "mediaType", "selectedMemberIds", "dependsOn"],
+            "properties": {
+              "id": {
+                "pattern": "^[a-z][a-z0-9-]*(?:[.-][a-z0-9]+)*$",
+                "type": "string"
+              },
+              "kind": {
+                "anyOf": [
+                  {
+                    "const": "extension-release",
+                    "type": "string"
+                  },
+                  {
+                    "const": "component",
+                    "type": "string"
+                  },
+                  {
+                    "const": "idl-package",
+                    "type": "string"
+                  },
+                  {
+                    "const": "module-release",
+                    "type": "string"
+                  },
+                  {
+                    "const": "law-release",
+                    "type": "string"
+                  },
+                  {
+                    "const": "definition",
+                    "type": "string"
+                  },
+                  {
+                    "const": "workload-artifact",
+                    "type": "string"
+                  },
+                  {
+                    "const": "event-catalog",
+                    "type": "string"
+                  },
+                  {
+                    "const": "example",
+                    "type": "string"
+                  },
+                  {
+                    "const": "project",
+                    "type": "string"
+                  },
+                  {
+                    "const": "target",
+                    "type": "string"
+                  }
+                ]
+              },
+              "reference": {
+                "additionalProperties": false,
+                "type": "object",
+                "required": ["orn", "sha256"],
+                "properties": {
+                  "orn": {
+                    "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                    "type": "string"
+                  },
+                  "sha256": {
+                    "pattern": "^[0-9a-f]{64}$",
+                    "type": "string"
+                  }
+                }
+              },
+              "mediaType": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "selectedMemberIds": {
+                "uniqueItems": true,
+                "type": "array",
+                "items": {
+                  "pattern": "^[a-z][a-z0-9-]*(?:[.-][a-z0-9]+)*$",
+                  "type": "string"
+                }
+              },
+              "dependsOn": {
+                "uniqueItems": true,
+                "type": "array",
+                "items": {
+                  "pattern": "^[a-z][a-z0-9-]*(?:[.-][a-z0-9]+)*$",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "dependencyLock": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["orn", "sha256"],
+          "properties": {
+            "orn": {
+              "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+              "type": "string"
+            },
+            "sha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            }
+          }
+        },
+        "compiler": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["profile", "version", "implementation"],
+          "properties": {
+            "profile": {
+              "pattern": "^dsg\\.[a-z0-9.-]+/[1-9][0-9]*$",
+              "type": "string"
+            },
+            "version": {
+              "pattern": "^(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)$",
+              "type": "string"
+            },
+            "implementation": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["orn", "sha256"],
+              "properties": {
+                "orn": {
+                  "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                  "type": "string"
+                },
+                "sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "instructions": {
+          "uniqueItems": true,
+          "type": "array",
+          "items": {
+            "additionalProperties": false,
+            "type": "object",
+            "required": ["orn", "sha256"],
+            "properties": {
+              "orn": {
+                "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                "type": "string"
+              },
+              "sha256": {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              }
+            }
+          }
+        },
+        "handling": {
+          "uniqueItems": true,
+          "type": "array",
+          "items": {
+            "additionalProperties": false,
+            "type": "object",
+            "required": ["orn", "sha256"],
+            "properties": {
+              "orn": {
+                "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                "type": "string"
+              },
+              "sha256": {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              }
+            }
+          }
+        },
+        "releaseDeclarations": {
+          "uniqueItems": true,
+          "type": "array",
+          "items": {
+            "additionalProperties": false,
+            "type": "object",
+            "required": ["orn", "sha256"],
+            "properties": {
+              "orn": {
+                "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                "type": "string"
+              },
+              "sha256": {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              }
+            }
+          }
+        },
+        "releaseMembers": {
+          "uniqueItems": true,
+          "type": "array",
+          "items": {
+            "additionalProperties": false,
+            "type": "object",
+            "required": ["id", "kind", "required", "acceptableDispositions", "subject"],
+            "properties": {
+              "id": {
+                "pattern": "^[a-z][a-z0-9-]*(?:[.-][a-z0-9]+)*$",
+                "type": "string"
+              },
+              "kind": {
+                "anyOf": [
+                  {
+                    "const": "publication",
+                    "type": "string"
+                  },
+                  {
+                    "const": "import",
+                    "type": "string"
+                  },
+                  {
+                    "const": "capability-admission",
+                    "type": "string"
+                  },
+                  {
+                    "const": "workflow-publication",
+                    "type": "string"
+                  },
+                  {
+                    "const": "contract-check",
+                    "type": "string"
+                  },
+                  {
+                    "const": "target-readiness",
+                    "type": "string"
+                  },
+                  {
+                    "const": "setup-condition",
+                    "type": "string"
+                  },
+                  {
+                    "const": "paid-execution-readiness",
+                    "type": "string"
+                  }
+                ]
+              },
+              "required": {
+                "type": "boolean"
+              },
+              "acceptableDispositions": {
+                "minItems": 1,
+                "uniqueItems": true,
+                "type": "array",
+                "items": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "subject": {
+                "additionalProperties": false,
+                "type": "object",
+                "required": ["orn", "sha256"],
+                "properties": {
+                  "orn": {
+                    "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                    "type": "string"
+                  },
+                  "sha256": {
+                    "pattern": "^[0-9a-f]{64}$",
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "importDisposition": {
+      "anyOf": [
+        {
+          "additionalProperties": false,
+          "type": "object",
+          "required": [
+            "profile",
+            "schemaVersion",
+            "kind",
+            "installation",
+            "build",
+            "release",
+            "subject",
+            "observedAt",
+            "status"
+          ],
+          "properties": {
+            "profile": {
+              "const": "dsg.organization.release/1",
+              "type": "string"
+            },
+            "schemaVersion": {
+              "const": 1,
+              "type": "number"
+            },
+            "kind": {
+              "const": "import-disposition",
+              "type": "string"
+            },
+            "installation": {
+              "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+              "type": "string"
+            },
+            "build": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["orn", "sha256"],
+              "properties": {
+                "orn": {
+                  "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                  "type": "string"
+                },
+                "sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            },
+            "release": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["orn", "sha256"],
+              "properties": {
+                "orn": {
+                  "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                  "type": "string"
+                },
+                "sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            },
+            "subject": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["orn", "sha256"],
+              "properties": {
+                "orn": {
+                  "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                  "type": "string"
+                },
+                "sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            },
+            "observedAt": {
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$",
+              "type": "string"
+            },
+            "status": {
+              "const": "pending",
+              "type": "string"
+            }
+          }
+        },
+        {
+          "additionalProperties": false,
+          "type": "object",
+          "required": [
+            "profile",
+            "schemaVersion",
+            "kind",
+            "installation",
+            "build",
+            "release",
+            "subject",
+            "observedAt",
+            "status",
+            "disposition",
+            "evidence"
+          ],
+          "properties": {
+            "profile": {
+              "const": "dsg.organization.release/1",
+              "type": "string"
+            },
+            "schemaVersion": {
+              "const": 1,
+              "type": "number"
+            },
+            "kind": {
+              "const": "import-disposition",
+              "type": "string"
+            },
+            "installation": {
+              "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+              "type": "string"
+            },
+            "build": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["orn", "sha256"],
+              "properties": {
+                "orn": {
+                  "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                  "type": "string"
+                },
+                "sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            },
+            "release": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["orn", "sha256"],
+              "properties": {
+                "orn": {
+                  "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                  "type": "string"
+                },
+                "sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            },
+            "subject": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["orn", "sha256"],
+              "properties": {
+                "orn": {
+                  "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                  "type": "string"
+                },
+                "sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            },
+            "observedAt": {
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$",
+              "type": "string"
+            },
+            "status": {
+              "const": "verified",
+              "type": "string"
+            },
+            "disposition": {
+              "anyOf": [
+                {
+                  "const": "published",
+                  "type": "string"
+                },
+                {
+                  "const": "digest-match",
+                  "type": "string"
+                }
+              ]
+            },
+            "evidence": {
+              "minItems": 1,
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "additionalProperties": false,
+                "type": "object",
+                "required": ["orn", "sha256"],
+                "properties": {
+                  "orn": {
+                    "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                    "type": "string"
+                  },
+                  "sha256": {
+                    "pattern": "^[0-9a-f]{64}$",
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "additionalProperties": false,
+          "type": "object",
+          "required": [
+            "profile",
+            "schemaVersion",
+            "kind",
+            "installation",
+            "build",
+            "release",
+            "subject",
+            "observedAt",
+            "status",
+            "disposition",
+            "evidence"
+          ],
+          "properties": {
+            "profile": {
+              "const": "dsg.organization.release/1",
+              "type": "string"
+            },
+            "schemaVersion": {
+              "const": 1,
+              "type": "number"
+            },
+            "kind": {
+              "const": "import-disposition",
+              "type": "string"
+            },
+            "installation": {
+              "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+              "type": "string"
+            },
+            "build": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["orn", "sha256"],
+              "properties": {
+                "orn": {
+                  "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                  "type": "string"
+                },
+                "sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            },
+            "release": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["orn", "sha256"],
+              "properties": {
+                "orn": {
+                  "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                  "type": "string"
+                },
+                "sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            },
+            "subject": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["orn", "sha256"],
+              "properties": {
+                "orn": {
+                  "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                  "type": "string"
+                },
+                "sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            },
+            "observedAt": {
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$",
+              "type": "string"
+            },
+            "status": {
+              "const": "staged",
+              "type": "string"
+            },
+            "disposition": {
+              "const": "captured",
+              "type": "string"
+            },
+            "evidence": {
+              "minItems": 1,
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "additionalProperties": false,
+                "type": "object",
+                "required": ["orn", "sha256"],
+                "properties": {
+                  "orn": {
+                    "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                    "type": "string"
+                  },
+                  "sha256": {
+                    "pattern": "^[0-9a-f]{64}$",
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "additionalProperties": false,
+          "type": "object",
+          "required": [
+            "profile",
+            "schemaVersion",
+            "kind",
+            "installation",
+            "build",
+            "release",
+            "subject",
+            "observedAt",
+            "status",
+            "disposition",
+            "reason",
+            "evidence"
+          ],
+          "properties": {
+            "profile": {
+              "const": "dsg.organization.release/1",
+              "type": "string"
+            },
+            "schemaVersion": {
+              "const": 1,
+              "type": "number"
+            },
+            "kind": {
+              "const": "import-disposition",
+              "type": "string"
+            },
+            "installation": {
+              "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+              "type": "string"
+            },
+            "build": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["orn", "sha256"],
+              "properties": {
+                "orn": {
+                  "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                  "type": "string"
+                },
+                "sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            },
+            "release": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["orn", "sha256"],
+              "properties": {
+                "orn": {
+                  "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                  "type": "string"
+                },
+                "sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            },
+            "subject": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["orn", "sha256"],
+              "properties": {
+                "orn": {
+                  "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                  "type": "string"
+                },
+                "sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            },
+            "observedAt": {
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$",
+              "type": "string"
+            },
+            "status": {
+              "const": "refused",
+              "type": "string"
+            },
+            "disposition": {
+              "anyOf": [
+                {
+                  "const": "digest-mismatch",
+                  "type": "string"
+                },
+                {
+                  "const": "missing",
+                  "type": "string"
+                },
+                {
+                  "const": "unsupported",
+                  "type": "string"
+                }
+              ]
+            },
+            "reason": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "evidence": {
+              "minItems": 1,
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "additionalProperties": false,
+                "type": "object",
+                "required": ["orn", "sha256"],
+                "properties": {
+                  "orn": {
+                    "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                    "type": "string"
+                  },
+                  "sha256": {
+                    "pattern": "^[0-9a-f]{64}$",
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "releaseStatusObservation": {
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "profile",
+        "schemaVersion",
+        "kind",
+        "subject",
+        "registry",
+        "trustView",
+        "status",
+        "effectiveAt",
+        "observedAt",
+        "evidence"
+      ],
+      "properties": {
+        "profile": {
+          "const": "dsg.organization.release/1",
+          "type": "string"
+        },
+        "schemaVersion": {
+          "const": 1,
+          "type": "number"
+        },
+        "kind": {
+          "const": "release-status-observation",
+          "type": "string"
+        },
+        "subject": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["orn", "sha256"],
+          "properties": {
+            "orn": {
+              "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+              "type": "string"
+            },
+            "sha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            }
+          }
+        },
+        "registry": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["orn", "sha256"],
+          "properties": {
+            "orn": {
+              "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+              "type": "string"
+            },
+            "sha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            }
+          }
+        },
+        "trustView": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["orn", "sha256"],
+          "properties": {
+            "orn": {
+              "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+              "type": "string"
+            },
+            "sha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            }
+          }
+        },
+        "status": {
+          "anyOf": [
+            {
+              "const": "active",
+              "type": "string"
+            },
+            {
+              "const": "retired",
+              "type": "string"
+            },
+            {
+              "const": "revoked",
+              "type": "string"
+            }
+          ]
+        },
+        "effectiveAt": {
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$",
+          "type": "string"
+        },
+        "observedAt": {
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$",
+          "type": "string"
+        },
+        "evidence": {
+          "minItems": 1,
+          "uniqueItems": true,
+          "type": "array",
+          "items": {
+            "additionalProperties": false,
+            "type": "object",
+            "required": ["orn", "sha256"],
+            "properties": {
+              "orn": {
+                "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                "type": "string"
+              },
+              "sha256": {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "releaseEligibility": {
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "profile",
+        "schemaVersion",
+        "kind",
+        "release",
+        "operation",
+        "observation",
+        "trustView",
+        "activeSet"
+      ],
+      "properties": {
+        "profile": {
+          "const": "dsg.organization.release/1",
+          "type": "string"
+        },
+        "schemaVersion": {
+          "const": 1,
+          "type": "number"
+        },
+        "kind": {
+          "const": "release-eligibility",
+          "type": "string"
+        },
+        "release": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["orn", "sha256"],
+          "properties": {
+            "orn": {
+              "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+              "type": "string"
+            },
+            "sha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            }
+          }
+        },
+        "operation": {
+          "anyOf": [
+            {
+              "const": "resolve",
+              "type": "string"
+            },
+            {
+              "const": "select",
+              "type": "string"
+            },
+            {
+              "const": "import",
+              "type": "string"
+            },
+            {
+              "const": "admit",
+              "type": "string"
+            },
+            {
+              "const": "activate",
+              "type": "string"
+            },
+            {
+              "const": "execute",
+              "type": "string"
+            }
+          ]
+        },
+        "observation": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": [
+            "profile",
+            "schemaVersion",
+            "kind",
+            "subject",
+            "registry",
+            "trustView",
+            "status",
+            "effectiveAt",
+            "observedAt",
+            "evidence"
+          ],
+          "properties": {
+            "profile": {
+              "const": "dsg.organization.release/1",
+              "type": "string"
+            },
+            "schemaVersion": {
+              "const": 1,
+              "type": "number"
+            },
+            "kind": {
+              "const": "release-status-observation",
+              "type": "string"
+            },
+            "subject": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["orn", "sha256"],
+              "properties": {
+                "orn": {
+                  "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                  "type": "string"
+                },
+                "sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            },
+            "registry": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["orn", "sha256"],
+              "properties": {
+                "orn": {
+                  "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                  "type": "string"
+                },
+                "sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            },
+            "trustView": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["orn", "sha256"],
+              "properties": {
+                "orn": {
+                  "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                  "type": "string"
+                },
+                "sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            },
+            "status": {
+              "anyOf": [
+                {
+                  "const": "active",
+                  "type": "string"
+                },
+                {
+                  "const": "retired",
+                  "type": "string"
+                },
+                {
+                  "const": "revoked",
+                  "type": "string"
+                }
+              ]
+            },
+            "effectiveAt": {
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$",
+              "type": "string"
+            },
+            "observedAt": {
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$",
+              "type": "string"
+            },
+            "evidence": {
+              "minItems": 1,
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "additionalProperties": false,
+                "type": "object",
+                "required": ["orn", "sha256"],
+                "properties": {
+                  "orn": {
+                    "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                    "type": "string"
+                  },
+                  "sha256": {
+                    "pattern": "^[0-9a-f]{64}$",
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "trustView": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["orn", "sha256"],
+          "properties": {
+            "orn": {
+              "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+              "type": "string"
+            },
+            "sha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            }
+          }
+        },
+        "activeSet": {
+          "anyOf": [
+            {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["orn", "sha256"],
+              "properties": {
+                "orn": {
+                  "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                  "type": "string"
+                },
+                "sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "organizationRelease": {
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "profile",
+        "schemaVersion",
+        "kind",
+        "id",
+        "organization",
+        "build",
+        "dependencyLock",
+        "selections",
+        "members"
+      ],
+      "properties": {
+        "profile": {
+          "const": "dsg.organization.release/1",
+          "type": "string"
+        },
+        "schemaVersion": {
+          "const": 1,
+          "type": "number"
+        },
+        "kind": {
+          "const": "organization-release",
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^[a-z][a-z0-9-]*(?:[.-][a-z0-9]+)*$",
+          "type": "string"
+        },
+        "organization": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "build": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["orn", "sha256"],
+          "properties": {
+            "orn": {
+              "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+              "type": "string"
+            },
+            "sha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            }
+          }
+        },
+        "dependencyLock": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["orn", "sha256"],
+          "properties": {
+            "orn": {
+              "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+              "type": "string"
+            },
+            "sha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            }
+          }
+        },
+        "selections": {
+          "uniqueItems": true,
+          "type": "array",
+          "items": {
+            "pattern": "^[a-z][a-z0-9-]*(?:[.-][a-z0-9]+)*$",
+            "type": "string"
+          }
+        },
+        "members": {
+          "minItems": 1,
+          "uniqueItems": true,
+          "type": "array",
+          "items": {
+            "additionalProperties": false,
+            "type": "object",
+            "required": ["id", "kind", "required", "acceptableDispositions", "subject"],
+            "properties": {
+              "id": {
+                "pattern": "^[a-z][a-z0-9-]*(?:[.-][a-z0-9]+)*$",
+                "type": "string"
+              },
+              "kind": {
+                "anyOf": [
+                  {
+                    "const": "publication",
+                    "type": "string"
+                  },
+                  {
+                    "const": "import",
+                    "type": "string"
+                  },
+                  {
+                    "const": "capability-admission",
+                    "type": "string"
+                  },
+                  {
+                    "const": "workflow-publication",
+                    "type": "string"
+                  },
+                  {
+                    "const": "contract-check",
+                    "type": "string"
+                  },
+                  {
+                    "const": "target-readiness",
+                    "type": "string"
+                  },
+                  {
+                    "const": "setup-condition",
+                    "type": "string"
+                  },
+                  {
+                    "const": "paid-execution-readiness",
+                    "type": "string"
+                  }
+                ]
+              },
+              "required": {
+                "type": "boolean"
+              },
+              "acceptableDispositions": {
+                "minItems": 1,
+                "uniqueItems": true,
+                "type": "array",
+                "items": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "subject": {
+                "additionalProperties": false,
+                "type": "object",
+                "required": ["orn", "sha256"],
+                "properties": {
+                  "orn": {
+                    "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                    "type": "string"
+                  },
+                  "sha256": {
+                    "pattern": "^[0-9a-f]{64}$",
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "admissionRecord": {
+      "anyOf": [
+        {
+          "additionalProperties": false,
+          "type": "object",
+          "required": [
+            "profile",
+            "schemaVersion",
+            "kind",
+            "id",
+            "installation",
+            "organization",
+            "build",
+            "release",
+            "selectionId",
+            "extensionRelease",
+            "evaluatingCase",
+            "decision",
+            "authority",
+            "fence",
+            "revision",
+            "decidedAt",
+            "status",
+            "components",
+            "approvedUses",
+            "bindings",
+            "evidence"
+          ],
+          "properties": {
+            "profile": {
+              "const": "dsg.organization.release/1",
+              "type": "string"
+            },
+            "schemaVersion": {
+              "const": 1,
+              "type": "number"
+            },
+            "kind": {
+              "const": "admission-record",
+              "type": "string"
+            },
+            "id": {
+              "pattern": "^[a-z][a-z0-9-]*(?:[.-][a-z0-9]+)*$",
+              "type": "string"
+            },
+            "installation": {
+              "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+              "type": "string"
+            },
+            "organization": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "build": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["orn", "sha256"],
+              "properties": {
+                "orn": {
+                  "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                  "type": "string"
+                },
+                "sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            },
+            "release": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["orn", "sha256"],
+              "properties": {
+                "orn": {
+                  "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                  "type": "string"
+                },
+                "sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            },
+            "selectionId": {
+              "pattern": "^[a-z][a-z0-9-]*(?:[.-][a-z0-9]+)*$",
+              "type": "string"
+            },
+            "extensionRelease": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["orn", "sha256"],
+              "properties": {
+                "orn": {
+                  "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                  "type": "string"
+                },
+                "sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            },
+            "evaluatingCase": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["orn", "sha256"],
+              "properties": {
+                "orn": {
+                  "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                  "type": "string"
+                },
+                "sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            },
+            "decision": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["orn", "sha256"],
+              "properties": {
+                "orn": {
+                  "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                  "type": "string"
+                },
+                "sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            },
+            "authority": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["orn", "sha256"],
+              "properties": {
+                "orn": {
+                  "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                  "type": "string"
+                },
+                "sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            },
+            "fence": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["orn", "sha256"],
+              "properties": {
+                "orn": {
+                  "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                  "type": "string"
+                },
+                "sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            },
+            "revision": {
+              "minimum": 0,
+              "maximum": 9007199254740991,
+              "type": "integer"
+            },
+            "decidedAt": {
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$",
+              "type": "string"
+            },
+            "status": {
+              "const": "admitted",
+              "type": "string"
+            },
+            "components": {
+              "minItems": 1,
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "additionalProperties": false,
+                "type": "object",
+                "required": ["id", "kind", "reference"],
+                "properties": {
+                  "id": {
+                    "pattern": "^[a-z][a-z0-9-]*(?:[.-][a-z0-9]+)*$",
+                    "type": "string"
+                  },
+                  "kind": {
+                    "anyOf": [
+                      {
+                        "const": "workflow",
+                        "type": "string"
+                      },
+                      {
+                        "const": "example",
+                        "type": "string"
+                      },
+                      {
+                        "const": "contract",
+                        "type": "string"
+                      },
+                      {
+                        "const": "job-class",
+                        "type": "string"
+                      },
+                      {
+                        "const": "workload-artifact",
+                        "type": "string"
+                      },
+                      {
+                        "const": "event-catalog",
+                        "type": "string"
+                      },
+                      {
+                        "const": "connector",
+                        "type": "string"
+                      },
+                      {
+                        "const": "module",
+                        "type": "string"
+                      },
+                      {
+                        "const": "check",
+                        "type": "string"
+                      },
+                      {
+                        "const": "vocabulary",
+                        "type": "string"
+                      },
+                      {
+                        "const": "assurance",
+                        "type": "string"
+                      },
+                      {
+                        "const": "documentation",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "reference": {
+                    "additionalProperties": false,
+                    "type": "object",
+                    "required": ["orn", "sha256"],
+                    "properties": {
+                      "orn": {
+                        "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                        "type": "string"
+                      },
+                      "sha256": {
+                        "pattern": "^[0-9a-f]{64}$",
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "approvedUses": {
+              "minItems": 1,
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "additionalProperties": false,
+                "type": "object",
+                "required": ["use", "binding"],
+                "properties": {
+                  "use": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "binding": {
+                    "additionalProperties": false,
+                    "type": "object",
+                    "required": ["orn", "sha256"],
+                    "properties": {
+                      "orn": {
+                        "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                        "type": "string"
+                      },
+                      "sha256": {
+                        "pattern": "^[0-9a-f]{64}$",
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "bindings": {
+              "minItems": 1,
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "additionalProperties": false,
+                "type": "object",
+                "required": ["orn", "sha256"],
+                "properties": {
+                  "orn": {
+                    "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                    "type": "string"
+                  },
+                  "sha256": {
+                    "pattern": "^[0-9a-f]{64}$",
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "evidence": {
+              "minItems": 1,
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "additionalProperties": false,
+                "type": "object",
+                "required": ["orn", "sha256"],
+                "properties": {
+                  "orn": {
+                    "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                    "type": "string"
+                  },
+                  "sha256": {
+                    "pattern": "^[0-9a-f]{64}$",
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "additionalProperties": false,
+          "type": "object",
+          "required": [
+            "profile",
+            "schemaVersion",
+            "kind",
+            "id",
+            "installation",
+            "organization",
+            "build",
+            "release",
+            "selectionId",
+            "extensionRelease",
+            "evaluatingCase",
+            "decision",
+            "authority",
+            "fence",
+            "revision",
+            "decidedAt",
+            "status",
+            "components",
+            "reason",
+            "evidence"
+          ],
+          "properties": {
+            "profile": {
+              "const": "dsg.organization.release/1",
+              "type": "string"
+            },
+            "schemaVersion": {
+              "const": 1,
+              "type": "number"
+            },
+            "kind": {
+              "const": "admission-record",
+              "type": "string"
+            },
+            "id": {
+              "pattern": "^[a-z][a-z0-9-]*(?:[.-][a-z0-9]+)*$",
+              "type": "string"
+            },
+            "installation": {
+              "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+              "type": "string"
+            },
+            "organization": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "build": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["orn", "sha256"],
+              "properties": {
+                "orn": {
+                  "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                  "type": "string"
+                },
+                "sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            },
+            "release": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["orn", "sha256"],
+              "properties": {
+                "orn": {
+                  "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                  "type": "string"
+                },
+                "sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            },
+            "selectionId": {
+              "pattern": "^[a-z][a-z0-9-]*(?:[.-][a-z0-9]+)*$",
+              "type": "string"
+            },
+            "extensionRelease": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["orn", "sha256"],
+              "properties": {
+                "orn": {
+                  "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                  "type": "string"
+                },
+                "sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            },
+            "evaluatingCase": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["orn", "sha256"],
+              "properties": {
+                "orn": {
+                  "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                  "type": "string"
+                },
+                "sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            },
+            "decision": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["orn", "sha256"],
+              "properties": {
+                "orn": {
+                  "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                  "type": "string"
+                },
+                "sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            },
+            "authority": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["orn", "sha256"],
+              "properties": {
+                "orn": {
+                  "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                  "type": "string"
+                },
+                "sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            },
+            "fence": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["orn", "sha256"],
+              "properties": {
+                "orn": {
+                  "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                  "type": "string"
+                },
+                "sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            },
+            "revision": {
+              "minimum": 0,
+              "maximum": 9007199254740991,
+              "type": "integer"
+            },
+            "decidedAt": {
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$",
+              "type": "string"
+            },
+            "status": {
+              "const": "refused",
+              "type": "string"
+            },
+            "components": {
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "additionalProperties": false,
+                "type": "object",
+                "required": ["id", "kind", "reference"],
+                "properties": {
+                  "id": {
+                    "pattern": "^[a-z][a-z0-9-]*(?:[.-][a-z0-9]+)*$",
+                    "type": "string"
+                  },
+                  "kind": {
+                    "anyOf": [
+                      {
+                        "const": "workflow",
+                        "type": "string"
+                      },
+                      {
+                        "const": "example",
+                        "type": "string"
+                      },
+                      {
+                        "const": "contract",
+                        "type": "string"
+                      },
+                      {
+                        "const": "job-class",
+                        "type": "string"
+                      },
+                      {
+                        "const": "workload-artifact",
+                        "type": "string"
+                      },
+                      {
+                        "const": "event-catalog",
+                        "type": "string"
+                      },
+                      {
+                        "const": "connector",
+                        "type": "string"
+                      },
+                      {
+                        "const": "module",
+                        "type": "string"
+                      },
+                      {
+                        "const": "check",
+                        "type": "string"
+                      },
+                      {
+                        "const": "vocabulary",
+                        "type": "string"
+                      },
+                      {
+                        "const": "assurance",
+                        "type": "string"
+                      },
+                      {
+                        "const": "documentation",
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  "reference": {
+                    "additionalProperties": false,
+                    "type": "object",
+                    "required": ["orn", "sha256"],
+                    "properties": {
+                      "orn": {
+                        "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                        "type": "string"
+                      },
+                      "sha256": {
+                        "pattern": "^[0-9a-f]{64}$",
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "reason": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "evidence": {
+              "minItems": 1,
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "additionalProperties": false,
+                "type": "object",
+                "required": ["orn", "sha256"],
+                "properties": {
+                  "orn": {
+                    "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                    "type": "string"
+                  },
+                  "sha256": {
+                    "pattern": "^[0-9a-f]{64}$",
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "admissionStatusObservation": {
+      "anyOf": [
+        {
+          "additionalProperties": false,
+          "type": "object",
+          "required": [
+            "profile",
+            "schemaVersion",
+            "kind",
+            "admission",
+            "decision",
+            "evidence",
+            "observedAt",
+            "status",
+            "reason"
+          ],
+          "properties": {
+            "profile": {
+              "const": "dsg.organization.release/1",
+              "type": "string"
+            },
+            "schemaVersion": {
+              "const": 1,
+              "type": "number"
+            },
+            "kind": {
+              "const": "admission-status-observation",
+              "type": "string"
+            },
+            "admission": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["orn", "sha256"],
+              "properties": {
+                "orn": {
+                  "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                  "type": "string"
+                },
+                "sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            },
+            "decision": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["orn", "sha256"],
+              "properties": {
+                "orn": {
+                  "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                  "type": "string"
+                },
+                "sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            },
+            "evidence": {
+              "minItems": 1,
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "additionalProperties": false,
+                "type": "object",
+                "required": ["orn", "sha256"],
+                "properties": {
+                  "orn": {
+                    "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                    "type": "string"
+                  },
+                  "sha256": {
+                    "pattern": "^[0-9a-f]{64}$",
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "observedAt": {
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$",
+              "type": "string"
+            },
+            "status": {
+              "const": "suspended",
+              "type": "string"
+            },
+            "reason": {
+              "minLength": 1,
+              "type": "string"
+            }
+          }
+        },
+        {
+          "additionalProperties": false,
+          "type": "object",
+          "required": [
+            "profile",
+            "schemaVersion",
+            "kind",
+            "admission",
+            "decision",
+            "evidence",
+            "observedAt",
+            "status",
+            "replacement"
+          ],
+          "properties": {
+            "profile": {
+              "const": "dsg.organization.release/1",
+              "type": "string"
+            },
+            "schemaVersion": {
+              "const": 1,
+              "type": "number"
+            },
+            "kind": {
+              "const": "admission-status-observation",
+              "type": "string"
+            },
+            "admission": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["orn", "sha256"],
+              "properties": {
+                "orn": {
+                  "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                  "type": "string"
+                },
+                "sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            },
+            "decision": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["orn", "sha256"],
+              "properties": {
+                "orn": {
+                  "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                  "type": "string"
+                },
+                "sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            },
+            "evidence": {
+              "minItems": 1,
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "additionalProperties": false,
+                "type": "object",
+                "required": ["orn", "sha256"],
+                "properties": {
+                  "orn": {
+                    "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                    "type": "string"
+                  },
+                  "sha256": {
+                    "pattern": "^[0-9a-f]{64}$",
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "observedAt": {
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$",
+              "type": "string"
+            },
+            "status": {
+              "const": "superseded",
+              "type": "string"
+            },
+            "replacement": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["orn", "sha256"],
+              "properties": {
+                "orn": {
+                  "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                  "type": "string"
+                },
+                "sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        {
+          "additionalProperties": false,
+          "type": "object",
+          "required": [
+            "profile",
+            "schemaVersion",
+            "kind",
+            "admission",
+            "decision",
+            "evidence",
+            "observedAt",
+            "status",
+            "governedRevocation",
+            "trustView",
+            "reason"
+          ],
+          "properties": {
+            "profile": {
+              "const": "dsg.organization.release/1",
+              "type": "string"
+            },
+            "schemaVersion": {
+              "const": 1,
+              "type": "number"
+            },
+            "kind": {
+              "const": "admission-status-observation",
+              "type": "string"
+            },
+            "admission": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["orn", "sha256"],
+              "properties": {
+                "orn": {
+                  "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                  "type": "string"
+                },
+                "sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            },
+            "decision": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["orn", "sha256"],
+              "properties": {
+                "orn": {
+                  "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                  "type": "string"
+                },
+                "sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            },
+            "evidence": {
+              "minItems": 1,
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "additionalProperties": false,
+                "type": "object",
+                "required": ["orn", "sha256"],
+                "properties": {
+                  "orn": {
+                    "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                    "type": "string"
+                  },
+                  "sha256": {
+                    "pattern": "^[0-9a-f]{64}$",
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "observedAt": {
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$",
+              "type": "string"
+            },
+            "status": {
+              "const": "revoked",
+              "type": "string"
+            },
+            "governedRevocation": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["orn", "sha256"],
+              "properties": {
+                "orn": {
+                  "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                  "type": "string"
+                },
+                "sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            },
+            "trustView": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["orn", "sha256"],
+              "properties": {
+                "orn": {
+                  "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                  "type": "string"
+                },
+                "sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            },
+            "reason": {
+              "minLength": 1,
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "memberObservation": {
+      "anyOf": [
+        {
+          "additionalProperties": false,
+          "type": "object",
+          "required": [
+            "profile",
+            "schemaVersion",
+            "kind",
+            "installation",
+            "build",
+            "release",
+            "memberId",
+            "memberKind",
+            "subject",
+            "evidence",
+            "observedAt",
+            "disposition"
+          ],
+          "properties": {
+            "profile": {
+              "const": "dsg.organization.release/1",
+              "type": "string"
+            },
+            "schemaVersion": {
+              "const": 1,
+              "type": "number"
+            },
+            "kind": {
+              "const": "member-observation",
+              "type": "string"
+            },
+            "installation": {
+              "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+              "type": "string"
+            },
+            "build": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["orn", "sha256"],
+              "properties": {
+                "orn": {
+                  "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                  "type": "string"
+                },
+                "sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            },
+            "release": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["orn", "sha256"],
+              "properties": {
+                "orn": {
+                  "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                  "type": "string"
+                },
+                "sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            },
+            "memberId": {
+              "pattern": "^[a-z][a-z0-9-]*(?:[.-][a-z0-9]+)*$",
+              "type": "string"
+            },
+            "memberKind": {
+              "anyOf": [
+                {
+                  "const": "publication",
+                  "type": "string"
+                },
+                {
+                  "const": "import",
+                  "type": "string"
+                },
+                {
+                  "const": "capability-admission",
+                  "type": "string"
+                },
+                {
+                  "const": "workflow-publication",
+                  "type": "string"
+                },
+                {
+                  "const": "contract-check",
+                  "type": "string"
+                },
+                {
+                  "const": "target-readiness",
+                  "type": "string"
+                },
+                {
+                  "const": "setup-condition",
+                  "type": "string"
+                },
+                {
+                  "const": "paid-execution-readiness",
+                  "type": "string"
+                }
+              ]
+            },
+            "subject": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["orn", "sha256"],
+              "properties": {
+                "orn": {
+                  "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                  "type": "string"
+                },
+                "sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            },
+            "evidence": {
+              "minItems": 1,
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "additionalProperties": false,
+                "type": "object",
+                "required": ["orn", "sha256"],
+                "properties": {
+                  "orn": {
+                    "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                    "type": "string"
+                  },
+                  "sha256": {
+                    "pattern": "^[0-9a-f]{64}$",
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "observedAt": {
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$",
+              "type": "string"
+            },
+            "disposition": {
+              "anyOf": [
+                {
+                  "const": "ready",
+                  "type": "string"
+                },
+                {
+                  "const": "verified",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "additionalProperties": false,
+          "type": "object",
+          "required": [
+            "profile",
+            "schemaVersion",
+            "kind",
+            "installation",
+            "build",
+            "release",
+            "memberId",
+            "memberKind",
+            "subject",
+            "evidence",
+            "observedAt",
+            "disposition",
+            "reason"
+          ],
+          "properties": {
+            "profile": {
+              "const": "dsg.organization.release/1",
+              "type": "string"
+            },
+            "schemaVersion": {
+              "const": 1,
+              "type": "number"
+            },
+            "kind": {
+              "const": "member-observation",
+              "type": "string"
+            },
+            "installation": {
+              "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+              "type": "string"
+            },
+            "build": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["orn", "sha256"],
+              "properties": {
+                "orn": {
+                  "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                  "type": "string"
+                },
+                "sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            },
+            "release": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["orn", "sha256"],
+              "properties": {
+                "orn": {
+                  "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                  "type": "string"
+                },
+                "sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            },
+            "memberId": {
+              "pattern": "^[a-z][a-z0-9-]*(?:[.-][a-z0-9]+)*$",
+              "type": "string"
+            },
+            "memberKind": {
+              "anyOf": [
+                {
+                  "const": "publication",
+                  "type": "string"
+                },
+                {
+                  "const": "import",
+                  "type": "string"
+                },
+                {
+                  "const": "capability-admission",
+                  "type": "string"
+                },
+                {
+                  "const": "workflow-publication",
+                  "type": "string"
+                },
+                {
+                  "const": "contract-check",
+                  "type": "string"
+                },
+                {
+                  "const": "target-readiness",
+                  "type": "string"
+                },
+                {
+                  "const": "setup-condition",
+                  "type": "string"
+                },
+                {
+                  "const": "paid-execution-readiness",
+                  "type": "string"
+                }
+              ]
+            },
+            "subject": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["orn", "sha256"],
+              "properties": {
+                "orn": {
+                  "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                  "type": "string"
+                },
+                "sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            },
+            "evidence": {
+              "minItems": 1,
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "additionalProperties": false,
+                "type": "object",
+                "required": ["orn", "sha256"],
+                "properties": {
+                  "orn": {
+                    "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                    "type": "string"
+                  },
+                  "sha256": {
+                    "pattern": "^[0-9a-f]{64}$",
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "observedAt": {
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$",
+              "type": "string"
+            },
+            "disposition": {
+              "anyOf": [
+                {
+                  "const": "refused",
+                  "type": "string"
+                },
+                {
+                  "const": "suspended",
+                  "type": "string"
+                },
+                {
+                  "const": "revoked",
+                  "type": "string"
+                }
+              ]
+            },
+            "reason": {
+              "minLength": 1,
+              "type": "string"
+            }
+          }
+        }
+      ]
+    },
+    "activeSet": {
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "profile",
+        "schemaVersion",
+        "kind",
+        "installation",
+        "organization",
+        "release",
+        "build",
+        "predecessor",
+        "members",
+        "memberObservations",
+        "policies",
+        "configuration",
+        "activatingCase",
+        "authority",
+        "activatingDecision",
+        "fence",
+        "revision",
+        "activatedAt"
+      ],
+      "properties": {
+        "profile": {
+          "const": "dsg.organization.release/1",
+          "type": "string"
+        },
+        "schemaVersion": {
+          "const": 1,
+          "type": "number"
+        },
+        "kind": {
+          "const": "active-set",
+          "type": "string"
+        },
+        "installation": {
+          "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+          "type": "string"
+        },
+        "organization": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "release": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["orn", "sha256"],
+          "properties": {
+            "orn": {
+              "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+              "type": "string"
+            },
+            "sha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            }
+          }
+        },
+        "build": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["orn", "sha256"],
+          "properties": {
+            "orn": {
+              "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+              "type": "string"
+            },
+            "sha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            }
+          }
+        },
+        "predecessor": {
+          "anyOf": [
+            {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["orn", "sha256"],
+              "properties": {
+                "orn": {
+                  "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                  "type": "string"
+                },
+                "sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "members": {
+          "uniqueItems": true,
+          "type": "array",
+          "items": {
+            "additionalProperties": false,
+            "type": "object",
+            "required": ["selectionId", "memberId", "extensionRelease", "components", "admission"],
+            "properties": {
+              "selectionId": {
+                "pattern": "^[a-z][a-z0-9-]*(?:[.-][a-z0-9]+)*$",
+                "type": "string"
+              },
+              "memberId": {
+                "pattern": "^[a-z][a-z0-9-]*(?:[.-][a-z0-9]+)*$",
+                "type": "string"
+              },
+              "extensionRelease": {
+                "additionalProperties": false,
+                "type": "object",
+                "required": ["orn", "sha256"],
+                "properties": {
+                  "orn": {
+                    "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                    "type": "string"
+                  },
+                  "sha256": {
+                    "pattern": "^[0-9a-f]{64}$",
+                    "type": "string"
+                  }
+                }
+              },
+              "components": {
+                "minItems": 1,
+                "uniqueItems": true,
+                "type": "array",
+                "items": {
+                  "additionalProperties": false,
+                  "type": "object",
+                  "required": ["id", "kind", "reference"],
+                  "properties": {
+                    "id": {
+                      "pattern": "^[a-z][a-z0-9-]*(?:[.-][a-z0-9]+)*$",
+                      "type": "string"
+                    },
+                    "kind": {
+                      "anyOf": [
+                        {
+                          "const": "workflow",
+                          "type": "string"
+                        },
+                        {
+                          "const": "example",
+                          "type": "string"
+                        },
+                        {
+                          "const": "contract",
+                          "type": "string"
+                        },
+                        {
+                          "const": "job-class",
+                          "type": "string"
+                        },
+                        {
+                          "const": "workload-artifact",
+                          "type": "string"
+                        },
+                        {
+                          "const": "event-catalog",
+                          "type": "string"
+                        },
+                        {
+                          "const": "connector",
+                          "type": "string"
+                        },
+                        {
+                          "const": "module",
+                          "type": "string"
+                        },
+                        {
+                          "const": "check",
+                          "type": "string"
+                        },
+                        {
+                          "const": "vocabulary",
+                          "type": "string"
+                        },
+                        {
+                          "const": "assurance",
+                          "type": "string"
+                        },
+                        {
+                          "const": "documentation",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "reference": {
+                      "additionalProperties": false,
+                      "type": "object",
+                      "required": ["orn", "sha256"],
+                      "properties": {
+                        "orn": {
+                          "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                          "type": "string"
+                        },
+                        "sha256": {
+                          "pattern": "^[0-9a-f]{64}$",
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "admission": {
+                "additionalProperties": false,
+                "type": "object",
+                "required": ["orn", "sha256"],
+                "properties": {
+                  "orn": {
+                    "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                    "type": "string"
+                  },
+                  "sha256": {
+                    "pattern": "^[0-9a-f]{64}$",
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "memberObservations": {
+          "minItems": 1,
+          "uniqueItems": true,
+          "type": "array",
+          "items": {
+            "additionalProperties": false,
+            "type": "object",
+            "required": ["orn", "sha256"],
+            "properties": {
+              "orn": {
+                "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                "type": "string"
+              },
+              "sha256": {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              }
+            }
+          }
+        },
+        "policies": {
+          "uniqueItems": true,
+          "type": "array",
+          "items": {
+            "additionalProperties": false,
+            "type": "object",
+            "required": ["orn", "sha256"],
+            "properties": {
+              "orn": {
+                "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                "type": "string"
+              },
+              "sha256": {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              }
+            }
+          }
+        },
+        "configuration": {
+          "uniqueItems": true,
+          "type": "array",
+          "items": {
+            "additionalProperties": false,
+            "type": "object",
+            "required": ["orn", "sha256"],
+            "properties": {
+              "orn": {
+                "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                "type": "string"
+              },
+              "sha256": {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              }
+            }
+          }
+        },
+        "activatingCase": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["orn", "sha256"],
+          "properties": {
+            "orn": {
+              "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+              "type": "string"
+            },
+            "sha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            }
+          }
+        },
+        "authority": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["orn", "sha256"],
+          "properties": {
+            "orn": {
+              "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+              "type": "string"
+            },
+            "sha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            }
+          }
+        },
+        "activatingDecision": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["orn", "sha256"],
+          "properties": {
+            "orn": {
+              "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+              "type": "string"
+            },
+            "sha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            }
+          }
+        },
+        "fence": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["orn", "sha256"],
+          "properties": {
+            "orn": {
+              "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+              "type": "string"
+            },
+            "sha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            }
+          }
+        },
+        "revision": {
+          "minimum": 0,
+          "maximum": 9007199254740991,
+          "type": "integer"
+        },
+        "activatedAt": {
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$",
+          "type": "string"
+        }
+      }
+    },
+    "catalog": {
+      "additionalProperties": false,
+      "type": "object",
+      "required": ["profile", "schemaVersion", "kind", "activeSet", "entries"],
+      "properties": {
+        "profile": {
+          "const": "dsg.organization.release/1",
+          "type": "string"
+        },
+        "schemaVersion": {
+          "const": 1,
+          "type": "number"
+        },
+        "kind": {
+          "const": "catalog",
+          "type": "string"
+        },
+        "activeSet": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["orn", "sha256"],
+          "properties": {
+            "orn": {
+              "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+              "type": "string"
+            },
+            "sha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            }
+          }
+        },
+        "entries": {
+          "uniqueItems": true,
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "additionalProperties": false,
+                "type": "object",
+                "required": [
+                  "id",
+                  "activeSet",
+                  "selectionId",
+                  "memberId",
+                  "extensionRelease",
+                  "workflow",
+                  "example",
+                  "jobClass",
+                  "workloadArtifact",
+                  "contracts",
+                  "availabilityEvidence",
+                  "availability"
+                ],
+                "properties": {
+                  "id": {
+                    "pattern": "^[a-z][a-z0-9-]*(?:[.-][a-z0-9]+)*$",
+                    "type": "string"
+                  },
+                  "activeSet": {
+                    "additionalProperties": false,
+                    "type": "object",
+                    "required": ["orn", "sha256"],
+                    "properties": {
+                      "orn": {
+                        "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                        "type": "string"
+                      },
+                      "sha256": {
+                        "pattern": "^[0-9a-f]{64}$",
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "selectionId": {
+                    "pattern": "^[a-z][a-z0-9-]*(?:[.-][a-z0-9]+)*$",
+                    "type": "string"
+                  },
+                  "memberId": {
+                    "pattern": "^[a-z][a-z0-9-]*(?:[.-][a-z0-9]+)*$",
+                    "type": "string"
+                  },
+                  "extensionRelease": {
+                    "additionalProperties": false,
+                    "type": "object",
+                    "required": ["orn", "sha256"],
+                    "properties": {
+                      "orn": {
+                        "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                        "type": "string"
+                      },
+                      "sha256": {
+                        "pattern": "^[0-9a-f]{64}$",
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "workflow": {
+                    "additionalProperties": false,
+                    "type": "object",
+                    "required": ["orn", "sha256"],
+                    "properties": {
+                      "orn": {
+                        "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                        "type": "string"
+                      },
+                      "sha256": {
+                        "pattern": "^[0-9a-f]{64}$",
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "example": {
+                    "anyOf": [
+                      {
+                        "additionalProperties": false,
+                        "type": "object",
+                        "required": ["orn", "sha256"],
+                        "properties": {
+                          "orn": {
+                            "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                            "type": "string"
+                          },
+                          "sha256": {
+                            "pattern": "^[0-9a-f]{64}$",
+                            "type": "string"
+                          }
+                        }
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "jobClass": {
+                    "anyOf": [
+                      {
+                        "additionalProperties": false,
+                        "type": "object",
+                        "required": ["orn", "sha256"],
+                        "properties": {
+                          "orn": {
+                            "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                            "type": "string"
+                          },
+                          "sha256": {
+                            "pattern": "^[0-9a-f]{64}$",
+                            "type": "string"
+                          }
+                        }
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "workloadArtifact": {
+                    "anyOf": [
+                      {
+                        "additionalProperties": false,
+                        "type": "object",
+                        "required": ["orn", "sha256"],
+                        "properties": {
+                          "orn": {
+                            "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                            "type": "string"
+                          },
+                          "sha256": {
+                            "pattern": "^[0-9a-f]{64}$",
+                            "type": "string"
+                          }
+                        }
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "contracts": {
+                    "uniqueItems": true,
+                    "type": "array",
+                    "items": {
+                      "additionalProperties": false,
+                      "type": "object",
+                      "required": ["orn", "sha256"],
+                      "properties": {
+                        "orn": {
+                          "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                          "type": "string"
+                        },
+                        "sha256": {
+                          "pattern": "^[0-9a-f]{64}$",
+                          "type": "string"
+                        }
+                      }
+                    }
+                  },
+                  "availabilityEvidence": {
+                    "minItems": 1,
+                    "uniqueItems": true,
+                    "type": "array",
+                    "items": {
+                      "additionalProperties": false,
+                      "type": "object",
+                      "required": ["orn", "sha256"],
+                      "properties": {
+                        "orn": {
+                          "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                          "type": "string"
+                        },
+                        "sha256": {
+                          "pattern": "^[0-9a-f]{64}$",
+                          "type": "string"
+                        }
+                      }
+                    }
+                  },
+                  "availability": {
+                    "const": "available",
+                    "type": "string"
+                  }
+                }
+              },
+              {
+                "additionalProperties": false,
+                "type": "object",
+                "required": [
+                  "id",
+                  "activeSet",
+                  "selectionId",
+                  "memberId",
+                  "extensionRelease",
+                  "workflow",
+                  "example",
+                  "jobClass",
+                  "workloadArtifact",
+                  "contracts",
+                  "availabilityEvidence",
+                  "availability",
+                  "unavailableReason"
+                ],
+                "properties": {
+                  "id": {
+                    "pattern": "^[a-z][a-z0-9-]*(?:[.-][a-z0-9]+)*$",
+                    "type": "string"
+                  },
+                  "activeSet": {
+                    "additionalProperties": false,
+                    "type": "object",
+                    "required": ["orn", "sha256"],
+                    "properties": {
+                      "orn": {
+                        "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                        "type": "string"
+                      },
+                      "sha256": {
+                        "pattern": "^[0-9a-f]{64}$",
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "selectionId": {
+                    "pattern": "^[a-z][a-z0-9-]*(?:[.-][a-z0-9]+)*$",
+                    "type": "string"
+                  },
+                  "memberId": {
+                    "pattern": "^[a-z][a-z0-9-]*(?:[.-][a-z0-9]+)*$",
+                    "type": "string"
+                  },
+                  "extensionRelease": {
+                    "additionalProperties": false,
+                    "type": "object",
+                    "required": ["orn", "sha256"],
+                    "properties": {
+                      "orn": {
+                        "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                        "type": "string"
+                      },
+                      "sha256": {
+                        "pattern": "^[0-9a-f]{64}$",
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "workflow": {
+                    "additionalProperties": false,
+                    "type": "object",
+                    "required": ["orn", "sha256"],
+                    "properties": {
+                      "orn": {
+                        "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                        "type": "string"
+                      },
+                      "sha256": {
+                        "pattern": "^[0-9a-f]{64}$",
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "example": {
+                    "anyOf": [
+                      {
+                        "additionalProperties": false,
+                        "type": "object",
+                        "required": ["orn", "sha256"],
+                        "properties": {
+                          "orn": {
+                            "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                            "type": "string"
+                          },
+                          "sha256": {
+                            "pattern": "^[0-9a-f]{64}$",
+                            "type": "string"
+                          }
+                        }
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "jobClass": {
+                    "anyOf": [
+                      {
+                        "additionalProperties": false,
+                        "type": "object",
+                        "required": ["orn", "sha256"],
+                        "properties": {
+                          "orn": {
+                            "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                            "type": "string"
+                          },
+                          "sha256": {
+                            "pattern": "^[0-9a-f]{64}$",
+                            "type": "string"
+                          }
+                        }
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "workloadArtifact": {
+                    "anyOf": [
+                      {
+                        "additionalProperties": false,
+                        "type": "object",
+                        "required": ["orn", "sha256"],
+                        "properties": {
+                          "orn": {
+                            "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                            "type": "string"
+                          },
+                          "sha256": {
+                            "pattern": "^[0-9a-f]{64}$",
+                            "type": "string"
+                          }
+                        }
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "contracts": {
+                    "uniqueItems": true,
+                    "type": "array",
+                    "items": {
+                      "additionalProperties": false,
+                      "type": "object",
+                      "required": ["orn", "sha256"],
+                      "properties": {
+                        "orn": {
+                          "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                          "type": "string"
+                        },
+                        "sha256": {
+                          "pattern": "^[0-9a-f]{64}$",
+                          "type": "string"
+                        }
+                      }
+                    }
+                  },
+                  "availabilityEvidence": {
+                    "minItems": 1,
+                    "uniqueItems": true,
+                    "type": "array",
+                    "items": {
+                      "additionalProperties": false,
+                      "type": "object",
+                      "required": ["orn", "sha256"],
+                      "properties": {
+                        "orn": {
+                          "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                          "type": "string"
+                        },
+                        "sha256": {
+                          "pattern": "^[0-9a-f]{64}$",
+                          "type": "string"
+                        }
+                      }
+                    }
+                  },
+                  "availability": {
+                    "const": "unavailable",
+                    "type": "string"
+                  },
+                  "unavailableReason": {
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "boundAttestation": {
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "profile",
+        "schemaVersion",
+        "kind",
+        "subject",
+        "issuer",
+        "evidence",
+        "verification",
+        "observedAt",
+        "signature"
+      ],
+      "properties": {
+        "profile": {
+          "const": "dsg.organization.release/1",
+          "type": "string"
+        },
+        "schemaVersion": {
+          "const": 1,
+          "type": "number"
+        },
+        "kind": {
+          "const": "bound-attestation",
+          "type": "string"
+        },
+        "subject": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["orn", "sha256"],
+          "properties": {
+            "orn": {
+              "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+              "type": "string"
+            },
+            "sha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            }
+          }
+        },
+        "issuer": {
+          "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+          "type": "string"
+        },
+        "evidence": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["orn", "sha256"],
+          "properties": {
+            "orn": {
+              "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+              "type": "string"
+            },
+            "sha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            }
+          }
+        },
+        "verification": {
+          "anyOf": [
+            {
+              "const": "publisher-signature",
+              "type": "string"
+            },
+            {
+              "const": "registry-recognition",
+              "type": "string"
+            },
+            {
+              "const": "source-provenance",
+              "type": "string"
+            },
+            {
+              "const": "component-digest",
+              "type": "string"
+            }
+          ]
+        },
+        "observedAt": {
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$",
+          "type": "string"
+        },
+        "signature": {
+          "minLength": 1,
+          "type": "string"
+        }
+      }
+    }
+  }
+}

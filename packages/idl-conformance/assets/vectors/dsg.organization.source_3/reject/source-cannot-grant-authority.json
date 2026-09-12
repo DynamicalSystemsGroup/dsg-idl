@@ -1,0 +1,8 @@
+{
+  "profile": "dsg.organization.source/3",
+  "shape": "organization",
+  "name": "source-cannot-grant-authority",
+  "verdict": "reject",
+  "rule": "source-cannot-grant-authority",
+  "bytes": "eyJzY2hlbWFWZXJzaW9uIjozLCJraW5kIjoib3JnYW5pemF0aW9uIiwib3JnIjoiRXhhbXBsZSIsInNwYWNlIjoiZHNnLmV4YW1wbGUiLCJwdXJwb3NlIjoiQ29uZm9ybWFuY2Ugb25seSIsInByb2ZpbGUiOiJwcm9maWxlLmpzb24iLCJwcm9qZWN0cyI6W10sImNhcGFiaWxpdGllcyI6W10sImRlcGVuZGVuY3lMb2NrcyI6WyJsb2NrLmpzb24iXSwicmVsZWFzZXMiOlsicmVsZWFzZS5qc29uIl0sImluc3RydWN0aW9ucyI6W10sImRvY3VtZW50cyI6W10sImF1dGhvcml0eSI6eyJvcm4iOiJvcm46ZHNnLmNvcmUuYXJ0aWZhY3QuZG9jdW1lbnQ6YXV0aG9yaXR5Iiwic2hhMjU2IjoiZDNjZTE1NjI2OTBkZGYyZGJlODI4MDlmMzA4YzA0MDJiODE3NmJiNjY0NmZhY2Q0YTZjMmU5ZjRjMWZiNGIzNyJ9fQ=="
+}

@@ -1,0 +1,8 @@
+{
+  "profile": "dsg.organization.source/3",
+  "shape": "releaseDeclaration",
+  "name": "source-members-use-paths",
+  "verdict": "reject",
+  "rule": "source-members-use-paths",
+  "bytes": "eyJzY2hlbWFWZXJzaW9uIjozLCJraW5kIjoib3JnYW5pemF0aW9uLXJlbGVhc2UtZGVjbGFyYXRpb24iLCJpZCI6ImluaXRpYWwiLCJkZXBlbmRlbmN5TG9jayI6ImxvY2suanNvbiIsInNlbGVjdGlvbnMiOltdLCJtZW1iZXJzIjpbeyJpZCI6InNldHVwIiwia2luZCI6InNldHVwLWNvbmRpdGlvbiIsInJlcXVpcmVkIjp0cnVlLCJhY2NlcHRhYmxlRGlzcG9zaXRpb25zIjpbInJlYWR5Il0sInN1YmplY3QiOnsib3JuIjoib3JuOmRzZy5jb3JlLmFydGlmYWN0LmRvY3VtZW50OnJ1bnRpbWUtc3ViamVjdCIsInNoYTI1NiI6IjgwYzE3Y2NiNDgwNTc4NjE4YWI5ODNlMTRiMmQ0ZTcwYWNlMzFmZmEzMjBkNDJhMzM2OGIyNjhjNjEwNzQ3NTgifX1dLCJhY2NlcHRhbmNlIjp7InJlcXVpcmVkTWVtYmVycyI6WyJzZXR1cCJdLCJhY2NlcHRhYmxlRGlzcG9zaXRpb25zIjpbInJlYWR5Il19fQ=="
+}

@@ -1,0 +1,8 @@
+{
+  "profile": "dsg.organization.source/3",
+  "shape": "project",
+  "name": "source-project",
+  "verdict": "accept",
+  "rule": "source-project",
+  "bytes": "eyJzY2hlbWFWZXJzaW9uIjozLCJraW5kIjoicHJvamVjdC1tZW1iZXJzaGlwIiwiaWQiOiJwcm9qZWN0Iiwic291cmNlIjp7InJlcG9zaXRvcnkiOiJodHRwczovL2V4YW1wbGUuaW52YWxpZC93b3JrbG9hZHMuZ2l0IiwicmV2aXNpb24iOiIxMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExIn0sImNvbnRyYWN0IjoiY29udHJhY3QuanNvbiIsImhhbmRsaW5nIjoiaGFuZGxpbmcuanNvbiJ9"
+}
