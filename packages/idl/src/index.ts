@@ -131,8 +131,13 @@ export {
 export type { RunSummary, RunSummaryDecision } from "./run/run-summary.v1.js";
 export { REFUSAL_PROFILE, RefusalCodeSchema, RefusalSchema } from "./core/refusal.v1.js";
 export type { Refusal, RefusalCode } from "./core/refusal.v1.js";
-export { REFUSAL_V2_PROFILE, RefusalCodeV2Schema, RefusalV2Schema } from "./core/refusal.v2.js";
-export type { RefusalCodeV2, RefusalV2 } from "./core/refusal.v2.js";
+export {
+  REFUSAL_V2_PROFILE,
+  RefusalCodeV2Schema,
+  RefusalStageV2Schema,
+  RefusalV2Schema,
+} from "./core/refusal.v2.js";
+export type { RefusalCodeV2, RefusalStageV2, RefusalV2 } from "./core/refusal.v2.js";
 export {
   GOOGLE_SIGN_IN_ISSUER,
   IDENTITY_BINDING_PROFILE,

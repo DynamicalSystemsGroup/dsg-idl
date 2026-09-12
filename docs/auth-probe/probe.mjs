@@ -9,6 +9,7 @@
 // assertion fails or any required scenario did not run. No token, secret or
 // response body is printed: client secrets and tokens live for one run.
 import { execFileSync } from "node:child_process";
+import http from "node:http";
 import { APIError, createAuthEndpoint, createAuthMiddleware } from "better-auth/api";
 import { betterAuth } from "better-auth";
 import { getMigrations } from "better-auth/db/migration";
@@ -73,10 +74,10 @@ const REQUIRED = [
   "refresh.before-age-limit",
   "refresh.access-outlives-age-limit",
   "refresh.age-policy-refusal",
-  "browser-relay.code-without-consent",
-  "browser-relay.person-token-audience",
-  "browser-relay.two-resource-path",
-  "browser-relay.wrong-resource-refused",
+  "service-relay.kernel-token-audience",
+  "service-relay.kernel-token-refused-at-plane",
+  "service-relay.plane-token-audience",
+  "service-relay.plane-token-refused-at-kernel",
   "browser.age-policy-does-not-limit-session",
   "browser.old-cookie-issues-code",
   "browser.old-code-refresh-refused",
@@ -91,6 +92,12 @@ const REQUIRED = [
   "pkce.wrong-verifier",
   "pkce.correct-verifier-control",
   "pkce.consumed-code-replay",
+  "logout.correlated-success-state-echo",
+  "logout.correlated-success-session-ended",
+  "logout.no-hint-confirmation-page",
+  "logout.no-hint-confirmed-state-echo",
+  "logout.unknown-client-refused",
+  "logout.device-client-refused",
 ];
 const seen = new Set();
 let failures = 0;
@@ -104,12 +111,23 @@ const eq = (name, actual, expected, label) =>
   check(name, Object.is(actual, expected), { [label ?? "value"]: actual, expected });
 
 // --- container --------------------------------------------------------------
+// PROBE_DATABASE_URL points the probe at an already-running PostgreSQL
+// instance (a shared isolated instance, for example) instead of starting a
+// container. Set it to skip Docker entirely; leave it unset to keep the
+// self-contained container this file otherwise starts and tears down.
+const EXTERNAL_DATABASE_URL = process.env.PROBE_DATABASE_URL ?? null;
 let containerStarted = false;
 let containerPort = null;
+// RP-initiated logout verifies its id_token_hint by fetching this server's
+// own /auth/jwks over the network (not in process), so a real listener on
+// BASE is required for that one round trip. Every other scenario keeps
+// calling auth.handler directly.
+let httpServer = null;
 
 const docker = (args) => execFileSync("docker", args, { encoding: "utf8" }).trim();
 
 function startDatabase() {
+  if (EXTERNAL_DATABASE_URL) return;
   docker([
     "run",
     "-d",
@@ -144,6 +162,7 @@ function startDatabase() {
 }
 
 function stopDatabase() {
+  if (EXTERNAL_DATABASE_URL) return { removed: true, note: "external database, nothing to remove" };
   if (!containerStarted) return { removed: true, note: "nothing was created" };
   try {
     docker(["rm", "-f", CONTAINER]);
@@ -154,6 +173,7 @@ function stopDatabase() {
 }
 
 const containerExists = () => {
+  if (EXTERNAL_DATABASE_URL) return false;
   const names = docker(["ps", "-a", "--filter", `name=^${CONTAINER}$`, "--format", "{{.Names}}"]);
   return names.length > 0;
 };
@@ -164,7 +184,8 @@ async function run() {
   const db = new Kysely({
     dialect: new PostgresDialect({
       pool: new pg.Pool({
-        connectionString: `postgres://probe:probe@127.0.0.1:${containerPort}/probe`,
+        connectionString:
+          EXTERNAL_DATABASE_URL ?? `postgres://probe:probe@127.0.0.1:${containerPort}/probe`,
       }),
     }),
   });
@@ -254,6 +275,23 @@ async function run() {
   const { runMigrations } = await getMigrations(auth.options);
   await runMigrations();
   check("migrations", true);
+
+  httpServer = http.createServer(async (req, res) => {
+    const chunks = [];
+    for await (const chunk of req) chunks.push(chunk);
+    const request = new Request(`http://127.0.0.1:3999${req.url}`, {
+      method: req.method,
+      headers: req.headers,
+      body:
+        chunks.length && req.method !== "GET" && req.method !== "HEAD"
+          ? Buffer.concat(chunks)
+          : undefined,
+    });
+    const response = await auth.handler(request);
+    res.writeHead(response.status, Object.fromEntries(response.headers));
+    res.end(Buffer.from(await response.arrayBuffer()));
+  });
+  await new Promise((resolve) => httpServer.listen(3999, "127.0.0.1", resolve));
 
   const call = async (method, path, body, headers = {}) => {
     const res = await auth.handler(
@@ -471,6 +509,10 @@ async function run() {
       grant_types: ["urn:ietf:params:oauth:grant-type:device_code", "refresh_token"],
       application_type: "native",
       resources: [RESOURCE],
+      // The CLI logout revokes the refresh token only; it never ends the
+      // issuer session, so the client is not registered as a logout
+      // initiator.
+      enable_end_session: false,
       client_name: "probe-cli",
     },
     await adminHeaders(),
@@ -603,6 +645,8 @@ async function run() {
       grant_types: ["authorization_code", "refresh_token"],
       application_type: "native",
       redirect_uris: ["http://127.0.0.1:5377/callback"],
+      post_logout_redirect_uris: ["http://127.0.0.1:5377/logout-callback"],
+      enable_end_session: true,
       resources: [RESOURCE],
       client_name: "probe-desktop",
     },
@@ -833,6 +877,10 @@ async function run() {
     },
   );
 
+  // Every session for this person just ended, including whichever cached
+  // cookie adminHeaders() was holding: force a fresh one on next use.
+  adminCookie = null;
+
   // Refresh keeps the original upstream authentication time rather than
   // stamping a new one, which is what makes an age limit possible at all.
   const freshRefreshCookie = await freshCookie();
@@ -938,9 +986,80 @@ async function run() {
   );
   maxUpstreamAuthAgeSeconds = null;
 
-  // Browser relay: the console's own client takes the browser cookie, obtains
-  // a code without a consent page, and exchanges it for a resource-bound
-  // person token. No bearer token is ever handled by browser JavaScript.
+  // Per-hop audience, corrected: the browser is not an OAuth client and
+  // never exchanges its cookie for a token. Each service mints one
+  // single-resource token per hop (client_credentials, "resource" = the
+  // resource it is about to call), never one token good for both. A
+  // console-service-shaped client, linked to both resources like
+  // dsg-console-service in the catalog, proves both directions
+  // independently: its kernel-audience token is accepted at the kernel
+  // validator and refused at the plane validator, and its plane-audience
+  // token is accepted at the plane validator and refused at the kernel
+  // validator.
+  const consoleServiceRelay = await api(
+    "adminCreateOAuthClient",
+    {
+      token_endpoint_auth_method: "client_secret_basic",
+      grant_types: ["client_credentials"],
+      client_credentials_scopes: ["api:read"],
+      resources: [RESOURCE, PLANE_RESOURCE],
+      client_name: "probe-console-service",
+    },
+    await adminHeaders(),
+  );
+  const consoleServiceId = consoleServiceRelay.body?.client_id;
+  await linkResource(consoleServiceId, await adminHeaders(), RESOURCE);
+  await linkResource(consoleServiceId, await adminHeaders(), PLANE_RESOURCE);
+  const consoleServiceBasic = basic(consoleServiceId, consoleServiceRelay.body?.client_secret);
+
+  const introspectWith = (token, credential) =>
+    call("POST", "/oauth2/introspect", form({ token }), {
+      authorization: `Basic ${credential}`,
+      ...FORM,
+    });
+
+  const kernelHopToken = await call(
+    "POST",
+    "/oauth2/token",
+    form({ grant_type: "client_credentials", resource: RESOURCE }),
+    { authorization: `Basic ${consoleServiceBasic}`, ...FORM },
+  );
+  const kernelHopJwt = kernelHopToken.body?.access_token;
+  const kernelHopAtKernel = await introspectWith(kernelHopJwt, validatorBasic);
+  const kernelHopAtPlane = await introspectWith(kernelHopJwt, planeValidatorBasic);
+  check(
+    "service-relay.kernel-token-audience",
+    kernelHopToken.status === 200 &&
+      claims(kernelHopJwt).aud === RESOURCE &&
+      kernelHopAtKernel.body?.active === true,
+    { status: kernelHopToken.status, aud: claims(kernelHopJwt)?.aud ?? null },
+  );
+  eq("service-relay.kernel-token-refused-at-plane", kernelHopAtPlane.body?.active, false, "active");
+
+  const planeHopToken = await call(
+    "POST",
+    "/oauth2/token",
+    form({ grant_type: "client_credentials", resource: PLANE_RESOURCE }),
+    { authorization: `Basic ${consoleServiceBasic}`, ...FORM },
+  );
+  const planeHopJwt = planeHopToken.body?.access_token;
+  const planeHopAtPlane = await introspectWith(planeHopJwt, planeValidatorBasic);
+  const planeHopAtKernel = await introspectWith(planeHopJwt, validatorBasic);
+  check(
+    "service-relay.plane-token-audience",
+    planeHopToken.status === 200 &&
+      claims(planeHopJwt).aud === PLANE_RESOURCE &&
+      planeHopAtPlane.body?.active === true,
+    { status: planeHopToken.status, aud: claims(planeHopJwt)?.aud ?? null },
+  );
+  eq("service-relay.plane-token-refused-at-kernel", planeHopAtKernel.body?.active, false, "active");
+
+  // The two-resource authorization-code grant below is retained only to
+  // host the age-policy withdrawal counterexamples further down (a code
+  // carrying both audiences from one browser session, needed to backdate a
+  // session and watch the library still honor it). No production client
+  // requests it this way any more: the browser holds only the cookie,
+  // proven above never leaving the console as a bearer token.
   const relayCookie = await freshCookie();
   const relay = await pkceFlow(
     relayCookie,
@@ -948,46 +1067,6 @@ async function run() {
     "https://console.probe.invalid/auth/callback",
     [PLANE_RESOURCE, RESOURCE],
   );
-  check(
-    "browser-relay.code-without-consent",
-    relay.authorize.status === 302 && Boolean(relay.code) && relay.consent === null,
-    {
-      status: relay.authorize.status,
-      code: Boolean(relay.code),
-      consentPage: relay.consent !== null,
-    },
-  );
-  const relayJwt = relay.exchange.body?.access_token;
-  check(
-    "browser-relay.person-token-audience",
-    relay.exchange.status === 200 && (claims(relayJwt).aud ?? []).includes(RESOURCE),
-    { status: relay.exchange.status, aud: claims(relayJwt)?.aud ?? null },
-  );
-
-  const introspectWith = (token, credential) =>
-    call("POST", "/oauth2/introspect", form({ token }), {
-      authorization: `Basic ${credential}`,
-      ...FORM,
-    });
-  const relayAtPlane = await introspectWith(relayJwt, planeValidatorBasic);
-  const relayAtKernel = await introspectWith(relayJwt, validatorBasic);
-  check(
-    "browser-relay.two-resource-path",
-    claims(relayJwt).aud.includes(RESOURCE) &&
-      claims(relayJwt).aud.includes(PLANE_RESOURCE) &&
-      relayAtPlane.body?.active === true &&
-      relayAtKernel.body?.active === true,
-  );
-  const kernelOnly = await pkceFlow(
-    relayCookie,
-    consoleClientId,
-    "https://console.probe.invalid/auth/callback",
-  );
-  const kernelOnlyAtPlane = await introspectWith(
-    kernelOnly.exchange.body?.access_token,
-    planeValidatorBasic,
-  );
-  eq("browser-relay.wrong-resource-refused", kernelOnlyAtPlane.body?.active, false, "active");
 
   const sessionRead = await call(
     "GET",
@@ -1106,6 +1185,115 @@ async function run() {
   );
   check("browser.signed-out-cookie-refused", signedOutRead.body === null);
 
+  // --- desktop logout: state correlation, the no-hint confirmation gate, ---
+  // --- and the CLI's grant-only logout -------------------------------------
+  const logoutRedirect = "http://127.0.0.1:5377/logout-callback";
+
+  // Correlated success: a fresh logout `state`, sent with the id_token from
+  // the same session the cookie names. The issuer ends that session and
+  // echoes the exact state back on the redirect, which is what lets the
+  // desktop app match this callback to this attempt and no other.
+  const logoutCookie = await freshCookie();
+  const logoutLogin = await pkceFlow(logoutCookie, pkceClientId, "http://127.0.0.1:5377/callback");
+  const logoutIdToken = logoutLogin.exchange.body?.id_token;
+  const logoutState = `logout-${crypto.randomUUID()}`;
+  const correlatedLogout = await call(
+    "GET",
+    `/oauth2/end-session?${new URLSearchParams({
+      id_token_hint: logoutIdToken,
+      client_id: pkceClientId,
+      post_logout_redirect_uri: logoutRedirect,
+      state: logoutState,
+    })}`,
+    undefined,
+    { cookie: logoutCookie },
+  );
+  const correlatedLocation = correlatedLogout.headers.get("location") ?? "";
+  check(
+    "logout.correlated-success-state-echo",
+    correlatedLogout.status >= 300 &&
+      correlatedLogout.status < 400 &&
+      correlatedLocation.startsWith(logoutRedirect) &&
+      new URL(correlatedLocation, BASE).searchParams.get("state") === logoutState,
+    { status: correlatedLogout.status, location: correlatedLocation },
+  );
+  const afterCorrelatedLogout = await call(
+    "GET",
+    "/get-session?disableCookieCache=true&disableRefresh=true",
+    undefined,
+    { cookie: logoutCookie },
+  );
+  check("logout.correlated-success-session-ended", afterCorrelatedLogout.body === null);
+
+  // No hint (expired, rejected, or absent): the issuer still needs
+  // `client_id` to validate the registered redirect, and still requires an
+  // explicit confirmation before it ends anything. A programmatic caller
+  // with no active session and an unknown client is refused before any
+  // confirmation page exists.
+  const unknownClientLogout = await call(
+    "GET",
+    `/oauth2/end-session?${new URLSearchParams({ client_id: "does-not-exist" })}`,
+    undefined,
+    {},
+  );
+  eq("logout.unknown-client-refused", unknownClientLogout.body?.error, "invalid_client", "error");
+
+  // With a live session and a registered client, absence of a hint reaches
+  // the confirmation page rather than ending the session outright.
+  const noHintCookie = await freshCookie();
+  const noHintState = `logout-${crypto.randomUUID()}`;
+  const confirmationResponse = await auth.handler(
+    new Request(
+      `${BASE}/auth/oauth2/end-session?${new URLSearchParams({
+        client_id: pkceClientId,
+        post_logout_redirect_uri: logoutRedirect,
+        state: noHintState,
+      })}`,
+      { headers: { cookie: noHintCookie, accept: "text/html" } },
+    ),
+  );
+  const confirmationBody = await confirmationResponse.text();
+  check(
+    "logout.no-hint-confirmation-page",
+    confirmationResponse.status === 200 &&
+      confirmationBody.includes("data-oidc-logout-confirmation"),
+    { status: confirmationResponse.status },
+  );
+  const confirmationCookies = confirmationResponse.headers
+    .getSetCookie()
+    .map((entry) => entry.split(";")[0]);
+  const confirmComplete = await call(
+    "POST",
+    "/oauth2/end-session/confirm",
+    form({ action: "confirm" }),
+    {
+      cookie: [noHintCookie, ...confirmationCookies].filter(Boolean).join("; "),
+      accept: "text/html",
+      origin: BASE,
+      ...FORM,
+    },
+  );
+  const confirmedLocation = confirmComplete.headers.get("location") ?? "";
+  check(
+    "logout.no-hint-confirmed-state-echo",
+    confirmComplete.status >= 300 &&
+      confirmComplete.status < 400 &&
+      confirmedLocation.startsWith(logoutRedirect) &&
+      new URL(confirmedLocation, BASE).searchParams.get("state") === noHintState,
+    { status: confirmComplete.status, location: confirmedLocation },
+  );
+
+  // The CLI is a grant-only logout: it revokes the refresh token and never
+  // touches the issuer session, so its client is not a registered logout
+  // initiator at all.
+  const deviceLogoutAttempt = await call(
+    "GET",
+    `/oauth2/end-session?${new URLSearchParams({ client_id: deviceClientId })}`,
+    undefined,
+    {},
+  );
+  eq("logout.device-client-refused", deviceLogoutAttempt.body?.error, "invalid_client", "error");
+
   // --- failure paths -------------------------------------------------------
   const bogus = await call("GET", "/get-session", undefined, {
     cookie: "better-auth.session_token=fabricated",
@@ -1147,6 +1335,7 @@ try {
   failures += 1;
   line({ scenario: "probe.crashed", pass: false, detail: crashed });
 } finally {
+  if (httpServer) await new Promise((resolve) => httpServer.close(resolve));
   teardown = stopDatabase();
 }
 

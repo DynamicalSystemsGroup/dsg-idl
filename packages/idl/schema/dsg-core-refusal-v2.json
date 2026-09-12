@@ -95,6 +95,30 @@
         "sentence": {
           "minLength": 1,
           "type": "string"
+        },
+        "stage": {
+          "anyOf": [
+            {
+              "const": "proxy",
+              "type": "string"
+            },
+            {
+              "const": "provider",
+              "type": "string"
+            },
+            {
+              "const": "identity_read",
+              "type": "string"
+            },
+            {
+              "const": "plane",
+              "type": "string"
+            }
+          ]
+        },
+        "correlationId": {
+          "minLength": 1,
+          "type": "string"
         }
       }
     }

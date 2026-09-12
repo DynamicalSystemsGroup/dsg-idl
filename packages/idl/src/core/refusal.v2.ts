@@ -3,6 +3,14 @@
 // requires: a validator that cannot answer fails closed and says so, and a
 // human confirmation outside its window is its own refusal, not a generic
 // expiry. /1 is frozen; this ships beside it.
+//
+// `stage` and `correlationId` are optional additions (2026-09-11): the
+// system has not shipped, so this profile amends in place rather than
+// spawning a /3 for two backward-compatible optional fields. An existing
+// non-proxy refusal carries neither. A proxy hop (dsg-run-console) always
+// sends both: `stage: "proxy"` names which hop answered, `correlationId`
+// is the proxy's own request id, replacing the `X-DSG-Refusal-Stage` /
+// `X-Request-ID` header detour with in-body fields the same schema covers.
 import { type Static, Type } from "@sinclair/typebox";
 import { closed, NonEmptyString, type ProfileEntry } from "../primitives.js";
 
@@ -32,10 +40,21 @@ const RefusalCodeV2SchemaValue = Type.Union([
 export const RefusalCodeV2Schema: typeof RefusalCodeV2SchemaValue = RefusalCodeV2SchemaValue;
 export type RefusalCodeV2 = Static<typeof RefusalCodeV2Schema>;
 
+const RefusalStageV2SchemaValue = Type.Union([
+  Type.Literal("proxy"),
+  Type.Literal("provider"),
+  Type.Literal("identity_read"),
+  Type.Literal("plane"),
+]);
+export const RefusalStageV2Schema: typeof RefusalStageV2SchemaValue = RefusalStageV2SchemaValue;
+export type RefusalStageV2 = Static<typeof RefusalStageV2Schema>;
+
 const RefusalV2SchemaValue = closed({
   profile: Type.Literal(REFUSAL_V2_PROFILE),
   code: RefusalCodeV2Schema,
   sentence: NonEmptyString,
+  stage: Type.Optional(RefusalStageV2Schema),
+  correlationId: Type.Optional(NonEmptyString),
 });
 export const RefusalV2Schema: typeof RefusalV2SchemaValue = RefusalV2SchemaValue;
 export type RefusalV2 = Static<typeof RefusalV2Schema>;
