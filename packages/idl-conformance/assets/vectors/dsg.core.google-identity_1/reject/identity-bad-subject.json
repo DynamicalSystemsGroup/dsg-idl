@@ -1,0 +1,8 @@
+{
+  "profile": "dsg.core.google-identity/1",
+  "shape": "googleIdentity",
+  "name": "bad-subject",
+  "verdict": "reject",
+  "bytes": "eyJwcm9maWxlIjoiZHNnLmNvcmUuZ29vZ2xlLWlkZW50aXR5LzEiLCJpc3N1ZXIiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJnb29nbGVTdWJqZWN0IjoiMTA4MTkwNTcxNTQ3MjAyMjA1MzY3IiwiYXVkaWVuY2UiOiJkc2ctY29uc29sZS13ZWIifQ==",
+  "rule": "googleSubject is the permanent Google account number, prefixed by accounts.google.com:"
+}

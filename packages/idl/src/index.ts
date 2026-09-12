@@ -139,10 +139,19 @@ export {
 } from "./core/refusal.v2.js";
 export type { RefusalCodeV2, RefusalStageV2, RefusalV2 } from "./core/refusal.v2.js";
 export {
+  GOOGLE_IDENTITY_PROFILE,
   GOOGLE_SIGN_IN_ISSUER,
-  IDENTITY_BINDING_PROFILE,
-  IdentityBindingSchema,
-} from "./core/identity-binding.v1.js";
+  GoogleIdentitySchema,
+} from "./core/google-identity.v1.js";
+export type { GoogleIdentity } from "./core/google-identity.v1.js";
+export {
+  REFUSAL_V3_PROFILE,
+  RefusalCodeV3Schema,
+  RefusalStageV3Schema,
+  RefusalV3Schema,
+} from "./core/refusal.v3.js";
+export type { RefusalCodeV3, RefusalStageV3, RefusalV3 } from "./core/refusal.v3.js";
+export { IDENTITY_BINDING_PROFILE, IdentityBindingSchema } from "./core/identity-binding.v1.js";
 export type { IdentityBinding } from "./core/identity-binding.v1.js";
 
 import type { ProfileEntry } from "./primitives.js";
@@ -154,6 +163,8 @@ import { decisionV1 } from "./run/decision.v1.js";
 import { runSummaryV1 } from "./run/run-summary.v1.js";
 import { refusalV1 } from "./core/refusal.v1.js";
 import { refusalV2 } from "./core/refusal.v2.js";
+import { refusalV3 } from "./core/refusal.v3.js";
+import { googleIdentityV1 } from "./core/google-identity.v1.js";
 import { identityBindingV1 } from "./core/identity-binding.v1.js";
 import { signedLawV1 } from "./infra/signed-law.v1.js";
 import { resourceDescriptorV1 } from "./infra/resource-descriptor.v1.js";
@@ -162,7 +173,6 @@ import { revocationsV1 } from "./registry/revocations.v1.js";
 import { bootstrapV1 } from "./kernel/bootstrap.v1.js";
 import { ordinaryAuthorityV1 } from "./kernel/ordinary-authority.v1.js";
 import { standingOrderActivationV1 } from "./kernel/standing-order-activation.v1.js";
-
 /** Every profile this version of the package defines, keyed by literal.
  * Profile modules are added here as they are extracted; the rules test
  * and the schema emitter walk this registry, so a module that is not
@@ -176,6 +186,8 @@ export const PROFILES = {
   [runSummaryV1.literal]: runSummaryV1,
   [refusalV1.literal]: refusalV1,
   [refusalV2.literal]: refusalV2,
+  [refusalV3.literal]: refusalV3,
+  [googleIdentityV1.literal]: googleIdentityV1,
   [identityBindingV1.literal]: identityBindingV1,
   [signedLawV1.literal]: signedLawV1,
   [resourceDescriptorV1.literal]: resourceDescriptorV1,

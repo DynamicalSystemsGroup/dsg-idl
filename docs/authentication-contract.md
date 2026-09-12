@@ -345,30 +345,29 @@ authorization checks on a heartbeat no slower than five seconds.
 - Desktop, CLI and console each register the resources they call and pass
   `resource` on authorize or device requests.
 - A confidential client's registered token endpoint authentication method is
-  part of its identity, not a preference: every call it makes — issuing its
+  part of its identity, not a preference: every call it makes - issuing its
   own tokens and, for a client the issuer also introspects for, presenting
-  credentials to `/oauth2/introspect` — must use that exact wire shape, or
+  credentials to `/oauth2/introspect` - must use that exact wire shape, or
   the issuer refuses it as a method mismatch before it ever checks the
-  secret. The console's service client uses `client_secret_basic` (an
-  `Authorization: Basic` header); the plane's service client uses
-  `client_secret_post` (`client_id`/`client_secret` as body form fields).
-  The difference exists because only the plane forces remote introspection
-  on every incoming credential (4.5), and that call's wire shape is fixed;
-  the console never calls introspection directly, so its client keeps the
-  header-based method.
+  secret. Both the console's service client and the plane's service
+  client use `client_secret_basic` (an `Authorization: Basic` header),
+  matching the registrations in section 10 and the probe. The console
+  does not call introspection directly; the plane forces remote
+  verification on every incoming credential (4.5), and that call's wire
+  shape is fixed at the same header method.
 
 ### 4.5 Validation calls and freshness
 
-| Check                                   | Call                                                                                  | Freshness                                                                                          |
-| --------------------------------------- | ------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| Session cookie (in kernel)              | in-process session read                                                               | every request                                                                                      |
-| In-process acceptance (kernel)          | `getOAuthProviderApi(ctx, options).requireActiveAccessToken(token, expectedResource)` | every request; measured equal to introspection                                                     |
-| Console or kernel service token (plane) | `verifyBearerToken`, `audience = planeResource`, remote verification forced           | every request; no local cache substitutes for it                                                   |
-| Person bearer at the plane (desktop)    | `verifyBearerToken`, `audience = planeResource`, remote verification forced           | every request                                                                                      |
-| Console or plane service token (kernel) | `resolveServiceToken(token, kernelResource)`                                          | every request                                                                                      |
-| Stream re-check (plane, console)        | the same validation calls above, repeated                                             | the existing periodic interval (`INTROSPECTION_CACHE_SECONDS`, default 60 s); never once per event |
-| Suspension                              | kernel record read                                                                    | 5 s                                                                                                |
-| Machine cutoff                          | introspection or forced verification after delete                                     | next check                                                                                         |
+| Check                                   | Call                                                                                  | Freshness                                                                                                                                                         |
+| --------------------------------------- | ------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Session cookie (in kernel)              | in-process session read                                                               | every request                                                                                                                                                     |
+| In-process acceptance (kernel)          | `getOAuthProviderApi(ctx, options).requireActiveAccessToken(token, expectedResource)` | every request; measured equal to introspection                                                                                                                    |
+| Console or kernel service token (plane) | `verifyBearerToken`, `audience = planeResource`, remote verification forced           | every request; no local cache substitutes for it                                                                                                                  |
+| Person bearer at the plane (desktop)    | `verifyBearerToken`, `audience = planeResource`, remote verification forced           | every request                                                                                                                                                     |
+| Console or plane service token (kernel) | `resolveServiceToken(token, kernelResource)`                                          | every request                                                                                                                                                     |
+| Stream re-check (plane, console)        | the same validation calls above, repeated                                             | every five-second heartbeat for session and authorization; a full revalidation at the `INTROSPECTION_CACHE_SECONDS` interval (default 60 s); never once per event |
+| Suspension                              | kernel record read                                                                    | 5 s                                                                                                                                                               |
+| Machine cutoff                          | introspection or forced verification after delete                                     | next check                                                                                                                                                        |
 
 Forced remote verification removes the plane's own accept-cache: `force:
 true` on `verifyBearerToken` means every checked token gets a live kernel
@@ -431,19 +430,19 @@ never selects the acting person.
 
 ## 5. Identity mapping
 
-| Identifier             | Where it lives                                  | Authority                                              |
-| ---------------------- | ----------------------------------------------- | ------------------------------------------------------ |
-| Better Auth user id    | kernel PostgreSQL only                          | none; never in the record, an event, a URL or evidence |
-| Google subject (`sub`) | Better Auth `account` row (`providerId` google) | the identity the record binds                          |
-| Email                  | account attribute                               | lookup and display only                                |
+| Identifier          | Where it lives                 | Authority                                              |
+| ------------------- | ------------------------------ | ------------------------------------------------------ |
+| Better Auth user id | kernel PostgreSQL only         | none; never in the record, an event, a URL or evidence |
+| Google subject      | kernel record, `googleSubject` | the identity the record binds; the only identity key   |
+| Email               | account attribute              | display label only; never compared for identity        |
 
-The recorded binding is unchanged: a principal whose `googleSubject` is
-`accounts.google.com:<sub>`, actor derived from that subject, `googleAccountId`
-holding the address. A verified sign-in resolves to a principal by issuer and
-subject, never by email and never by the Better Auth user id. A changed address
-does not rebind a principal. First access runs the existing enrollment path
-under the recorded organization policy and is idempotent. Account linking is
-governed and preserves the original principal and prior evidence.
+The recorded identity is a principal whose `googleSubject` is
+`accounts.google.com:<digits>`. The derived actor is
+`orn:dsg.core.kernel.actor:person-<sha256hex(issuer + "\n" + subject)>`.
+A verified sign-in resolves to a principal by issuer and subject, never
+by email and never by the Better Auth user id. A changed address does
+not rebind a principal. The old `googleAccountId` field is deleted;
+human principals carry required `googleSubject` and optional `email`.
 
 ### 5.1 Suspension and current authorization
 
@@ -539,39 +538,24 @@ envelope. Qualification and separation of duties are checked against the record
 at decision time. Neither a session, a refresh, a machine token nor another
 person's proof satisfies a decision.
 
-## 8. Frozen profiles and the sealed envelopes
-
-Inspected at kernel `d29fa731`, plane `702dbf8b`, console `73d4e84`.
-
-| Profile                                           | Producer today                                   | Status                                                                                                                                                                              |
-| ------------------------------------------------- | ------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `dsg.core.identity-binding/1`                     | none                                             | the detached personal-key binding path only; kernel's live path is Google-attested                                                                                                  |
-| `dsg.run.decision/1`                              | none anywhere                                    | frozen and unused; do not delete a released profile                                                                                                                                 |
-| `dsg.core.refusal/1`                              | kernel refusals                                  | still emitted; bytes untouched                                                                                                                                                      |
-| `dsg.core.refusal/2`                              | new authentication routes, dsg-run-console proxy | adds `validation_unavailable`, `confirmation_expired`; amended in place (2026-09-11) with optional `stage`/`correlationId` for the proxy hop, not a /3 - the system has not shipped |
-| `google-signed-decision`, `google-signed-binding` | kernel API via `packages/record`                 | the real sealed artifacts; kernel-owned shapes, no IDL profile                                                                                                                      |
-
-The `signature` field on both frozen profiles keeps its documented meaning: a
-detached signature by a key the person holds, verified against the person's
-recorded public key. The Google-attested channel is a different artifact with
-different fields and is not emitted under those literals. No new IDL profile is
-minted now: the envelopes have exactly one consumer, the kernel that writes
-them. The trigger is named: the first external consumer (the console's
-browser-side evidence verification or the plane's evidence sealing) lifts the
-envelope shape from `packages/record/src/decision-envelope.ts` and
-`binding-envelope.ts` into `dsg-idl` at that point, and both sides pin it.
-
-## 9. Errors
-
-Version selection: new authentication routes emit `dsg.core.refusal/2`; `/2` is
-a superset of `/1`'s **code values**, but each schema retains its distinct
-literal `profile`. A `/2` schema rejects a `/1` document. A consumer reading
-both versions must dispatch on `profile` to `RefusalSchema` or
-`RefusalV2Schema`, or validate against their explicit TypeBox union. Unknown
-versions fail closed. Both schemas retain their frozen literals and neither
-rewrites historical bytes. Consumers add this reader before the new routes
-ship. No dual-emit window exists, because the new codes appear only on
-routes that do not exist yet.
+| Profile                                                                         | Producer today                                   | Status                                                                                                                                                                              |
+| ------------------------------------------------------------------------------- | ------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `dsg.core.identity-binding/1`                                                   | none                                             | the detached personal-key binding path only; kernel's live path is Google-attested                                                                                                  |
+| `dsg.run.decision/1`                                                            | none anywhere                                    | frozen and unused; do not delete a released profile                                                                                                                                 |
+| `dsg.core.refusal/1`                                                            | kernel refusals                                  | still emitted; bytes untouched                                                                                                                                                      |
+| `dsg.core.refusal/2`                                                            | new authentication routes, dsg-run-console proxy | adds `validation_unavailable`, `confirmation_expired`; amended in place (2026-09-11) with optional `stage`/`correlationId` for the proxy hop, not a /3 - the system has not shipped |
+| `dsg.core.refusal/3`                                                            | organization genesis endpoints, console, plane   | the eight organization codes (see section 14); sits beside /1 and /2; stage union expanded to `proxy`, `provider`, `identity_read`, `plane`, `console`, `kernel`, `record`, `claim` |
+| `dsg.core.google-identity/1`                                                    | kernel API, console, plane                       | the verified identity wire shape; googleSubject is the only identity key, email is a display label                                                                                  |
+| `google-signed-decision`, `google-signed-binding`                               | kernel API via `packages/record`                 | the real sealed artifacts; kernel-owned shapes, no IDL profile                                                                                                                      |
+| Version selection: new authentication routes emit `dsg.core.refusal/2`; `/2` is |
+| a superset of `/1`'s **code values**, but each schema retains its distinct      |
+| literal `profile`. A `/2` schema rejects a `/1` document. A consumer reading    |
+| both versions must dispatch on `profile` to `RefusalSchema` or                  |
+| `RefusalV2Schema`, or validate against their explicit TypeBox union. Unknown    |
+| versions fail closed. Both schemas retain their frozen literals and neither     |
+| rewrites historical bytes. Consumers add this reader before the new routes      |
+| ship. No dual-emit window exists, because the new codes appear only on          |
+| routes that do not exist yet.                                                   |
 
 The dsg-run-console proxy answers with the origin's own `/2` body, unchanged,
 plus two fields the origin never sets: `stage: "proxy"` names the hop that
@@ -606,29 +590,28 @@ recorded sentence.
 One registration table. These are Better Auth clients, not Google clients. The
 Google web client is separate and used only by the provider.
 
-| Registration          | Client type                                 | Grant types                                                     | Token endpoint auth          | Redirect / verification                  | Post-logout redirect                     | Scopes                                 | Resources      |
-| --------------------- | ------------------------------------------- | --------------------------------------------------------------- | ---------------------------- | ---------------------------------------- | ---------------------------------------- | -------------------------------------- | -------------- |
-| `dsg-console-web`     | web, confidential BFF, `skip_consent: true` | `authorization_code`, `refresh_token`                           | `client_secret_basic` (PKCE) | `https://<console-domain>/auth/callback` | none registered                          | `openid`, `offline_access`, `api:read` | kernel, plane  |
-| `dsg-desktop`         | native                                      | `authorization_code`, `refresh_token`                           | `none` (public, PKCE)        | loopback, exact                          | `http://127.0.0.1:45877/`, exact (3.5)   | `openid`, `offline_access`, `api:read` | kernel, plane  |
-| `dsg-cli`             | native                                      | `urn:ietf:params:oauth:grant-type:device_code`, `refresh_token` | `none`                       | device verification URI on the console   | none registered; grant-only logout (3.5) | `openid`, `offline_access`, `api:read` | kernel         |
-| `dsg-console-service` | service                                     | `client_credentials`                                            | `client_secret_basic`        | n/a                                      | n/a                                      | `api:read`                             | kernel, plane  |
-| `dsg-plane-service`   | service                                     | `client_credentials`                                            | `client_secret_basic`        | n/a                                      | n/a                                      | `api:read`                             | kernel         |
-| `dsg-probe-*`         | test only, never deployed                   | as needed                                                       | as needed                    | probe redirects                          | probe redirects                          | probe scopes                           | probe resource |
-
-| Key                                                       | Owner                          | Purpose                                                                                                                                                                                           |
-| --------------------------------------------------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `KERNEL_AUTH_BASE_URL`                                    | dsg-run-console                | public issuer and entry point                                                                                                                                                                     |
-| `KERNEL_AUTH_ISSUER`                                      | dsg-kernel, dsg-run            | expected `iss`                                                                                                                                                                                    |
-| `KERNEL_RESOURCE_IDENTIFIER`, `PLANE_RESOURCE_IDENTIFIER` | dsg-kernel, dsg-run            | token audiences                                                                                                                                                                                   |
-| `BETTER_AUTH_SECRET`                                      | dsg-secret-store               | session and token signing secret                                                                                                                                                                  |
-| JWKS signing keys                                         | kernel Better Auth PostgreSQL  | `jwt` generates and encrypts private keys in its database; `BETTER_AUTH_SECRET` is held through dsg-secret-store. Public keys are served at `/auth/jwks`. Never copy private rows into artifacts. |
-| `GOOGLE_WEB_CLIENT_ID`, `GOOGLE_WEB_CLIENT_SECRET`        | dsg-secret-store               | browser sign-in; the secret is used only by the kernel's provider, never by a client                                                                                                              |
-| `GOOGLE_WORKSPACE_DOMAIN`                                 | dsg-kernel                     | `hd` value enrollment and confirmation require                                                                                                                                                    |
-| `KERNEL_JWKS_CACHE_SECONDS`                               | dsg-kernel                     | key cache bound, default 300                                                                                                                                                                      |
-| `INTROSPECTION_CACHE_SECONDS`                             | dsg-run, dsg-run-console       | acceptance cache bound, default 60                                                                                                                                                                |
-| `KERNEL_SUSPENSION_CACHE_SECONDS`                         | dsg-kernel                     | suspension read bound, default 5                                                                                                                                                                  |
-| `SERVICE_PEER_RANGES`                                     | dsg-infra                      | the addresses whose service-token headers are trusted                                                                                                                                             |
-| `WORKSPACE_DIRECTORY_DELEGATION`                          | dsg-secret-store, Google admin | the delegation in 5.2; absent until Sayer acts                                                                                                                                                    |
+| Registration                                              | Client type                                    | Grant types                                                                                                                                                                                       | Token endpoint auth   | Redirect / verification                | Post-logout redirect                     | Scopes                                 | Resources      |
+| --------------------------------------------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------- | -------------------------------------- | ---------------------------------------- | -------------------------------------- | -------------- |
+| `dsg-console-web`                                         | not registered: browser is not an OAuth client | n/a                                                                                                                                                                                               | n/a                   | n/a                                    | n/a                                      | n/a                                    | n/a            |
+| `dsg-desktop`                                             | native                                         | `authorization_code`, `refresh_token`                                                                                                                                                             | `none` (public, PKCE) | loopback, exact                        | `http://127.0.0.1:45877/`, exact (3.5)   | `openid`, `offline_access`, `api:read` | kernel, plane  |
+| `dsg-cli`                                                 | native                                         | `urn:ietf:params:oauth:grant-type:device_code`, `refresh_token`                                                                                                                                   | `none`                | device verification URI on the console | none registered; grant-only logout (3.5) | `openid`, `offline_access`, `api:read` | kernel         |
+| `dsg-console-service`                                     | service                                        | `client_credentials`                                                                                                                                                                              | `client_secret_basic` | n/a                                    | n/a                                      | `api:read`                             | kernel, plane  |
+| `dsg-plane-service`                                       | service                                        | `client_credentials`                                                                                                                                                                              | `client_secret_basic` | n/a                                    | n/a                                      | `api:read`                             | kernel         |
+| `dsg-probe-*`                                             | test only, never deployed                      | as needed                                                                                                                                                                                         | as needed             | probe redirects                        | probe redirects                          | probe scopes                           | probe resource |
+| Key                                                       | Owner                                          | Purpose                                                                                                                                                                                           |
+| --------------------------------------------------------- | ------------------------------                 | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `KERNEL_AUTH_BASE_URL`                                    | dsg-run-console                                | public issuer and entry point                                                                                                                                                                     |
+| `KERNEL_AUTH_ISSUER`                                      | dsg-kernel, dsg-run                            | expected `iss`                                                                                                                                                                                    |
+| `KERNEL_RESOURCE_IDENTIFIER`, `PLANE_RESOURCE_IDENTIFIER` | dsg-kernel, dsg-run                            | token audiences                                                                                                                                                                                   |
+| `BETTER_AUTH_SECRET`                                      | dsg-secret-store                               | session and token signing secret                                                                                                                                                                  |
+| JWKS signing keys                                         | kernel Better Auth PostgreSQL                  | `jwt` generates and encrypts private keys in its database; `BETTER_AUTH_SECRET` is held through dsg-secret-store. Public keys are served at `/auth/jwks`. Never copy private rows into artifacts. |
+| `GOOGLE_WEB_CLIENT_ID`, `GOOGLE_WEB_CLIENT_SECRET`        | dsg-secret-store                               | browser sign-in; the secret is used only by the kernel's provider, never by a client                                                                                                              |
+| `GOOGLE_WORKSPACE_DOMAIN`                                 | dsg-kernel                                     | `hd` value enrollment and confirmation require                                                                                                                                                    |
+| `KERNEL_JWKS_CACHE_SECONDS`                               | dsg-kernel                                     | key cache bound, default 300                                                                                                                                                                      |
+| `INTROSPECTION_CACHE_SECONDS`                             | dsg-run, dsg-run-console                       | acceptance cache bound, default 60                                                                                                                                                                |
+| `KERNEL_SUSPENSION_CACHE_SECONDS`                         | dsg-kernel                                     | suspension read bound, default 5                                                                                                                                                                  |
+| `SERVICE_PEER_RANGES`                                     | dsg-infra                                      | the addresses whose service-token headers are trusted                                                                                                                                             |
+| `WORKSPACE_DIRECTORY_DELEGATION`                          | dsg-secret-store, Google admin                 | the delegation in 5.2; absent until Sayer acts                                                                                                                                                    |
 
 Local development uses a separate issuer, separate registrations, separate
 secrets and its own containers. The dev-identity shortcut
@@ -639,20 +622,20 @@ kernel chunk.
 
 Source revisions: kernel `d29fa731`, plane `702dbf8b`, console `73d4e84`.
 
-| Old mechanism                                       | Real location                                                                                                                                         | Replacement                                                                                                                            | Deletion chunk                                |
-| --------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------- |
-| Dev identity shortcut                               | `apps/api/src/config.ts`, `apps/api/src/app.ts` (`devIdentity`), `apps/cli/src/auth.ts` (`x-kernel-actor`)                                            | local issuer, same protocol                                                                                                            | kernel auth owner                             |
-| IAP person transport                                | `dsg-run/service/src/http/kernel-relay.ts` (`x-goog-iap-jwt-assertion`, `x-kernel-person-assertion`), `dsg-kernel/apps/api/src/auth/console-relay.ts` | person token plus `X-DSG-Service-Token`; IAP stays at the edge only                                                                    | plane relay chunk                             |
-| Console service calls with no person credential     | `dsg-run-console/api/src/plane-relay.ts`                                                                                                              | the browser's cookie forwarded opaquely as `x-kernel-user-cookie`, plus one single-resource `client_credentials` machine token per hop | console backend chunk                         |
-| Public human IAP gate on the console domain         | console front door configuration                                                                                                                      | Better Auth sign-in; the domain and private upstreams stay                                                                             | console backend chunk, dsg-infra for the gate |
-| Existing Better Auth surface, no provider plugins   | `dsg-kernel/apps/api/src/auth/google.ts` (1.7.2), `apps/cli/src/auth.ts` (device client)                                                              | 1.7.4 with `jwt`, `oauthProvider`, `oauthDeviceAuthorization`                                                                          | kernel auth owner                             |
-| Google-attested decisions and bindings              | `apps/api/src/routes/decisions.ts`, `identity-binding.ts`, `packages/record/src/*-envelope.ts`                                                        | unchanged                                                                                                                              | none                                          |
-| Record enrollment through the IAP relay             | `apps/api/src/routes/organization-access.ts`                                                                                                          | the same enrollment driven by a verified sign-in                                                                                       | kernel auth owner                             |
-| `dsg.core.identity-binding/1`, `dsg.run.decision/1` | re-export only, no producer                                                                                                                           | unchanged, frozen                                                                                                                      | none                                          |
-
-Old tokens stop being accepted at cutover; there is no dual-accept window for
-human identity, because a token minted against the old authority cannot be
-validated against the new one. Rollback cannot restore invalidated authority.
+| Old mechanism                                                             | Real location                                                                                                                                         | Replacement                                                                                                                            | Deletion chunk                                |
+| ------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------- |
+| Dev identity shortcut                                                     | `apps/api/src/config.ts`, `apps/api/src/app.ts` (`devIdentity`), `apps/cli/src/auth.ts` (`x-kernel-actor`)                                            | local issuer, same protocol                                                                                                            | kernel auth owner                             |
+| IAP person transport                                                      | `dsg-run/service/src/http/kernel-relay.ts` (`x-goog-iap-jwt-assertion`, `x-kernel-person-assertion`), `dsg-kernel/apps/api/src/auth/console-relay.ts` | person token plus `X-DSG-Service-Token`; IAP stays at the edge only                                                                    | plane relay chunk                             |
+| Console service calls with no person credential                           | `dsg-run-console/api/src/plane-relay.ts`                                                                                                              | the browser's cookie forwarded opaquely as `x-kernel-user-cookie`, plus one single-resource `client_credentials` machine token per hop | console backend chunk                         |
+| Public human IAP gate on the console domain                               | console front door configuration                                                                                                                      | Better Auth sign-in; the domain and private upstreams stay                                                                             | console backend chunk, dsg-infra for the gate |
+| Local development runs on loopback only and uses the same protocol with a |
+| separate issuer and its own registrations and secrets. The dev-identity   |
+| shortcut is loopback-only and never reaches a deployed environment:       |
+| `KERNEL_DEV_IDENTITY=actor` plus `trustActorHeader=true` lets a loopback  |
+| client pass an `x-kernel-actor` header that the kernel resolves as if it  |
+| were a verified session. The header is stripped at the trusted-peer       |
+| boundary, so no service that crosses a peer range accepts it. It is       |
+| deleted from any deployment configuration.                                |
 
 ## 12. Deferred acceptance
 
@@ -693,3 +676,52 @@ Correction, 2026-09-11: section 11's migration-inventory row for console
 service calls still described the retired 4.2 code exchange as the
 replacement mechanism after revision 5 had already replaced it with the
 opaque cookie relay; the row now names the current mechanism.
+
+## 14. Identity key and the organization claim
+
+A person is identified by the Google account number only. The kernel
+carries it as `googleSubject` in the shape `accounts.google.com:<digits>`
+and never compares email for identity after the claim. The email
+address is a display label, surfaced on pages and in receipts, never a
+key. The `PrincipalRecord` field `googleAccountId` is removed; human
+principals carry required `googleSubject` and optional `email`.
+
+A person's derived actor is
+`orn:dsg.core.kernel.actor:person-<sha256hex(issuer + "\n" + subject)>`.
+The old `iap-` prefix is gone. The helper that derives it is renamed
+from `organizationActorForSubject` to `personActorForGoogleAccount`.
+
+An organization begins with a claim. The deployment names the founder
+through `KERNEL_FOUNDER_EMAIL`. A verified Google sign-in whose
+`googleSubject` matches that founder is the only path to the first
+recorded organization. The claim writes policy, founder principal with
+the `organization-administrator` role, and the claim event in one
+ordered transaction under the existing organization access lock.
+After the claim, every other verified account in the domain is a
+member with no authority; roles are administrator grants recorded as
+events.
+
+### 14.1 The eight refusal codes (dsg.core.refusal/3)
+
+The organization endpoints and the governed identity reads answer
+with exactly these eight refusal codes. Each code names one cause; no
+code is collapsed into another, and a failure to read the record is
+dependency, never a verdict about a person. Every hop forwards the
+code it received unchanged, with its own `stage`.
+
+| Code                    | Sentence                                                           |
+| ----------------------- | ------------------------------------------------------------------ |
+| `organization_absent`   | This organization has not been claimed yet.                        |
+| `organization_exists`   | This organization is already claimed.                              |
+| `domain_mismatch`       | Your account is from a different workspace than this organization. |
+| `suspended`             | An administrator has suspended your access.                        |
+| `organization_disabled` | This organization is currently disabled.                           |
+| `claims_missing`        | The verified session is missing a required claim.                  |
+| `not_qualified`         | You do not hold the role this action requires.                     |
+| `subject_conflict`      | A different account number is already bound to that address.       |
+
+The refusal body shape is `{ profile, code, sentence }`; `stage`,
+`correlationId` and `detail` are optional additions that the producer
+hop sets without rewriting the code. Session-expiry and signed-out are
+HTTP transport conditions at the hop that observed them (401), not
+members of the governed union.

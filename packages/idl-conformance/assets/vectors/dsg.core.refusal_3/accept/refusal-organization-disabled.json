@@ -1,0 +1,7 @@
+{
+  "profile": "dsg.core.refusal/3",
+  "shape": "refusal",
+  "name": "organization-disabled",
+  "verdict": "accept",
+  "bytes": "eyJwcm9maWxlIjoiZHNnLmNvcmUucmVmdXNhbC8zIiwiY29kZSI6Im9yZ2FuaXphdGlvbl9kaXNhYmxlZCIsInNlbnRlbmNlIjoiVGhpcyBvcmdhbml6YXRpb24gaXMgY3VycmVudGx5IGRpc2FibGVkLiJ9"
+}

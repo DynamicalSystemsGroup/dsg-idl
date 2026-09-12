@@ -1,0 +1,8 @@
+{
+  "profile": "dsg.core.refusal/3",
+  "shape": "refusal",
+  "name": "empty-sentence",
+  "verdict": "reject",
+  "bytes": "eyJwcm9maWxlIjoiZHNnLmNvcmUucmVmdXNhbC8zIiwiY29kZSI6Im9yZ2FuaXphdGlvbl9hYnNlbnQiLCJzZW50ZW5jZSI6IiJ9",
+  "rule": "sentence must be a non-empty string"
+}

@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/DynamicalSystemsGroup/dsg-idl/schema/dsg-core-refusal-v3.json",
+  "title": "dsg.core.refusal/3",
+  "$defs": {
+    "refusal": {
+      "additionalProperties": false,
+      "type": "object",
+      "required": ["profile", "code", "sentence"],
+      "properties": {
+        "profile": {
+          "const": "dsg.core.refusal/3",
+          "type": "string"
+        },
+        "code": {
+          "anyOf": [
+            {
+              "const": "organization_absent",
+              "type": "string"
+            },
+            {
+              "const": "organization_exists",
+              "type": "string"
+            },
+            {
+              "const": "domain_mismatch",
+              "type": "string"
+            },
+            {
+              "const": "suspended",
+              "type": "string"
+            },
+            {
+              "const": "organization_disabled",
+              "type": "string"
+            },
+            {
+              "const": "claims_missing",
+              "type": "string"
+            },
+            {
+              "const": "not_qualified",
+              "type": "string"
+            },
+            {
+              "const": "subject_conflict",
+              "type": "string"
+            }
+          ]
+        },
+        "sentence": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "stage": {
+          "anyOf": [
+            {
+              "const": "proxy",
+              "type": "string"
+            },
+            {
+              "const": "provider",
+              "type": "string"
+            },
+            {
+              "const": "identity_read",
+              "type": "string"
+            },
+            {
+              "const": "plane",
+              "type": "string"
+            },
+            {
+              "const": "console",
+              "type": "string"
+            },
+            {
+              "const": "kernel",
+              "type": "string"
+            },
+            {
+              "const": "record",
+              "type": "string"
+            },
+            {
+              "const": "claim",
+              "type": "string"
+            }
+          ]
+        },
+        "correlationId": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "detail": {
+          "minLength": 1,
+          "type": "string"
+        }
+      }
+    }
+  },
+  "$ref": "#/$defs/refusal"
+}

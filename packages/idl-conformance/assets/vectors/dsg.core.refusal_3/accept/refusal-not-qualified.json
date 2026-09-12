@@ -1,0 +1,7 @@
+{
+  "profile": "dsg.core.refusal/3",
+  "shape": "refusal",
+  "name": "not-qualified",
+  "verdict": "accept",
+  "bytes": "eyJwcm9maWxlIjoiZHNnLmNvcmUucmVmdXNhbC8zIiwiY29kZSI6Im5vdF9xdWFsaWZpZWQiLCJzZW50ZW5jZSI6IllvdSBkbyBub3QgaG9sZCB0aGUgcm9sZSB0aGlzIGFjdGlvbiByZXF1aXJlcy4ifQ=="
+}

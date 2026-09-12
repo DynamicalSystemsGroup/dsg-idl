@@ -1,0 +1,7 @@
+{
+  "profile": "dsg.core.google-identity/1",
+  "shape": "googleIdentity",
+  "name": "workspace-account",
+  "verdict": "accept",
+  "bytes": "eyJwcm9maWxlIjoiZHNnLmNvcmUuZ29vZ2xlLWlkZW50aXR5LzEiLCJpc3N1ZXIiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJnb29nbGVTdWJqZWN0IjoiYWNjb3VudHMuZ29vZ2xlLmNvbToxMDgxOTA1NzE1NDcyMDIyMDUzNjciLCJhdWRpZW5jZSI6ImRzZy1jb25zb2xlLXdlYiIsImhvc3RlZERvbWFpbiI6ImRzZy5leGFtcGxlIiwiZW1haWwiOiJzYXllcnRpbmRhbGxAZHNnLmV4YW1wbGUifQ=="
+}
