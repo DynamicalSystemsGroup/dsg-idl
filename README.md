@@ -48,6 +48,24 @@ Documents:
   `cd docs/auth-probe && npm ci && node probe.mjs`. No consumer repo may define a `dsg.*.*/N` literal;
   each consumer's CI greps its source for that pattern and fails on a hit.
 
+## Organization source declarations
+
+`dsg.organization.source/2` defines the closed organization root, Workspace
+Profile, project membership, capability selection, and Release declaration
+schemas. The required Workspace Profile carries the profile literal.
+`packages/idl/schema/dsg-organization-source-v2.json` validates the organization
+root; its definitions also expose the other declaration shapes. The frozen
+version-one organization shape is exported separately for explicit compatibility
+readers, not silently reinterpreted as version two.
+
+Kernel owns local filesystem containment, reference resolution, Profile
+requirements, and Release-selection/predecessor validation. These schemas do not
+perform I/O or create authority. Source compatibility does not compile a Build,
+verify supporting artifact formats or remote publisher trust, admit capabilities,
+activate a Release, or provision services. Consumers need a published IDL release
+containing these exports and coordinated dependency pins; a local proof tarball
+is not a release.
+
 ## Reproducible event stream seals
 
 The `dsg.run.event_1/digest/streamSeal-*.json` vectors contain base64 of actual

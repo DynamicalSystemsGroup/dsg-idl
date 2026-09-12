@@ -1,0 +1,623 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/DynamicalSystemsGroup/dsg-idl/schema/dsg-organization-source-v2.json",
+  "title": "dsg.organization.source/2",
+  "$defs": {
+    "organization": {
+      "additionalProperties": false,
+      "type": "object",
+      "required": ["schemaVersion", "kind", "org", "space", "owner", "purpose", "profile"],
+      "properties": {
+        "schemaVersion": {
+          "const": 2,
+          "type": "number"
+        },
+        "kind": {
+          "const": "organization",
+          "type": "string"
+        },
+        "org": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "space": {
+          "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*)+$",
+          "type": "string"
+        },
+        "owner": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["responsibility"],
+          "properties": {
+            "responsibility": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "qualification": {
+              "minLength": 1,
+              "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*//)(?!.*\\\\).+$",
+              "type": "string"
+            },
+            "designation": {
+              "minLength": 1,
+              "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*//)(?!.*\\\\).+$",
+              "type": "string"
+            }
+          }
+        },
+        "purpose": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "profile": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["document", "facts"],
+          "properties": {
+            "document": {
+              "minLength": 1,
+              "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*//)(?!.*\\\\).+$",
+              "type": "string"
+            },
+            "facts": {
+              "additionalProperties": false,
+              "type": "object",
+              "patternProperties": {
+                "^[a-z][a-z0-9-]*$": {
+                  "minLength": 1,
+                  "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*//)(?!.*\\\\).+$",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "identity": {
+          "additionalProperties": false,
+          "type": "object",
+          "properties": {
+            "principals": {
+              "minLength": 1,
+              "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*//)(?!.*\\\\).+$",
+              "type": "string"
+            },
+            "qualifications": {
+              "minLength": 1,
+              "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*//)(?!.*\\\\).+$",
+              "type": "string"
+            },
+            "designations": {
+              "minLength": 1,
+              "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*//)(?!.*\\\\).+$",
+              "type": "string"
+            },
+            "eligibility": {
+              "minLength": 1,
+              "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*//)(?!.*\\\\).+$",
+              "type": "string"
+            }
+          }
+        },
+        "policies": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["sources"],
+          "properties": {
+            "sources": {
+              "minItems": 1,
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "minLength": 1,
+                "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*//)(?!.*\\\\).+$",
+                "type": "string"
+              }
+            },
+            "release": {
+              "minLength": 1,
+              "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*//)(?!.*\\\\).+$",
+              "type": "string"
+            }
+          }
+        },
+        "vocabulary": {
+          "minLength": 1,
+          "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*//)(?!.*\\\\).+$",
+          "type": "string"
+        },
+        "admissions": {
+          "minLength": 1,
+          "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*//)(?!.*\\\\).+$",
+          "type": "string"
+        },
+        "projects": {
+          "uniqueItems": true,
+          "type": "array",
+          "items": {
+            "minLength": 1,
+            "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*//)(?!.*\\\\).+$",
+            "type": "string"
+          }
+        },
+        "capabilities": {
+          "uniqueItems": true,
+          "type": "array",
+          "items": {
+            "minLength": 1,
+            "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*//)(?!.*\\\\).+$",
+            "type": "string"
+          }
+        },
+        "instructions": {
+          "type": "array",
+          "items": {
+            "additionalProperties": false,
+            "type": "object",
+            "required": ["layer", "source", "provenance"],
+            "properties": {
+              "layer": {
+                "anyOf": [
+                  {
+                    "const": "constitution",
+                    "type": "string"
+                  },
+                  {
+                    "const": "profile",
+                    "type": "string"
+                  },
+                  {
+                    "const": "project",
+                    "type": "string"
+                  }
+                ]
+              },
+              "source": {
+                "minLength": 1,
+                "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*//)(?!.*\\\\).+$",
+                "type": "string"
+              },
+              "provenance": {
+                "minLength": 1,
+                "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*//)(?!.*\\\\).+$",
+                "type": "string"
+              }
+            }
+          }
+        },
+        "documents": {
+          "uniqueItems": true,
+          "type": "array",
+          "items": {
+            "minLength": 1,
+            "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*//)(?!.*\\\\).+$",
+            "type": "string"
+          }
+        },
+        "archive": {
+          "minLength": 1,
+          "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*//)(?!.*\\\\).+$",
+          "type": "string"
+        },
+        "releases": {
+          "uniqueItems": true,
+          "type": "array",
+          "items": {
+            "minLength": 1,
+            "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*//)(?!.*\\\\).+$",
+            "type": "string"
+          }
+        },
+        "deployment": {
+          "minLength": 1,
+          "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*//)(?!.*\\\\).+$",
+          "type": "string"
+        },
+        "source": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["repository", "ref", "subdirectory"],
+          "properties": {
+            "repository": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "ref": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "subdirectory": {
+              "minLength": 1,
+              "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*//)(?!.*\\\\).+$",
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "workspaceProfile": {
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "schemaVersion",
+        "kind",
+        "id",
+        "profile",
+        "version",
+        "requirements",
+        "allowedCapabilityOrigins",
+        "handling",
+        "readinessChecks"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "const": 1,
+          "type": "number"
+        },
+        "kind": {
+          "const": "workspace-profile",
+          "type": "string"
+        },
+        "id": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "profile": {
+          "const": "dsg.organization.source/2",
+          "type": "string"
+        },
+        "version": {
+          "pattern": "^[1-9][0-9]*\\.[0-9]+\\.[0-9]+$",
+          "type": "string"
+        },
+        "requirements": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["facts", "minimumProjects", "requiredCapabilities", "instructions"],
+          "properties": {
+            "facts": {
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "minimumProjects": {
+              "minimum": 0,
+              "maximum": 9007199254740991,
+              "type": "integer"
+            },
+            "requiredCapabilities": {
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "instructions": {
+              "type": "boolean"
+            }
+          }
+        },
+        "allowedCapabilityOrigins": {
+          "uniqueItems": true,
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "const": "workspace",
+                "type": "string"
+              },
+              {
+                "const": "official",
+                "type": "string"
+              },
+              {
+                "const": "curated",
+                "type": "string"
+              }
+            ]
+          }
+        },
+        "handling": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["required"],
+          "properties": {
+            "required": {
+              "type": "boolean"
+            }
+          }
+        },
+        "readinessChecks": {
+          "uniqueItems": true,
+          "type": "array",
+          "items": {
+            "minLength": 1,
+            "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*//)(?!.*\\\\).+$",
+            "type": "string"
+          }
+        }
+      }
+    },
+    "projectMembership": {
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "schemaVersion",
+        "kind",
+        "id",
+        "mode",
+        "source",
+        "role",
+        "contract",
+        "handling",
+        "state"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "const": 1,
+          "type": "number"
+        },
+        "kind": {
+          "const": "project-membership",
+          "type": "string"
+        },
+        "id": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "mode": {
+          "anyOf": [
+            {
+              "const": "managed",
+              "type": "string"
+            },
+            {
+              "const": "independent",
+              "type": "string"
+            }
+          ]
+        },
+        "source": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["repository", "revision"],
+          "properties": {
+            "repository": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "revision": {
+              "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$",
+              "type": "string"
+            }
+          }
+        },
+        "role": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "contract": {
+          "minLength": 1,
+          "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*//)(?!.*\\\\).+$",
+          "type": "string"
+        },
+        "handling": {
+          "minLength": 1,
+          "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*//)(?!.*\\\\).+$",
+          "type": "string"
+        },
+        "state": {
+          "anyOf": [
+            {
+              "const": "active",
+              "type": "string"
+            },
+            {
+              "const": "suspended",
+              "type": "string"
+            },
+            {
+              "const": "removed",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    "capabilitySelection": {
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "schemaVersion",
+        "kind",
+        "id",
+        "declaration",
+        "components",
+        "origin",
+        "dependencyLock",
+        "requiredDispositions"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "const": 1,
+          "type": "number"
+        },
+        "kind": {
+          "const": "capability-selection",
+          "type": "string"
+        },
+        "id": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "declaration": {
+          "minLength": 1,
+          "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*//)(?!.*\\\\).+$",
+          "type": "string"
+        },
+        "components": {
+          "uniqueItems": true,
+          "type": "array",
+          "items": {
+            "additionalProperties": false,
+            "type": "object",
+            "required": ["id", "reference"],
+            "properties": {
+              "id": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "reference": {
+                "minLength": 1,
+                "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*//)(?!.*\\\\).+$",
+                "type": "string"
+              }
+            }
+          }
+        },
+        "origin": {
+          "anyOf": [
+            {
+              "const": "workspace",
+              "type": "string"
+            },
+            {
+              "const": "official",
+              "type": "string"
+            },
+            {
+              "const": "curated",
+              "type": "string"
+            }
+          ]
+        },
+        "dependencyLock": {
+          "minLength": 1,
+          "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*//)(?!.*\\\\).+$",
+          "type": "string"
+        },
+        "requiredDispositions": {
+          "uniqueItems": true,
+          "type": "array",
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          }
+        }
+      }
+    },
+    "releaseDeclaration": {
+      "additionalProperties": false,
+      "type": "object",
+      "required": ["schemaVersion", "kind", "name", "selection", "members", "predecessors"],
+      "properties": {
+        "schemaVersion": {
+          "const": 1,
+          "type": "number"
+        },
+        "kind": {
+          "const": "release-declaration",
+          "type": "string"
+        },
+        "name": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "selection": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["projects", "capabilities"],
+          "properties": {
+            "projects": {
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "capabilities": {
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "minLength": 1,
+                "type": "string"
+              }
+            }
+          }
+        },
+        "members": {
+          "type": "array",
+          "items": {
+            "additionalProperties": false,
+            "type": "object",
+            "required": ["key", "artifact", "kind", "required", "acceptableDispositions"],
+            "properties": {
+              "key": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "artifact": {
+                "minLength": 1,
+                "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*//)(?!.*\\\\).+$",
+                "type": "string"
+              },
+              "kind": {
+                "anyOf": [
+                  {
+                    "const": "policy",
+                    "type": "string"
+                  },
+                  {
+                    "const": "capability-admission",
+                    "type": "string"
+                  },
+                  {
+                    "const": "workflow-publication",
+                    "type": "string"
+                  },
+                  {
+                    "const": "contract-check",
+                    "type": "string"
+                  },
+                  {
+                    "const": "target-readiness",
+                    "type": "string"
+                  },
+                  {
+                    "const": "setup-condition",
+                    "type": "string"
+                  }
+                ]
+              },
+              "required": {
+                "type": "boolean"
+              },
+              "acceptableDispositions": {
+                "minItems": 1,
+                "uniqueItems": true,
+                "type": "array",
+                "items": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "predecessors": {
+          "uniqueItems": true,
+          "type": "array",
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "$ref": "#/$defs/organization"
+}
