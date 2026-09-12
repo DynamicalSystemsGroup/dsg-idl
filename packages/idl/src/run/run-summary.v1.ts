@@ -37,6 +37,6 @@ export type RunSummary = Static<typeof RunSummarySchema>;
 
 export const runSummaryV1: ProfileEntry = {
   literal: RUN_SUMMARY_PROFILE,
-  rootShape: "summary",
-  shapes: { summary: RunSummarySchema },
+  rootDocument: "summary",
+  documents: { summary: RunSummarySchema },
 };

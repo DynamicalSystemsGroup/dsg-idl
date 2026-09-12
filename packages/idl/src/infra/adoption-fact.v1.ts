@@ -42,6 +42,6 @@ export type AdoptionFact = Static<typeof AdoptionFactSchema>;
 
 export const adoptionFactV1: ProfileEntry = {
   literal: ADOPTION_FACT_PROFILE,
-  rootShape: "fact",
-  shapes: { fact: AdoptionFactSchema },
+  rootDocument: "fact",
+  documents: { fact: AdoptionFactSchema },
 };

@@ -22,6 +22,6 @@ export type RunDecision = Static<typeof RunDecisionSchema>;
 
 export const decisionV1: ProfileEntry = {
   literal: DECISION_PROFILE,
-  rootShape: "decision",
-  shapes: { decision: RunDecisionSchema },
+  rootDocument: "decision",
+  documents: { decision: RunDecisionSchema },
 };

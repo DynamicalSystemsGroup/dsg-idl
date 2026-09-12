@@ -48,6 +48,6 @@ export type OrdinaryAuthority = Static<typeof OrdinaryAuthoritySchema>;
 
 export const ordinaryAuthorityV1: ProfileEntry = {
   literal: ORDINARY_AUTHORITY_PROFILE,
-  rootShape: "authority",
-  shapes: { authority: OrdinaryAuthoritySchema },
+  rootDocument: "authority",
+  documents: { authority: OrdinaryAuthoritySchema },
 };

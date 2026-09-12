@@ -83,5 +83,5 @@ export type RevocationPointer = Static<typeof RevocationPointerSchema>;
 
 export const revocationsV1: ProfileEntry = {
   literal: REVOCATIONS_PROFILE,
-  shapes: { snapshot: RevocationSchema, pointer: RevocationPointerSchema },
+  documents: { snapshot: RevocationSchema, pointer: RevocationPointerSchema },
 };

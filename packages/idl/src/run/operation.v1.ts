@@ -150,7 +150,7 @@ export type OperationStatus = Readback;
 
 export const operationV1: ProfileEntry = {
   literal: OPERATION_PROFILE,
-  shapes: {
+  documents: {
     request: OperationRequestSchema,
     accepted: AcceptedSchema,
     readback: ReadbackSchema,

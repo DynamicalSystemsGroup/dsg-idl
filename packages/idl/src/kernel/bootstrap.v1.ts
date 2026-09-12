@@ -64,5 +64,5 @@ export type SignedBootstrapIntent = Static<typeof SignedBootstrapIntentSchema>;
 
 export const bootstrapV1: ProfileEntry = {
   literal: BOOTSTRAP_PROFILE,
-  shapes: { intent: BootstrapIntentSchema, signed: SignedBootstrapIntentSchema },
+  documents: { intent: BootstrapIntentSchema, signed: SignedBootstrapIntentSchema },
 };

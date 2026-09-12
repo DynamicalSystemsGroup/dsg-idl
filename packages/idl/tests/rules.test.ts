@@ -6,6 +6,27 @@ import { describe, expect, it } from "vitest";
 import type { TSchema } from "@sinclair/typebox";
 import { PROFILES } from "../src/index.js";
 
+/** What these rules read out of a compiled TypeBox schema. Every field is
+ * the JSON Schema keyword of the same name. The schemas are walked through
+ * this view rather than through assertions: a serialized round trip parses
+ * the keywords once, at the boundary, and the walk below stays typed. */
+type SchemaView = {
+  type?: string;
+  properties?: Record<string, SchemaView>;
+  patternProperties?: Record<string, SchemaView>;
+  items?: SchemaView;
+  anyOf?: SchemaView[];
+  additionalProperties?: unknown;
+  pattern?: string;
+  const?: unknown;
+};
+function viewOf(schema: TSchema): SchemaView {
+  // SAFETY: a compiled TypeBox schema serializes to JSON Schema, so every
+  // field this view reads is a keyword of that output or absent. Nothing
+  // here dereferences a field without checking it first.
+  return JSON.parse(JSON.stringify(schema)) as SchemaView;
+}
+
 const HEX64 = "^[0-9a-f]{64}$";
 
 // Named debts: fields a frozen /1 keeps looser than the current rule.
@@ -34,30 +55,23 @@ const FROZEN_EXEMPTIONS = new Set([
 ]);
 const UTC_SECOND = "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$";
 
-type Node = { schema: TSchema; path: string };
+type Node = { schema: SchemaView; path: string };
 
-function walk(schema: TSchema, path: string): Node[] {
+function walk(schema: SchemaView, path: string): Node[] {
   const nodes: Node[] = [{ schema, path }];
-  const anySchema = schema as unknown as {
-    type?: string;
-    properties?: Record<string, TSchema>;
-    patternProperties?: Record<string, TSchema>;
-    items?: TSchema;
-    anyOf?: TSchema[];
-  };
-  if (anySchema.properties !== undefined) {
-    for (const [key, child] of Object.entries(anySchema.properties)) {
+  if (schema.properties !== undefined) {
+    for (const [key, child] of Object.entries(schema.properties)) {
       nodes.push(...walk(child, `${path}.${key}`));
     }
   }
-  if (anySchema.patternProperties !== undefined) {
-    for (const child of Object.values(anySchema.patternProperties)) {
+  if (schema.patternProperties !== undefined) {
+    for (const child of Object.values(schema.patternProperties)) {
       nodes.push(...walk(child, `${path}.*`));
     }
   }
-  if (anySchema.items !== undefined) nodes.push(...walk(anySchema.items, `${path}[]`));
-  if (anySchema.anyOf !== undefined) {
-    for (const [i, child] of anySchema.anyOf.entries()) {
+  if (schema.items !== undefined) nodes.push(...walk(schema.items, `${path}[]`));
+  if (schema.anyOf !== undefined) {
+    for (const [i, child] of schema.anyOf.entries()) {
       nodes.push(...walk(child, `${path}|${i}`));
     }
   }
@@ -67,10 +81,7 @@ function walk(schema: TSchema, path: string): Node[] {
 /** A TypeBox Record over unconstrained string keys emits patternProperties
  * whose pattern matches every key, so every property is value-constrained:
  * closed in effect without additionalProperties. */
-function isClosedRecord(schema: {
-  patternProperties?: Record<string, unknown>;
-  additionalProperties?: unknown;
-}): boolean {
+function isClosedRecord(schema: SchemaView): boolean {
   const patterns = Object.keys(schema.patternProperties ?? {});
   return patterns.length > 0 && patterns.every((p) => p === "^(.*)$" || p === "^.*$");
 }
@@ -90,35 +101,27 @@ describe("profile registry law", () => {
 
   it("closes every object at every level", () => {
     for (const [, entry] of entries) {
-      for (const [shapeName, shape] of Object.entries(entry.shapes)) {
-        for (const node of walk(shape, `${entry.literal}#${shapeName}`)) {
-          const anySchema = node.schema as unknown as {
-            type?: string;
-            additionalProperties?: unknown;
-            patternProperties?: Record<string, TSchema>;
-          };
-          if (anySchema.type === "object" && !isClosedRecord(anySchema)) {
-            expect(anySchema.additionalProperties, `${node.path} is open`).toBe(false);
+      for (const [documentName, document] of Object.entries(entry.documents)) {
+        for (const node of walk(viewOf(document), `${entry.literal}#${documentName}`)) {
+          if (node.schema.type === "object" && !isClosedRecord(node.schema)) {
+            expect(node.schema.additionalProperties, `${node.path} is open`).toBe(false);
           }
         }
       }
     }
   });
 
-  it("puts the profile literal on at least one shape, or names its carrier", () => {
+  it("puts the profile literal on at least one document, or names its carrier", () => {
     for (const [, entry] of entries) {
-      const carried = Object.values(entry.shapes).some((shape) => {
-        const anySchema = shape as unknown as {
-          properties?: Record<string, { const?: unknown }>;
-        };
-        return Object.values(anySchema.properties ?? {}).some(
+      const carried = Object.values(entry.documents).some((document) =>
+        Object.values(viewOf(document).properties ?? {}).some(
           (property) => property.const === entry.literal,
-        );
-      });
+        ),
+      );
       if (!carried) {
         expect(
           entry.literalNote,
-          `${entry.literal} carries its literal in no shape and names no carrier`,
+          `${entry.literal} carries its literal in no document and names no carrier`,
         ).toBeTruthy();
       }
     }
@@ -126,18 +129,14 @@ describe("profile registry law", () => {
 
   it("types every digest field as Hex64 and every timestamp as UtcSecond", () => {
     for (const [, entry] of entries) {
-      for (const [shapeName, shape] of Object.entries(entry.shapes)) {
-        for (const node of walk(shape, `${entry.literal}#${shapeName}`)) {
-          const anySchema = node.schema as unknown as {
-            pattern?: string;
-            anyOf?: { pattern?: string; type?: string }[];
-          };
+      for (const [documentName, document] of Object.entries(entry.documents)) {
+        for (const node of walk(viewOf(document), `${entry.literal}#${documentName}`)) {
           const leaf = node.path.split(".").at(-1) ?? "";
           // A union wrapper carries no pattern itself; its non-null arms must.
           const patterns =
-            anySchema.anyOf === undefined
-              ? [anySchema.pattern]
-              : anySchema.anyOf.filter((arm) => arm.type !== "null").map((arm) => arm.pattern);
+            node.schema.anyOf === undefined
+              ? [node.schema.pattern]
+              : node.schema.anyOf.filter((arm) => arm.type !== "null").map((arm) => arm.pattern);
           if (FROZEN_EXEMPTIONS.has(node.path)) continue;
           if (/(sha256|Sha256|Digest)$/.test(leaf)) {
             for (const pattern of patterns) {
