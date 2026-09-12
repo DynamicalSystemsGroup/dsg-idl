@@ -17,6 +17,7 @@
     "dsg.kernel.standing-order-activation/1": 4,
     "dsg.core.refusal/2": 11,
     "dsg.core.refusal/3": 15,
-    "dsg.core.google-identity/1": 5
+    "dsg.core.google-identity/1": 5,
+    "dsg.organization.source/2": 2
   }
 }

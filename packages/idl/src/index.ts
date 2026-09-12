@@ -153,6 +153,36 @@ export {
 export type { RefusalCodeV3, RefusalStageV3, RefusalV3 } from "./core/refusal.v3.js";
 export { IDENTITY_BINDING_PROFILE, IdentityBindingSchema } from "./core/identity-binding.v1.js";
 export type { IdentityBinding } from "./core/identity-binding.v1.js";
+export {
+  ORGANIZATION_SOURCE_PROFILE,
+  CapabilityOriginSchema,
+  CapabilitySelectionSchema,
+  OrganizationDocumentPathSchema,
+  OrganizationInstructionSchema,
+  OrganizationRootSchema,
+  OrganizationRootV1Schema,
+  OrganizationSourceLocationSchema,
+  OrganizationSpaceSchema,
+  ProjectMembershipSchema,
+  ProjectSourceSchema,
+  ReleaseDeclarationSchema,
+  ReleaseMemberKindSchema,
+  WorkspaceProfileSchema,
+} from "./organization/source.v2.js";
+export type {
+  CapabilityOrigin,
+  CapabilitySelection,
+  OrganizationInstruction,
+  OrganizationRoot,
+  OrganizationRootV1,
+  OrganizationSourceLocation,
+  OrganizationSourceLocationV1,
+  ProjectMembership,
+  ProjectSource,
+  ReleaseDeclaration,
+  ReleaseMemberKind,
+  WorkspaceProfile,
+} from "./organization/source.v2.js";
 
 import type { ProfileEntry } from "./primitives.js";
 import { dispatchConsumeV1 } from "./kernel/dispatch-consume.v1.js";
@@ -173,6 +203,7 @@ import { revocationsV1 } from "./registry/revocations.v1.js";
 import { bootstrapV1 } from "./kernel/bootstrap.v1.js";
 import { ordinaryAuthorityV1 } from "./kernel/ordinary-authority.v1.js";
 import { standingOrderActivationV1 } from "./kernel/standing-order-activation.v1.js";
+import { organizationSourceV2 } from "./organization/source.v2.js";
 /** Every profile this version of the package defines, keyed by literal.
  * Profile modules are added here as they are extracted; the rules test
  * and the schema emitter walk this registry, so a module that is not
@@ -196,4 +227,5 @@ export const PROFILES = {
   [bootstrapV1.literal]: bootstrapV1,
   [ordinaryAuthorityV1.literal]: ordinaryAuthorityV1,
   [standingOrderActivationV1.literal]: standingOrderActivationV1,
+  [organizationSourceV2.literal]: organizationSourceV2,
 } satisfies Readonly<Record<string, ProfileEntry>>;
