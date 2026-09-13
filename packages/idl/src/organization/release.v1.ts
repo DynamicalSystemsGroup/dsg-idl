@@ -15,6 +15,7 @@ import { ExtensionComponentKindSchema } from "../extension/release.v1.js";
 
 export const ORGANIZATION_RELEASE_PROFILE = "dsg.organization.release/1" as const;
 export const ORGANIZATION_RELEASE_CANONICALIZATION = "RFC8785-JCS-UTF8" as const;
+export const ORGANIZATION_COMPILER_PROFILE = "dsg.organization.compiler/1" as const;
 const Identifier = Type.String({ pattern: "^[a-z][a-z0-9-]*(?:[.-][a-z0-9]+)*$" });
 const Revision = Type.String({ pattern: "^(?:[0-9a-f]{40}|[0-9a-f]{64})$" });
 const Identifiers = () => Type.Array(Identifier, { uniqueItems: true });

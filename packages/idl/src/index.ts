@@ -237,6 +237,7 @@ export type {
 export {
   ORGANIZATION_RELEASE_PROFILE,
   ORGANIZATION_RELEASE_CANONICALIZATION,
+  ORGANIZATION_COMPILER_PROFILE,
   CompilerContractSchema,
   DependencyKindSchema,
   DependencyLockEntrySchema,
