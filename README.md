@@ -107,6 +107,7 @@ linked worktrees share the installed hook and its tooling. The hook does not fix
 Run `just knip` (or `pnpm knip`) to report unused files, exports, and dependencies.
 
 `knip.json` suppresses one category of false positives:
+
 - `tools/oxlint/**`: vendored oxlint plugin loaded by the linter by plugin name, not by TypeScript import.
 
 Remaining findings after those suppressions are real. Resolve them before they accumulate.
