@@ -56,3 +56,7 @@ release-version version:
 # Prepare, check, merge the delivery PR, tag, and wait for verified publication.
 release version:
     node scripts/release.mjs ship {{quote(version)}}
+
+# Report unused files, exports, and dependencies. Findings are real; see docs/tooling.md.
+knip:
+    pnpm exec knip

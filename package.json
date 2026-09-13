@@ -9,13 +9,15 @@
     "lint": "pnpm -r lint",
     "format": "oxfmt .",
     "format:check": "oxfmt --check .",
-    "test": "pnpm -r test"
+    "test": "pnpm -r test",
+    "knip": "knip"
   },
   "devDependencies": {
     "@fast-check/vitest": "catalog:",
     "@sinclair/typebox": "catalog:",
     "@types/node": "catalog:",
     "fast-check": "catalog:",
+    "knip": "6.35.1",
     "oxfmt": "catalog:",
     "oxlint": "catalog:",
     "oxlint-tsgolint": "catalog:",

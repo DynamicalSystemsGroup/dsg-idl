@@ -1,0 +1,19 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "workspaces": {
+    ".": {
+      "entry": ["scripts/*.{ts,mjs,sh}"],
+      "project": ["scripts/**/*.{ts,mjs}"]
+    }
+  },
+  "ignoreDependencies": [
+    "@fast-check/vitest",
+    "fast-check",
+    "oxlint",
+    "oxlint-tsgolint",
+    "tsdown",
+    "tsx",
+    "vitest"
+  ],
+  "ignoreBinaries": ["just"]
+}
