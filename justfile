@@ -21,6 +21,7 @@ check:
     pnpm -r lint
     pnpm exec oxfmt --check .
     pnpm -r test
+    just conform
     node --test scripts/release.test.mjs
 
 test:

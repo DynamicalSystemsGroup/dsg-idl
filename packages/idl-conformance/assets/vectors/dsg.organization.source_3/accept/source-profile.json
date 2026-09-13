@@ -1,0 +1,8 @@
+{
+  "profile": "dsg.organization.source/3",
+  "shape": "profile",
+  "name": "source-profile",
+  "verdict": "accept",
+  "rule": "source-profile",
+  "bytes": "eyJzY2hlbWFWZXJzaW9uIjozLCJraW5kIjoid29ya3NwYWNlLXByb2ZpbGUiLCJwcm9maWxlIjoiZHNnLm9yZ2FuaXphdGlvbi5zb3VyY2UvMyIsImlkIjoibWluaW1hbCIsInZlcnNpb24iOiIwLjEuMCIsInJlcXVpcmVtZW50cyI6eyJmYWN0cyI6W10sIm1pbmltdW1Qcm9qZWN0cyI6MCwicmVxdWlyZWRTZWxlY3Rpb25zIjpbXSwiaW5zdHJ1Y3Rpb25zIjpmYWxzZX0sImFsbG93ZWRPcmlnaW5zIjpbIndvcmtzcGFjZSJdLCJzb3VyY2VDaGVja3MiOltdfQ=="
+}

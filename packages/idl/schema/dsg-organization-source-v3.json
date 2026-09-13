@@ -1,0 +1,794 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/DynamicalSystemsGroup/dsg-idl/schema/dsg-organization-source-v3.json",
+  "title": "dsg.organization.source/3",
+  "$defs": {
+    "organization": {
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "schemaVersion",
+        "kind",
+        "org",
+        "space",
+        "purpose",
+        "profile",
+        "projects",
+        "capabilities",
+        "dependencyLocks",
+        "releases",
+        "instructions",
+        "documents"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "const": 3,
+          "type": "number"
+        },
+        "kind": {
+          "const": "organization",
+          "type": "string"
+        },
+        "org": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "space": {
+          "pattern": "^[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*)+$",
+          "type": "string"
+        },
+        "purpose": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "profile": {
+          "minLength": 1,
+          "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*//)(?!.*\\\\).+$",
+          "type": "string"
+        },
+        "projects": {
+          "uniqueItems": true,
+          "type": "array",
+          "items": {
+            "minLength": 1,
+            "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*//)(?!.*\\\\).+$",
+            "type": "string"
+          }
+        },
+        "capabilities": {
+          "uniqueItems": true,
+          "type": "array",
+          "items": {
+            "minLength": 1,
+            "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*//)(?!.*\\\\).+$",
+            "type": "string"
+          }
+        },
+        "dependencyLocks": {
+          "uniqueItems": true,
+          "type": "array",
+          "items": {
+            "minLength": 1,
+            "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*//)(?!.*\\\\).+$",
+            "type": "string"
+          }
+        },
+        "releases": {
+          "uniqueItems": true,
+          "type": "array",
+          "items": {
+            "minLength": 1,
+            "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*//)(?!.*\\\\).+$",
+            "type": "string"
+          }
+        },
+        "instructions": {
+          "uniqueItems": true,
+          "type": "array",
+          "items": {
+            "minLength": 1,
+            "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*//)(?!.*\\\\).+$",
+            "type": "string"
+          }
+        },
+        "documents": {
+          "uniqueItems": true,
+          "type": "array",
+          "items": {
+            "minLength": 1,
+            "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*//)(?!.*\\\\).+$",
+            "type": "string"
+          }
+        },
+        "archive": {
+          "minLength": 1,
+          "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*//)(?!.*\\\\).+$",
+          "type": "string"
+        },
+        "source": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["repository", "ref", "subdirectory"],
+          "properties": {
+            "repository": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "ref": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "subdirectory": {
+              "minLength": 1,
+              "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*//)(?!.*\\\\).+$",
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "profile": {
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "schemaVersion",
+        "kind",
+        "profile",
+        "id",
+        "version",
+        "requirements",
+        "allowedOrigins",
+        "sourceChecks"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "const": 3,
+          "type": "number"
+        },
+        "kind": {
+          "const": "workspace-profile",
+          "type": "string"
+        },
+        "profile": {
+          "const": "dsg.organization.source/3",
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^[a-z][a-z0-9-]*(?:[.-][a-z0-9]+)*$",
+          "type": "string"
+        },
+        "version": {
+          "pattern": "^(?:0|[1-9][0-9]*)\\.[0-9]+\\.[0-9]+$",
+          "type": "string"
+        },
+        "requirements": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["facts", "minimumProjects", "requiredSelections", "instructions"],
+          "properties": {
+            "facts": {
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "minimumProjects": {
+              "minimum": 0,
+              "type": "integer"
+            },
+            "requiredSelections": {
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "pattern": "^[a-z][a-z0-9-]*(?:[.-][a-z0-9]+)*$",
+                "type": "string"
+              }
+            },
+            "instructions": {
+              "type": "boolean"
+            }
+          }
+        },
+        "allowedOrigins": {
+          "minItems": 1,
+          "uniqueItems": true,
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "const": "workspace",
+                "type": "string"
+              },
+              {
+                "const": "official",
+                "type": "string"
+              },
+              {
+                "const": "curated",
+                "type": "string"
+              }
+            ]
+          }
+        },
+        "sourceChecks": {
+          "uniqueItems": true,
+          "type": "array",
+          "items": {
+            "minLength": 1,
+            "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*//)(?!.*\\\\).+$",
+            "type": "string"
+          }
+        }
+      }
+    },
+    "project": {
+      "additionalProperties": false,
+      "type": "object",
+      "required": ["schemaVersion", "kind", "id", "source", "contract", "handling"],
+      "properties": {
+        "schemaVersion": {
+          "const": 3,
+          "type": "number"
+        },
+        "kind": {
+          "const": "project-membership",
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^[a-z][a-z0-9-]*(?:[.-][a-z0-9]+)*$",
+          "type": "string"
+        },
+        "source": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["repository", "revision"],
+          "properties": {
+            "repository": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "revision": {
+              "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$",
+              "type": "string"
+            }
+          }
+        },
+        "contract": {
+          "minLength": 1,
+          "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*//)(?!.*\\\\).+$",
+          "type": "string"
+        },
+        "handling": {
+          "minLength": 1,
+          "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*//)(?!.*\\\\).+$",
+          "type": "string"
+        }
+      }
+    },
+    "capabilitySelection": {
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "schemaVersion",
+        "kind",
+        "id",
+        "release",
+        "memberIds",
+        "origin",
+        "dependencyLock",
+        "requiredDispositions",
+        "authoredOverlays"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "const": 3,
+          "type": "number"
+        },
+        "kind": {
+          "const": "capability-selection",
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^[a-z][a-z0-9-]*(?:[.-][a-z0-9]+)*$",
+          "type": "string"
+        },
+        "release": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["orn", "sha256"],
+          "properties": {
+            "orn": {
+              "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+              "type": "string"
+            },
+            "sha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            }
+          }
+        },
+        "memberIds": {
+          "minItems": 1,
+          "uniqueItems": true,
+          "type": "array",
+          "items": {
+            "pattern": "^[a-z][a-z0-9-]*(?:[.-][a-z0-9]+)*$",
+            "type": "string"
+          }
+        },
+        "origin": {
+          "anyOf": [
+            {
+              "const": "workspace",
+              "type": "string"
+            },
+            {
+              "const": "official",
+              "type": "string"
+            },
+            {
+              "const": "curated",
+              "type": "string"
+            }
+          ]
+        },
+        "dependencyLock": {
+          "minLength": 1,
+          "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*//)(?!.*\\\\).+$",
+          "type": "string"
+        },
+        "requiredDispositions": {
+          "minItems": 1,
+          "uniqueItems": true,
+          "type": "array",
+          "items": {
+            "additionalProperties": false,
+            "type": "object",
+            "required": ["kind", "required", "acceptable"],
+            "properties": {
+              "kind": {
+                "anyOf": [
+                  {
+                    "const": "publication",
+                    "type": "string"
+                  },
+                  {
+                    "const": "import",
+                    "type": "string"
+                  },
+                  {
+                    "const": "admission",
+                    "type": "string"
+                  },
+                  {
+                    "const": "target",
+                    "type": "string"
+                  },
+                  {
+                    "const": "check",
+                    "type": "string"
+                  },
+                  {
+                    "const": "setup",
+                    "type": "string"
+                  },
+                  {
+                    "const": "paid-execution",
+                    "type": "string"
+                  }
+                ]
+              },
+              "required": {
+                "type": "boolean"
+              },
+              "acceptable": {
+                "uniqueItems": true,
+                "type": "array",
+                "items": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "authoredOverlays": {
+          "uniqueItems": true,
+          "type": "array",
+          "items": {
+            "additionalProperties": false,
+            "type": "object",
+            "required": ["id", "document", "sha256", "mediaType"],
+            "properties": {
+              "id": {
+                "pattern": "^[a-z][a-z0-9-]*(?:[.-][a-z0-9]+)*$",
+                "type": "string"
+              },
+              "document": {
+                "minLength": 1,
+                "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*//)(?!.*\\\\).+$",
+                "type": "string"
+              },
+              "sha256": {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              },
+              "mediaType": {
+                "minLength": 1,
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "dependencyLock": {
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "profile",
+        "schemaVersion",
+        "kind",
+        "canonicalization",
+        "roots",
+        "entries",
+        "compiler"
+      ],
+      "properties": {
+        "profile": {
+          "const": "dsg.organization.release/1",
+          "type": "string"
+        },
+        "schemaVersion": {
+          "const": 1,
+          "type": "number"
+        },
+        "kind": {
+          "const": "dependency-lock",
+          "type": "string"
+        },
+        "canonicalization": {
+          "const": "RFC8785-JCS-UTF8",
+          "type": "string"
+        },
+        "roots": {
+          "uniqueItems": true,
+          "type": "array",
+          "items": {
+            "pattern": "^[a-z][a-z0-9-]*(?:[.-][a-z0-9]+)*$",
+            "type": "string"
+          }
+        },
+        "entries": {
+          "uniqueItems": true,
+          "type": "array",
+          "items": {
+            "additionalProperties": false,
+            "type": "object",
+            "required": ["id", "kind", "reference", "mediaType", "selectedMemberIds", "dependsOn"],
+            "properties": {
+              "id": {
+                "pattern": "^[a-z][a-z0-9-]*(?:[.-][a-z0-9]+)*$",
+                "type": "string"
+              },
+              "kind": {
+                "anyOf": [
+                  {
+                    "const": "extension-release",
+                    "type": "string"
+                  },
+                  {
+                    "const": "component",
+                    "type": "string"
+                  },
+                  {
+                    "const": "idl-package",
+                    "type": "string"
+                  },
+                  {
+                    "const": "module-release",
+                    "type": "string"
+                  },
+                  {
+                    "const": "law-release",
+                    "type": "string"
+                  },
+                  {
+                    "const": "definition",
+                    "type": "string"
+                  },
+                  {
+                    "const": "workload-artifact",
+                    "type": "string"
+                  },
+                  {
+                    "const": "event-catalog",
+                    "type": "string"
+                  },
+                  {
+                    "const": "example",
+                    "type": "string"
+                  },
+                  {
+                    "const": "project",
+                    "type": "string"
+                  },
+                  {
+                    "const": "target",
+                    "type": "string"
+                  }
+                ]
+              },
+              "reference": {
+                "additionalProperties": false,
+                "type": "object",
+                "required": ["orn", "sha256"],
+                "properties": {
+                  "orn": {
+                    "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                    "type": "string"
+                  },
+                  "sha256": {
+                    "pattern": "^[0-9a-f]{64}$",
+                    "type": "string"
+                  }
+                }
+              },
+              "mediaType": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "selectedMemberIds": {
+                "uniqueItems": true,
+                "type": "array",
+                "items": {
+                  "pattern": "^[a-z][a-z0-9-]*(?:[.-][a-z0-9]+)*$",
+                  "type": "string"
+                }
+              },
+              "dependsOn": {
+                "uniqueItems": true,
+                "type": "array",
+                "items": {
+                  "pattern": "^[a-z][a-z0-9-]*(?:[.-][a-z0-9]+)*$",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "compiler": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["profile", "version", "implementation"],
+          "properties": {
+            "profile": {
+              "pattern": "^dsg\\.[a-z0-9.-]+/[1-9][0-9]*$",
+              "type": "string"
+            },
+            "version": {
+              "pattern": "^(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)\\.(?:0|[1-9][0-9]*)$",
+              "type": "string"
+            },
+            "implementation": {
+              "additionalProperties": false,
+              "type": "object",
+              "required": ["orn", "sha256"],
+              "properties": {
+                "orn": {
+                  "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                  "type": "string"
+                },
+                "sha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "releaseMember": {
+      "additionalProperties": false,
+      "type": "object",
+      "required": ["id", "kind", "required", "acceptableDispositions", "subject"],
+      "properties": {
+        "id": {
+          "pattern": "^[a-z][a-z0-9-]*(?:[.-][a-z0-9]+)*$",
+          "type": "string"
+        },
+        "kind": {
+          "anyOf": [
+            {
+              "const": "publication",
+              "type": "string"
+            },
+            {
+              "const": "import",
+              "type": "string"
+            },
+            {
+              "const": "capability-admission",
+              "type": "string"
+            },
+            {
+              "const": "workflow-publication",
+              "type": "string"
+            },
+            {
+              "const": "contract-check",
+              "type": "string"
+            },
+            {
+              "const": "target-readiness",
+              "type": "string"
+            },
+            {
+              "const": "setup-condition",
+              "type": "string"
+            },
+            {
+              "const": "paid-execution-readiness",
+              "type": "string"
+            }
+          ]
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "acceptableDispositions": {
+          "minItems": 1,
+          "uniqueItems": true,
+          "type": "array",
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "subject": {
+          "minLength": 1,
+          "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*//)(?!.*\\\\).+$",
+          "type": "string"
+        }
+      }
+    },
+    "releaseDeclaration": {
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "schemaVersion",
+        "kind",
+        "id",
+        "dependencyLock",
+        "selections",
+        "members",
+        "acceptance"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "const": 3,
+          "type": "number"
+        },
+        "kind": {
+          "const": "organization-release-declaration",
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^[a-z][a-z0-9-]*(?:[.-][a-z0-9]+)*$",
+          "type": "string"
+        },
+        "dependencyLock": {
+          "minLength": 1,
+          "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*//)(?!.*\\\\).+$",
+          "type": "string"
+        },
+        "selections": {
+          "uniqueItems": true,
+          "type": "array",
+          "items": {
+            "pattern": "^[a-z][a-z0-9-]*(?:[.-][a-z0-9]+)*$",
+            "type": "string"
+          }
+        },
+        "members": {
+          "minItems": 1,
+          "uniqueItems": true,
+          "type": "array",
+          "items": {
+            "additionalProperties": false,
+            "type": "object",
+            "required": ["id", "kind", "required", "acceptableDispositions", "subject"],
+            "properties": {
+              "id": {
+                "pattern": "^[a-z][a-z0-9-]*(?:[.-][a-z0-9]+)*$",
+                "type": "string"
+              },
+              "kind": {
+                "anyOf": [
+                  {
+                    "const": "publication",
+                    "type": "string"
+                  },
+                  {
+                    "const": "import",
+                    "type": "string"
+                  },
+                  {
+                    "const": "capability-admission",
+                    "type": "string"
+                  },
+                  {
+                    "const": "workflow-publication",
+                    "type": "string"
+                  },
+                  {
+                    "const": "contract-check",
+                    "type": "string"
+                  },
+                  {
+                    "const": "target-readiness",
+                    "type": "string"
+                  },
+                  {
+                    "const": "setup-condition",
+                    "type": "string"
+                  },
+                  {
+                    "const": "paid-execution-readiness",
+                    "type": "string"
+                  }
+                ]
+              },
+              "required": {
+                "type": "boolean"
+              },
+              "acceptableDispositions": {
+                "minItems": 1,
+                "uniqueItems": true,
+                "type": "array",
+                "items": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "subject": {
+                "minLength": 1,
+                "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*//)(?!.*\\\\).+$",
+                "type": "string"
+              }
+            }
+          }
+        },
+        "acceptance": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["requiredMembers", "acceptableDispositions"],
+          "properties": {
+            "requiredMembers": {
+              "minItems": 1,
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "pattern": "^[a-z][a-z0-9-]*(?:[.-][a-z0-9]+)*$",
+                "type": "string"
+              }
+            },
+            "acceptableDispositions": {
+              "minItems": 1,
+              "uniqueItems": true,
+              "type": "array",
+              "items": {
+                "minLength": 1,
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "$ref": "#/$defs/organization"
+}

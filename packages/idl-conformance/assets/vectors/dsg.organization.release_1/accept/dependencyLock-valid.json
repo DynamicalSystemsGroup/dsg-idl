@@ -1,0 +1,8 @@
+{
+  "profile": "dsg.organization.release/1",
+  "shape": "dependencyLock",
+  "name": "dependencyLock-valid",
+  "verdict": "accept",
+  "rule": "dependencyLock-valid",
+  "bytes": "eyJwcm9maWxlIjoiZHNnLm9yZ2FuaXphdGlvbi5yZWxlYXNlLzEiLCJzY2hlbWFWZXJzaW9uIjoxLCJraW5kIjoiZGVwZW5kZW5jeS1sb2NrIiwiY2Fub25pY2FsaXphdGlvbiI6IlJGQzg3ODUtSkNTLVVURjgiLCJyb290cyI6W10sImVudHJpZXMiOltdLCJjb21waWxlciI6eyJwcm9maWxlIjoiZHNnLm9yZ2FuaXphdGlvbi5jb21waWxlci8xIiwidmVyc2lvbiI6IjAuMS4wIiwiaW1wbGVtZW50YXRpb24iOnsib3JuIjoib3JuOmRzZy5jb3JlLmFydGlmYWN0LmRvY3VtZW50OmNvbXBpbGVyIiwic2hhMjU2IjoiMzhlYTg0MWM5ODVlYzE0MmZkYjZhZTdiOGQ0YWI2YTBjMDliN2MwOTI5YTcwZDYwYzg1YjhlZjliMzM2ZWY1OSJ9fX0="
+}

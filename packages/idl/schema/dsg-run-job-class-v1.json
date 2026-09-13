@@ -1,0 +1,295 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/DynamicalSystemsGroup/dsg-idl/schema/dsg-run-job-class-v1.json",
+  "title": "dsg.run.job-class/1",
+  "$defs": {
+    "jobClass": {
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "profile",
+        "schemaVersion",
+        "kind",
+        "id",
+        "executor",
+        "mode",
+        "modeEnvironmentVariable",
+        "workloadArtifact",
+        "platforms",
+        "isolation",
+        "inputContracts",
+        "outputContracts",
+        "eventCatalog",
+        "decisionRequirements",
+        "bounds",
+        "handling",
+        "retention",
+        "completion",
+        "teardown",
+        "evidence",
+        "replay"
+      ],
+      "properties": {
+        "profile": {
+          "const": "dsg.run.job-class/1",
+          "type": "string"
+        },
+        "schemaVersion": {
+          "const": 1,
+          "type": "number"
+        },
+        "kind": {
+          "const": "job-class",
+          "type": "string"
+        },
+        "id": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "executor": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "mode": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "modeEnvironmentVariable": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "workloadArtifact": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["orn", "sha256"],
+          "properties": {
+            "orn": {
+              "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+              "type": "string"
+            },
+            "sha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            }
+          }
+        },
+        "platforms": {
+          "minItems": 1,
+          "uniqueItems": true,
+          "type": "array",
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "isolation": {
+          "anyOf": [
+            {
+              "const": "ephemeral",
+              "type": "string"
+            },
+            {
+              "const": "dedicated",
+              "type": "string"
+            }
+          ]
+        },
+        "inputContracts": {
+          "minItems": 1,
+          "uniqueItems": true,
+          "type": "array",
+          "items": {
+            "additionalProperties": false,
+            "type": "object",
+            "required": ["orn", "sha256"],
+            "properties": {
+              "orn": {
+                "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                "type": "string"
+              },
+              "sha256": {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              }
+            }
+          }
+        },
+        "outputContracts": {
+          "minItems": 1,
+          "uniqueItems": true,
+          "type": "array",
+          "items": {
+            "additionalProperties": false,
+            "type": "object",
+            "required": ["orn", "sha256"],
+            "properties": {
+              "orn": {
+                "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                "type": "string"
+              },
+              "sha256": {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              }
+            }
+          }
+        },
+        "eventCatalog": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["orn", "sha256"],
+          "properties": {
+            "orn": {
+              "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+              "type": "string"
+            },
+            "sha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            }
+          }
+        },
+        "decisionRequirements": {
+          "minItems": 1,
+          "uniqueItems": true,
+          "type": "array",
+          "items": {
+            "additionalProperties": false,
+            "type": "object",
+            "required": ["orn", "sha256"],
+            "properties": {
+              "orn": {
+                "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+                "type": "string"
+              },
+              "sha256": {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              }
+            }
+          }
+        },
+        "bounds": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["maxRunSeconds", "maxGpuSeconds", "maxParallelism", "maxUsdMicroUnits"],
+          "properties": {
+            "maxRunSeconds": {
+              "minimum": 0,
+              "maximum": 9007199254740991,
+              "type": "integer"
+            },
+            "maxGpuSeconds": {
+              "minimum": 0,
+              "maximum": 9007199254740991,
+              "type": "integer"
+            },
+            "maxParallelism": {
+              "minimum": 0,
+              "maximum": 9007199254740991,
+              "type": "integer"
+            },
+            "maxUsdMicroUnits": {
+              "minimum": 0,
+              "maximum": 9007199254740991,
+              "type": "integer"
+            }
+          }
+        },
+        "handling": {
+          "anyOf": [
+            {
+              "const": "public",
+              "type": "string"
+            },
+            {
+              "const": "restricted",
+              "type": "string"
+            },
+            {
+              "const": "confidential",
+              "type": "string"
+            }
+          ]
+        },
+        "retention": {
+          "anyOf": [
+            {
+              "const": "ephemeral",
+              "type": "string"
+            },
+            {
+              "const": "bounded",
+              "type": "string"
+            },
+            {
+              "const": "durable",
+              "type": "string"
+            }
+          ]
+        },
+        "completion": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["orn", "sha256"],
+          "properties": {
+            "orn": {
+              "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+              "type": "string"
+            },
+            "sha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            }
+          }
+        },
+        "teardown": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["orn", "sha256"],
+          "properties": {
+            "orn": {
+              "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+              "type": "string"
+            },
+            "sha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            }
+          }
+        },
+        "evidence": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["orn", "sha256"],
+          "properties": {
+            "orn": {
+              "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+              "type": "string"
+            },
+            "sha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            }
+          }
+        },
+        "replay": {
+          "additionalProperties": false,
+          "type": "object",
+          "required": ["orn", "sha256"],
+          "properties": {
+            "orn": {
+              "pattern": "^orn:[a-z][a-z0-9-]*(?:\\.[a-z][a-z0-9-]*){3}:(?:[A-Za-z0-9\\-._~:/@]|%[0-9A-Fa-f]{2})+$",
+              "type": "string"
+            },
+            "sha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  },
+  "$ref": "#/$defs/jobClass"
+}
