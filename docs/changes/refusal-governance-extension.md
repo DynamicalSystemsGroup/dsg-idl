@@ -35,3 +35,25 @@ current `/3` body; a consumer that ignores the two fields is unaffected.
 - The kernel keeps carrying its own reason strings in `code` verbatim when
   no `RefusalCodeV3` value fits; that rule is already in force and is not
   changed here.
+
+## Observed conflict: the published code union is closed
+
+`RefusalV3Schema` in `@dynamicalsystems/idl` 0.14.0 types `code` as the
+eight-value `RefusalCodeV3` union, and the conformance vector
+`dsg.core.refusal_3/reject/refusal-unknown-code.json` rejects any other
+value. Both producers rely on the rule quoted above and send their own
+codes verbatim: the kernel's `RefusalReason` values (`identity`, `gate`,
+`scope`, `token`, and the rest) and the plane's `session_expired`,
+`unauthorized`, and `identity_incompatible`. Checked on 2026-09-14 with
+`Value.Check(RefusalV3Schema, body)`: a plane 401 with code
+`session_expired` and all five required fields is rejected by the shared
+schema; the same body with `not_qualified` is accepted.
+
+The consumer-facing package schemas (`PlaneRefusalSchema`,
+`RefusalResponseSchema`) type `code` as a non-empty string, so a consumer
+pinning those packages parses every producer body. A consumer validating
+against the shared schema does not. This request should settle whether
+`code` is open (any non-empty string, with the shared union as the
+recommended vocabulary) or closed (in which case both producers must map
+their reasons onto it). Until then, producer conformance against the
+published vectors is limited to the fields other than `code`.
