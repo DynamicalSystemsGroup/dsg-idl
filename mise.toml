@@ -1,0 +1,7 @@
+# One toolchain per machine. Identical across the stack's repositories.
+[tools]
+node = "24.18.0"
+pnpm = "11.22.0"
+opentofu = "1.10.6"
+jq = "latest"
+gh = "latest"
