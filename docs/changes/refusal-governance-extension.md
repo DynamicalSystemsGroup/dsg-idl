@@ -20,10 +20,10 @@ Extend the refusal document as `dsg.core.refusal/4` (or as an additive
 extension to `/3`, whichever the IDL owners prefer) with two optional
 fields:
 
-| Field | Type | Presence | Meaning |
-| --- | --- | --- | --- |
-| `recordId` | hex string, 64 lowercase characters (sha256) | optional | the record stream the refusal is about, when the refusal concerns one specific record |
-| `decisionId` | non-empty string | optional | the decision attempt the refusal is about, when the route is a decision route |
+| Field        | Type                                         | Presence | Meaning                                                                               |
+| ------------ | -------------------------------------------- | -------- | ------------------------------------------------------------------------------------- |
+| `recordId`   | hex string, 64 lowercase characters (sha256) | optional | the record stream the refusal is about, when the refusal concerns one specific record |
+| `decisionId` | non-empty string                             | optional | the decision attempt the refusal is about, when the route is a decision route         |
 
 Both stay optional. A refusal without governance context is exactly the
 current `/3` body; a consumer that ignores the two fields is unaffected.
